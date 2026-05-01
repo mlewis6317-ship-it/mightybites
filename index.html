@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MightyBites — Mockups</title>
+<title>MightyBites</title>
 <style>
   :root {
     --sun-1: #FFE2A8; --sun-2: #FFB774; --sun-3: #FF8A5C;
@@ -14,6 +14,97 @@
     --line: rgba(42, 36, 64, 0.10);
     --shadow: 0 10px 30px rgba(42, 36, 64, 0.12);
   }
+  /* ============ FAMILY SETUP OVERLAY ============ */
+  .setup-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(180deg, #FFF1D6 0%, #FFD8B4 50%, #FFB897 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .setup-card {
+    background: white; border-radius: 24px;
+    padding: 36px 32px;
+    box-shadow: 0 20px 60px rgba(42, 36, 64, 0.25);
+    max-width: 460px; width: 100%;
+    text-align: center;
+  }
+  .setup-logo {
+    width: 64px; height: 64px; border-radius: 18px;
+    background: var(--berry); color: white;
+    font-size: 32px; font-weight: 900;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 24px rgba(232, 74, 111, 0.3);
+    margin-bottom: 16px;
+  }
+  .setup-celebrate { font-size: 56px; margin-bottom: 8px; }
+  .setup-title { margin: 0 0 8px; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif; }
+  .setup-sub { margin: 0 0 24px; font-size: 14px; opacity: 0.65; line-height: 1.5; color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif; }
+  .setup-modes {
+    display: flex; gap: 6px; padding: 4px;
+    background: #FFF6E5; border-radius: 12px;
+    margin-bottom: 20px;
+  }
+  .setup-mode {
+    flex: 1; padding: 10px 12px; border-radius: 8px;
+    background: transparent; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 800; color: var(--ink);
+  }
+  .setup-mode.active { background: var(--ink); color: white; }
+  .setup-label {
+    display: block; font-size: 11px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    opacity: 0.6; margin-bottom: 6px; text-align: left;
+  }
+  .setup-input {
+    width: 100%; padding: 14px 16px;
+    background: #FFF6E5; border: 1px solid var(--line);
+    border-radius: 12px; font-size: 16px; font-weight: 600;
+    color: var(--ink); margin-bottom: 16px;
+    text-align: center; letter-spacing: 1px;
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  }
+  .setup-input:focus { outline: none; border-color: var(--berry); }
+  .setup-cta {
+    width: 100%; padding: 16px;
+    background: var(--berry); color: white;
+    border: none; border-radius: 14px;
+    font-size: 16px; font-weight: 800; cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .setup-cta:hover { transform: translateY(-1px); }
+  .setup-cta:disabled { opacity: 0.5; cursor: not-allowed; }
+  .setup-status {
+    margin-top: 12px; font-size: 13px; font-weight: 700;
+    min-height: 18px; opacity: 0.85;
+    color: var(--ink);
+  }
+  .setup-status.error { color: #B43320; }
+  .setup-status.success { color: var(--leaf); }
+  .setup-code-display {
+    background: linear-gradient(135deg, var(--ink), #4A3D6F);
+    color: white; padding: 22px;
+    border-radius: 16px; margin: 20px 0;
+    font-size: 28px; font-weight: 900;
+    letter-spacing: 3px;
+    box-shadow: 0 10px 28px rgba(42, 36, 64, 0.3);
+  }
+  .setup-copy {
+    width: 100%; padding: 12px;
+    background: transparent; border: 1px solid var(--line);
+    border-radius: 12px; font-size: 14px; font-weight: 700;
+    color: var(--ink); cursor: pointer; margin-bottom: 12px;
+  }
+  .setup-copy.copied { background: var(--leaf); color: white; border-color: var(--leaf); }
+
+  /* Family code pill in header */
+  .header-family {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 12px; padding: 8px 14px;
+    text-align: right; cursor: pointer;
+  }
+  .hf-lbl { font-size: 9px; font-weight: 800; opacity: 0.55; text-transform: uppercase; letter-spacing: 0.5px; }
+  .hf-code { font-size: 13px; font-weight: 900; letter-spacing: 1px; color: var(--berry); }
+
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
     margin: 0; padding: 0;
@@ -1741,12 +1832,57 @@
 </style>
 </head>
 <body>
-<div class="stage">
+
+<!-- ============ FAMILY SETUP OVERLAY (shown until family is configured) ============ -->
+<div id="mb-setup" class="setup-overlay" style="display: none;">
+  <div class="setup-card">
+    <div class="setup-logo">M</div>
+    <h1 class="setup-title">Welcome to MightyBites</h1>
+    <p class="setup-sub">Set up your family or join one already created.</p>
+
+    <div class="setup-modes">
+      <button class="setup-mode active" data-mode="create">✨ Create new family</button>
+      <button class="setup-mode" data-mode="join">🔗 Join with code</button>
+    </div>
+
+    <div class="setup-pane" id="setup-pane-create">
+      <label class="setup-label">Family name (optional)</label>
+      <input class="setup-input" id="setup-fname" placeholder="The Lewis Family" />
+      <button class="setup-cta" id="setup-create-btn">Create family →</button>
+    </div>
+
+    <div class="setup-pane" id="setup-pane-join" style="display: none;">
+      <label class="setup-label">Family code</label>
+      <input class="setup-input" id="setup-code" placeholder="MIGHTY-RIVER-42" autocapitalize="characters" />
+      <button class="setup-cta" id="setup-join-btn">Join family →</button>
+    </div>
+
+    <div class="setup-status" id="setup-status"></div>
+  </div>
+</div>
+
+<!-- Family-created success modal -->
+<div id="mb-success" class="setup-overlay" style="display: none;">
+  <div class="setup-card">
+    <div class="setup-celebrate">🎉</div>
+    <h1 class="setup-title">Family created!</h1>
+    <p class="setup-sub">Share this code with anyone in your family. They'll enter it on their device to sync up.</p>
+    <div class="setup-code-display" id="mb-code-display">MIGHTY-RIVER-42</div>
+    <button class="setup-copy" id="mb-copy-btn">📋 Copy code</button>
+    <button class="setup-cta" id="mb-success-cta">Open MightyBites →</button>
+  </div>
+</div>
+
+<div class="stage" id="mb-app" style="display: none;">
   <div class="header">
     <div class="logo">M</div>
-    <div>
-      <h1>MightyBites — Mockups</h1>
+    <div style="flex: 1;">
+      <h1>MightyBites</h1>
       <p>Tap a tab to switch screens. Designed for iPad landscape.</p>
+    </div>
+    <div class="header-family" id="header-family" style="display: none;">
+      <div class="hf-lbl">Family code</div>
+      <div class="hf-code" id="hf-code">—</div>
     </div>
   </div>
 
@@ -3704,5 +3840,186 @@
     });
   });
 </script>
+
+<!-- ============ FIREBASE: family code auth + cloud sync ============ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+  import { getFirestore, collection, doc, setDoc, getDoc, query, where, getDocs, serverTimestamp, arrayUnion, updateDoc } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAXaK4xqNVh_2pn9tLrQ90tHChTc-ayXAw",
+    authDomain: "mightybites.firebaseapp.com",
+    projectId: "mightybites",
+    storageBucket: "mightybites.firebasestorage.app",
+    messagingSenderId: "420582150124",
+    appId: "1:420582150124:web:e7b42ea3a97ec043a0bac9"
+  };
+
+  const fb = initializeApp(firebaseConfig);
+  const db = getFirestore(fb);
+  const auth = getAuth(fb);
+
+  // Friendly family code generator: ADJ-NOUN-NN
+  const ADJS = ['MIGHTY','BRAVE','SUNNY','SWIFT','JOLLY','COZY','BOLD','SUPER','LUCKY','HAPPY','CLEVER','PROUD'];
+  const NOUNS = ['RIVER','OAK','STAR','MOON','SUN','PEAK','WAVE','BEAR','FOX','LION','CLOUD','LAKE'];
+  function genCode() {
+    const a = ADJS[Math.floor(Math.random() * ADJS.length)];
+    const n = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+    const num = Math.floor(Math.random() * 90) + 10;
+    return `${a}-${n}-${num}`;
+  }
+
+  async function findFamilyByCode(code) {
+    const q = query(collection(db, 'families'), where('code', '==', code.trim().toUpperCase()));
+    const snap = await getDocs(q);
+    if (snap.empty) return null;
+    const d = snap.docs[0];
+    return { id: d.id, ...d.data() };
+  }
+
+  async function createFamily(name) {
+    // Generate a unique code (retry on collision, very unlikely)
+    let code, exists, tries = 0;
+    do {
+      code = genCode();
+      exists = await findFamilyByCode(code);
+      tries++;
+    } while (exists && tries < 5);
+    if (exists) throw new Error("Couldn't generate a unique code, try again");
+    const ref = doc(collection(db, 'families'));
+    await setDoc(ref, {
+      code,
+      name: name || 'My Family',
+      createdAt: serverTimestamp(),
+      createdBy: auth.currentUser.uid,
+      members: [auth.currentUser.uid]
+    });
+    return { id: ref.id, code, name };
+  }
+
+  async function joinFamily(code) {
+    const fam = await findFamilyByCode(code);
+    if (!fam) throw new Error("No family found with that code");
+    if (!fam.members.includes(auth.currentUser.uid)) {
+      await updateDoc(doc(db, 'families', fam.id), {
+        members: arrayUnion(auth.currentUser.uid)
+      });
+    }
+    return fam;
+  }
+
+  function showApp(family) {
+    localStorage.setItem('mb_familyId', family.id);
+    localStorage.setItem('mb_familyCode', family.code);
+    localStorage.setItem('mb_familyName', family.name || '');
+    document.getElementById('mb-setup').style.display = 'none';
+    document.getElementById('mb-success').style.display = 'none';
+    document.getElementById('mb-app').style.display = '';
+    const hf = document.getElementById('header-family');
+    if (hf) {
+      hf.style.display = '';
+      document.getElementById('hf-code').textContent = family.code;
+    }
+  }
+
+  function showSetup() {
+    document.getElementById('mb-setup').style.display = '';
+    document.getElementById('mb-app').style.display = 'none';
+  }
+
+  function setStatus(msg, kind) {
+    const el = document.getElementById('setup-status');
+    el.textContent = msg || '';
+    el.className = 'setup-status' + (kind ? ' ' + kind : '');
+  }
+
+  // Mode toggle
+  document.querySelectorAll('.setup-mode').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.setup-mode').forEach(x => x.classList.remove('active'));
+      btn.classList.add('active');
+      const mode = btn.dataset.mode;
+      document.getElementById('setup-pane-create').style.display = mode === 'create' ? '' : 'none';
+      document.getElementById('setup-pane-join').style.display = mode === 'join' ? '' : 'none';
+      setStatus('');
+    });
+  });
+
+  // Create family flow
+  document.getElementById('setup-create-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('setup-create-btn');
+    const name = document.getElementById('setup-fname').value.trim();
+    btn.disabled = true;
+    setStatus('Creating your family…');
+    try {
+      const family = await createFamily(name);
+      // Show success modal with code
+      document.getElementById('mb-setup').style.display = 'none';
+      document.getElementById('mb-success').style.display = '';
+      document.getElementById('mb-code-display').textContent = family.code;
+      document.getElementById('mb-success-cta').onclick = () => showApp(family);
+      document.getElementById('mb-copy-btn').onclick = async () => {
+        try {
+          await navigator.clipboard.writeText(family.code);
+          const c = document.getElementById('mb-copy-btn');
+          c.textContent = '✓ Copied!';
+          c.classList.add('copied');
+          setTimeout(() => { c.textContent = '📋 Copy code'; c.classList.remove('copied'); }, 1600);
+        } catch {}
+      };
+    } catch (e) {
+      setStatus(e.message || 'Something went wrong', 'error');
+      btn.disabled = false;
+    }
+  });
+
+  // Join family flow
+  document.getElementById('setup-join-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('setup-join-btn');
+    const code = document.getElementById('setup-code').value.trim().toUpperCase();
+    if (!code) { setStatus('Enter a family code', 'error'); return; }
+    btn.disabled = true;
+    setStatus('Looking up family…');
+    try {
+      const family = await joinFamily(code);
+      setStatus('Joined! Loading…', 'success');
+      setTimeout(() => showApp(family), 600);
+    } catch (e) {
+      setStatus(e.message || 'No family found with that code', 'error');
+      btn.disabled = false;
+    }
+  });
+
+  // On auth ready: check if we already have a family stored locally
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    const familyId = localStorage.getItem('mb_familyId');
+    if (familyId) {
+      // Verify the family still exists
+      try {
+        const snap = await getDoc(doc(db, 'families', familyId));
+        if (snap.exists()) {
+          showApp({ id: snap.id, ...snap.data() });
+          return;
+        } else {
+          localStorage.removeItem('mb_familyId');
+          localStorage.removeItem('mb_familyCode');
+        }
+      } catch (e) {
+        console.error('Error loading family:', e);
+      }
+    }
+    showSetup();
+  });
+
+  // Sign in anonymously on page load
+  signInAnonymously(auth).catch(err => {
+    console.error('Auth error:', err);
+    setStatus('Connection failed. Check your network and reload.', 'error');
+    showSetup();
+  });
+</script>
+
 </body>
 </html>

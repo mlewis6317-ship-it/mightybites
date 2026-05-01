@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MightyBites — Mockups</title>
+<title>MightyBites</title>
 <style>
   :root {
     --sun-1: #FFE2A8; --sun-2: #FFB774; --sun-3: #FF8A5C;
@@ -14,6 +14,97 @@
     --line: rgba(42, 36, 64, 0.10);
     --shadow: 0 10px 30px rgba(42, 36, 64, 0.12);
   }
+  /* ============ FAMILY SETUP OVERLAY ============ */
+  .setup-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(180deg, #FFF1D6 0%, #FFD8B4 50%, #FFB897 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .setup-card {
+    background: white; border-radius: 24px;
+    padding: 36px 32px;
+    box-shadow: 0 20px 60px rgba(42, 36, 64, 0.25);
+    max-width: 460px; width: 100%;
+    text-align: center;
+  }
+  .setup-logo {
+    width: 64px; height: 64px; border-radius: 18px;
+    background: var(--berry); color: white;
+    font-size: 32px; font-weight: 900;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 24px rgba(232, 74, 111, 0.3);
+    margin-bottom: 16px;
+  }
+  .setup-celebrate { font-size: 56px; margin-bottom: 8px; }
+  .setup-title { margin: 0 0 8px; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif; }
+  .setup-sub { margin: 0 0 24px; font-size: 14px; opacity: 0.65; line-height: 1.5; color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif; }
+  .setup-modes {
+    display: flex; gap: 6px; padding: 4px;
+    background: #FFF6E5; border-radius: 12px;
+    margin-bottom: 20px;
+  }
+  .setup-mode {
+    flex: 1; padding: 10px 12px; border-radius: 8px;
+    background: transparent; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 800; color: var(--ink);
+  }
+  .setup-mode.active { background: var(--ink); color: white; }
+  .setup-label {
+    display: block; font-size: 11px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    opacity: 0.6; margin-bottom: 6px; text-align: left;
+  }
+  .setup-input {
+    width: 100%; padding: 14px 16px;
+    background: #FFF6E5; border: 1px solid var(--line);
+    border-radius: 12px; font-size: 16px; font-weight: 600;
+    color: var(--ink); margin-bottom: 16px;
+    text-align: center; letter-spacing: 1px;
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  }
+  .setup-input:focus { outline: none; border-color: var(--berry); }
+  .setup-cta {
+    width: 100%; padding: 16px;
+    background: var(--berry); color: white;
+    border: none; border-radius: 14px;
+    font-size: 16px; font-weight: 800; cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .setup-cta:hover { transform: translateY(-1px); }
+  .setup-cta:disabled { opacity: 0.5; cursor: not-allowed; }
+  .setup-status {
+    margin-top: 12px; font-size: 13px; font-weight: 700;
+    min-height: 18px; opacity: 0.85;
+    color: var(--ink);
+  }
+  .setup-status.error { color: #B43320; }
+  .setup-status.success { color: var(--leaf); }
+  .setup-code-display {
+    background: linear-gradient(135deg, var(--ink), #4A3D6F);
+    color: white; padding: 22px;
+    border-radius: 16px; margin: 20px 0;
+    font-size: 28px; font-weight: 900;
+    letter-spacing: 3px;
+    box-shadow: 0 10px 28px rgba(42, 36, 64, 0.3);
+  }
+  .setup-copy {
+    width: 100%; padding: 12px;
+    background: transparent; border: 1px solid var(--line);
+    border-radius: 12px; font-size: 14px; font-weight: 700;
+    color: var(--ink); cursor: pointer; margin-bottom: 12px;
+  }
+  .setup-copy.copied { background: var(--leaf); color: white; border-color: var(--leaf); }
+
+  /* Family code pill in header */
+  .header-family {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 12px; padding: 8px 14px;
+    text-align: right; cursor: pointer;
+  }
+  .hf-lbl { font-size: 9px; font-weight: 800; opacity: 0.55; text-transform: uppercase; letter-spacing: 0.5px; }
+  .hf-code { font-size: 13px; font-weight: 900; letter-spacing: 1px; color: var(--berry); }
+
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
     margin: 0; padding: 0;
@@ -1741,12 +1832,57 @@
 </style>
 </head>
 <body>
-<div class="stage">
+
+<!-- ============ FAMILY SETUP OVERLAY (shown until family is configured) ============ -->
+<div id="mb-setup" class="setup-overlay" style="display: none;">
+  <div class="setup-card">
+    <div class="setup-logo">M</div>
+    <h1 class="setup-title">Welcome to MightyBites</h1>
+    <p class="setup-sub">Set up your family or join one already created.</p>
+
+    <div class="setup-modes">
+      <button class="setup-mode active" data-mode="create">✨ Create new family</button>
+      <button class="setup-mode" data-mode="join">🔗 Join with code</button>
+    </div>
+
+    <div class="setup-pane" id="setup-pane-create">
+      <label class="setup-label">Family name (optional)</label>
+      <input class="setup-input" id="setup-fname" placeholder="The Lewis Family" />
+      <button class="setup-cta" id="setup-create-btn">Create family →</button>
+    </div>
+
+    <div class="setup-pane" id="setup-pane-join" style="display: none;">
+      <label class="setup-label">Family code</label>
+      <input class="setup-input" id="setup-code" placeholder="MIGHTY-RIVER-42" autocapitalize="characters" />
+      <button class="setup-cta" id="setup-join-btn">Join family →</button>
+    </div>
+
+    <div class="setup-status" id="setup-status"></div>
+  </div>
+</div>
+
+<!-- Family-created success modal -->
+<div id="mb-success" class="setup-overlay" style="display: none;">
+  <div class="setup-card">
+    <div class="setup-celebrate">🎉</div>
+    <h1 class="setup-title">Family created!</h1>
+    <p class="setup-sub">Share this code with anyone in your family. They'll enter it on their device to sync up.</p>
+    <div class="setup-code-display" id="mb-code-display">MIGHTY-RIVER-42</div>
+    <button class="setup-copy" id="mb-copy-btn">📋 Copy code</button>
+    <button class="setup-cta" id="mb-success-cta">Open MightyBites →</button>
+  </div>
+</div>
+
+<div class="stage" id="mb-app" style="display: none;">
   <div class="header">
     <div class="logo">M</div>
-    <div>
-      <h1>MightyBites — Mockups</h1>
+    <div style="flex: 1;">
+      <h1>MightyBites</h1>
       <p>Tap a tab to switch screens. Designed for iPad landscape.</p>
+    </div>
+    <div class="header-family" id="header-family" style="display: none;">
+      <div class="hf-lbl">Family code</div>
+      <div class="hf-code" id="hf-code">—</div>
     </div>
   </div>
 
@@ -3605,104 +3741,4 @@
     });
   });
 
-  // Tap a leaderboard row → switch to meal log (kitchen-home flow)
-  document.querySelectorAll('.lb-row, .lb-log-btn').forEach(el => {
-    el.addEventListener('click', (e) => {
-      e.stopPropagation();
-      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-      document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
-      document.querySelector('[data-view="meal"]').classList.add('active');
-      document.getElementById('view-meal').classList.add('active');
-    });
-  });
-
-  // Init meal log to veggies
-  renderFoods('veggies');
-
-  // ============ Wrapped slides (kid recap) ============
-  const slides = [
-    { eyebrow: "Emma's Week · Apr 20–26", html: `
-      <div style="text-align: center;">
-        <div class="avatar-bubble big" style="margin: 0 auto 16px;">🦖</div>
-        <h1 class="wrap-card-title" style="text-align:center;">Hey Emma!</h1>
-        <p class="wrap-card-sub" style="margin: 0 auto; text-align:center;">Your week was epic. Let's see what your dino did.</p>
-      </div>` },
-    { eyebrow: "Strength gained", html: `
-      <div style="text-align: center;">
-        <div class="stat-mega">+540</div>
-        <p class="wrap-card-sub" style="margin: 0 auto 16px; text-align:center;">strength points · your biggest week ever 🎉</p>
-        <div class="avatar-stage">
-          <div class="avatar-step"><div class="avatar-bubble small">🦎</div><div class="avatar-tag">LAST WEEK</div></div>
-          <div class="avatar-arrow">→</div>
-          <div class="avatar-step"><div class="avatar-bubble big">🦖</div><div class="avatar-tag">NOW</div></div>
-        </div>
-      </div>` },
-    { eyebrow: "Strongest day", html: `
-      <h1 class="wrap-card-title">Tuesday was<br/>your power day.</h1>
-      <p class="wrap-card-sub">You logged every food group AND made your bed. Nobody was stopping you.</p>
-      <div class="day-bars">
-        <div class="day-bar"><div class="bar" style="height: 30%;"></div><div class="lbl">M</div></div>
-        <div class="day-bar win"><div class="bar" style="height: 100%;"></div><div class="lbl">T</div></div>
-        <div class="day-bar"><div class="bar" style="height: 55%;"></div><div class="lbl">W</div></div>
-        <div class="day-bar"><div class="bar" style="height: 70%;"></div><div class="lbl">T</div></div>
-        <div class="day-bar"><div class="bar" style="height: 45%;"></div><div class="lbl">F</div></div>
-        <div class="day-bar"><div class="bar" style="height: 80%;"></div><div class="lbl">S</div></div>
-        <div class="day-bar"><div class="bar" style="height: 60%;"></div><div class="lbl">S</div></div>
-      </div>` },
-    { eyebrow: "Top food group", html: `
-      <h1 class="wrap-card-title">Dairy ruled<br/>your week. 🥛</h1>
-      <p class="wrap-card-sub">95% of the time. Bones and muscles, big thank-you.</p>
-      <div class="food-row">
-        <div class="food-tile"><div class="ico">🥛</div><div class="lbl">Dairy</div><div class="pct">95%</div></div>
-        <div class="food-tile"><div class="ico">🍞</div><div class="lbl">Grains</div><div class="pct">85%</div></div>
-        <div class="food-tile"><div class="ico">🍗</div><div class="lbl">Protein</div><div class="pct">80%</div></div>
-        <div class="food-tile"><div class="ico">🍎</div><div class="lbl">Fruit</div><div class="pct">75%</div></div>
-        <div class="food-tile"><div class="ico">🥦</div><div class="lbl">Veggies</div><div class="pct">22%</div></div>
-      </div>` },
-    { eyebrow: "Brave bites", html: `
-      <h1 class="wrap-card-title">You tried 3 new<br/>foods this week!</h1>
-      <p class="wrap-card-sub">Your taste buds got a workout. Bonus +60 XP.</p>
-      <div class="food-row" style="margin-top: 24px;">
-        <div class="food-tile"><div class="ico">🥑</div><div class="lbl">Avocado</div><div class="pct">+20</div></div>
-        <div class="food-tile"><div class="ico">🐟</div><div class="lbl">Salmon</div><div class="pct">+20</div></div>
-        <div class="food-tile"><div class="ico">🌶️</div><div class="lbl">Bell pepper</div><div class="pct">+20</div></div>
-      </div>` },
-    { eyebrow: "Final score", html: `
-      <div style="text-align: center;">
-        <h1 class="wrap-card-title" style="text-align:center;">You're a<br/>Champion Dino. 👑</h1>
-        <p class="wrap-card-sub" style="margin: 0 auto 12px; text-align: center;">2 levels up · #1 in the family this week</p>
-        <div class="avatar-bubble big" style="margin: 12px auto;">🦖</div>
-        <button class="wrap-btn" style="margin-top: 8px;">Share with family 📤</button>
-      </div>` }
-  ];
-  let s = 0;
-  const slot = document.getElementById('wrap-slot');
-  const dots = document.getElementById('wrap-dots');
-  const eyebrow = document.getElementById('wrap-eyebrow');
-  const pn = document.getElementById('wrap-pn');
-  function render() {
-    slot.innerHTML = slides[s].html;
-    eyebrow.textContent = slides[s].eyebrow;
-    pn.textContent = (s + 1).toString();
-    dots.innerHTML = slides.map((_, i) => `<div class="wrap-dot ${i === s ? 'active' : ''}"></div>`).join('');
-  }
-  document.getElementById('wrap-next').addEventListener('click', () => { s = (s + 1) % slides.length; render(); });
-  document.getElementById('wrap-prev').addEventListener('click', () => { s = (s - 1 + slides.length) % slides.length; render(); });
-  render();
-
-  // Chores tile interactions
-  document.querySelectorAll('.ch-tile').forEach(t => {
-    t.addEventListener('click', () => {
-      document.querySelectorAll('.ch-tile').forEach(x => x.classList.remove('editing'));
-      if (!t.classList.contains('add')) t.classList.add('editing');
-    });
-  });
-  document.querySelectorAll('.icon-pick').forEach(i => {
-    i.addEventListener('click', () => {
-      document.querySelectorAll('.icon-pick').forEach(x => x.classList.remove('sel'));
-      i.classList.add('sel');
-    });
-  });
-</script>
-</body>
-</html>
+  // Tap a leaderboard row → switch to meal log (kitchen-ho
