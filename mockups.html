@@ -1,0 +1,3708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MightyBites — Mockups</title>
+<style>
+  :root {
+    --sun-1: #FFE2A8; --sun-2: #FFB774; --sun-3: #FF8A5C;
+    --grass: #6CC36A; --leaf: #2E8B57;
+    --berry: #E84A6F; --grape: #8E5BD9; --sky: #5BB8FF;
+    --queasy: #8FB94B; --sick: #5C8A2A;
+    --ink: #2A2440; --soft: #FFF6E5; --paper: #FFFFFF;
+    --line: rgba(42, 36, 64, 0.10);
+    --shadow: 0 10px 30px rgba(42, 36, 64, 0.12);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
+    color: var(--ink);
+    background: linear-gradient(180deg, #FFF1D6 0%, #FFD8B4 50%, #FFB897 100%);
+    min-height: 100vh; overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  .stage { max-width: 1280px; margin: 0 auto; padding: 16px; }
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .logo { width: 44px; height: 44px; border-radius: 12px; background: var(--berry); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 22px; box-shadow: var(--shadow); }
+  .header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .header p { margin: 0; font-size: 13px; opacity: 0.6; }
+
+  .tabs {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    background: rgba(255,255,255,0.6); padding: 6px; border-radius: 16px;
+    margin-bottom: 16px; backdrop-filter: blur(10px);
+  }
+  .tab {
+    flex: 1; min-width: 90px; padding: 10px 12px;
+    border: none; border-radius: 12px; background: transparent; color: var(--ink);
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+  }
+  .tab:hover { background: rgba(255,255,255,0.5); }
+  .tab.active { background: var(--ink); color: var(--sun-1); box-shadow: 0 6px 16px rgba(42,36,64,0.25); }
+
+  .ipad { background: #1a1424; border-radius: 32px; padding: 14px; box-shadow: 0 30px 60px rgba(42,36,64,0.25); margin: 0 auto; }
+  .screen { background: linear-gradient(180deg, #FFE7B8 0%, #FFB99A 100%); border-radius: 22px; position: relative; overflow: hidden; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* Avatar mood system */
+  .ava-shell {
+    width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #FFFFFF, #FFD8B4 60%, #FFB774);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 140px; position: relative;
+    box-shadow: 0 14px 30px rgba(42,36,64,0.18), inset 0 -6px 20px rgba(232,74,111,0.15);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  .ava-shell.strong {
+    background: radial-gradient(circle at 35% 30%, #FFFFFF, #FFE3A0 60%, #FFB774);
+    box-shadow: 0 14px 30px rgba(42,36,64,0.18), inset 0 -6px 20px rgba(232,74,111,0.15), 0 0 0 8px rgba(255, 235, 130, 0.5), 0 0 60px rgba(255, 200, 80, 0.4);
+    transform: scale(1.08);
+  }
+  .ava-shell.queasy {
+    background: radial-gradient(circle at 35% 30%, #F5FFE3, #C5E08A 60%, #8FB94B);
+    box-shadow: 0 14px 30px rgba(74,90,30,0.25), inset 0 -6px 20px rgba(74,90,30,0.2);
+    animation: wobble 1.4s ease-in-out infinite;
+  }
+  .ava-shell.sick {
+    background: radial-gradient(circle at 35% 30%, #E8F0D2, #9DB571 60%, #5C8A2A);
+    box-shadow: 0 14px 30px rgba(54,70,20,0.35), inset 0 -10px 30px rgba(40,60,15,0.4);
+    animation: tilt 2s ease-in-out infinite;
+    filter: saturate(0.7);
+  }
+  .ava-shell.weak {
+    transform: scale(0.85);
+    filter: saturate(0.6) brightness(0.92);
+    animation: bob 3.2s ease-in-out infinite;
+  }
+  @keyframes wobble { 0%,100% { transform: translate(0,0) rotate(0); } 25% { transform: translate(-3px,-2px) rotate(-2deg); } 75% { transform: translate(3px,-2px) rotate(2deg); } }
+  @keyframes tilt { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+  .ava-shell .crown { position: absolute; top: -16px; right: 14px; font-size: 44px; transform: rotate(12deg); }
+  .ava-shell .sweat {
+    position: absolute; top: 22%; right: 14%;
+    font-size: 28px; opacity: 0; transition: opacity 0.3s;
+  }
+  .ava-shell.queasy .sweat, .ava-shell.sick .sweat { opacity: 1; }
+  .ava-shell.sick .sweat { font-size: 36px; }
+  .ava-shell.small { width: 130px; height: 130px; font-size: 80px; }
+
+  /* ============ KID PROFILE ============ */
+  .profile { padding: 22px 28px; display: flex; flex-direction: column; gap: 18px; background: linear-gradient(180deg, #FFF6E5 0%, #FFD8B4 100%); }
+  .profile-top { display: flex; align-items: center; justify-content: space-between; }
+  .pf-back { display: flex; align-items: center; gap: 8px; background: var(--paper); padding: 8px 14px 8px 8px; border-radius: 999px; font-weight: 700; font-size: 14px; border: 1px solid var(--line); }
+  .pf-back .av { width: 28px; height: 28px; border-radius: 50%; background: var(--sun-2); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .pf-meta { display: flex; gap: 10px; align-items: center; }
+  .pf-streak { background: var(--paper); border: 1px solid var(--line); padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+  .pf-trust {
+    background: linear-gradient(135deg, #FFF1ED, #FFE2A8);
+    border: 1px solid #E0B850;
+    padding: 8px 14px; border-radius: 999px;
+    font-size: 14px; font-weight: 800;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .pf-trust b { color: var(--berry); }
+  .pf-gear { width: 40px; height: 40px; border-radius: 50%; background: var(--paper); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  /* Weekly goal widget */
+  .weekly-goal {
+    background: var(--paper); border-radius: 20px; padding: 16px 18px;
+    border: 1px solid var(--line);
+    display: grid; grid-template-columns: 1.6fr 1fr; gap: 18px;
+    align-items: center;
+  }
+  .wg-title { font-size: 12px; font-weight: 800; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; }
+  .wg-big { font-size: 36px; font-weight: 900; line-height: 1; margin: 4px 0; letter-spacing: -1px; }
+  .wg-big span { font-size: 16px; font-weight: 700; opacity: 0.5; letter-spacing: 0; }
+  .wg-meta { font-size: 13px; font-weight: 700; opacity: 0.75; }
+  .wg-bar {
+    height: 16px; border-radius: 8px; background: #FFE3C2;
+    margin-top: 10px; position: relative; overflow: hidden;
+  }
+  .wg-bar-fill {
+    height: 100%; border-radius: 8px;
+    background: linear-gradient(90deg, var(--berry), var(--sun-3));
+  }
+  .wg-bar-target {
+    position: absolute; top: -3px; bottom: -3px; left: 100%;
+    width: 3px; background: var(--leaf);
+    box-shadow: 0 0 0 2px white;
+    transform: translateX(-3px);
+  }
+  .wg-axis {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    margin-top: 6px; font-size: 10px; font-weight: 700; opacity: 0.5;
+  }
+  .wg-axis span { text-align: center; }
+  .wg-right { border-left: 1px solid var(--line); padding-left: 16px; }
+  .wg-delta { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .wg-delta-arrow {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #DDF5DA; color: #2C7A20;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 900;
+  }
+  .wg-delta-num { font-size: 20px; font-weight: 900; color: #2C7A20; line-height: 1; }
+  .wg-delta-lbl { font-size: 11px; font-weight: 700; opacity: 0.6; }
+  .wg-spark { display: flex; align-items: flex-end; gap: 6px; height: 40px; }
+  .spark-bar { flex: 1; background: #FFE3C2; border-radius: 4px 4px 2px 2px; }
+  .spark-bar.now { background: var(--berry); }
+  .wg-spark-lbl { font-size: 10px; opacity: 0.5; font-weight: 700; margin-top: 4px; text-align: center; }
+
+  .pf-stage { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; align-items: center; }
+  .pf-avatar-col { display: flex; flex-direction: column; align-items: center; }
+  .pf-bubble {
+    background: white; border-radius: 22px;
+    padding: 14px 18px; font-size: 17px; font-weight: 700; line-height: 1.35;
+    border: 2px solid var(--ink); box-shadow: var(--shadow);
+    max-width: 280px; position: relative; margin-bottom: 8px; text-align: center;
+  }
+  .pf-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 10px solid var(--ink); }
+  .pf-bubble .lead { color: var(--berry); }
+  .pf-stage-label { margin-top: 10px; background: var(--ink); color: white; padding: 6px 16px; border-radius: 999px; font-size: 13px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+  .pf-swap {
+    margin-top: 8px; background: transparent; border: 1px solid var(--ink);
+    padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 700;
+    color: var(--ink); cursor: pointer;
+  }
+  .pf-stats { display: flex; flex-direction: column; gap: 14px; }
+  .pf-strength { background: var(--paper); border-radius: 18px; padding: 14px 16px; border: 1px solid var(--line); }
+  .pf-strength-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .pf-strength-row .lbl { font-size: 12px; font-weight: 800; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pf-strength-row .v { font-size: 18px; font-weight: 800; }
+  .pf-bar { height: 18px; border-radius: 9px; background: #FFE3C2; overflow: hidden; position: relative; }
+  .pf-bar-fill { height: 100%; width: 77%; background: linear-gradient(90deg, var(--berry), #FF8A5C); border-radius: 9px; }
+  .pf-stage-arrow { font-size: 12px; opacity: 0.65; margin-top: 6px; }
+  .pf-rings { background: var(--paper); border-radius: 18px; padding: 14px 16px; border: 1px solid var(--line); }
+  .pf-rings h4 { margin: 0 0 10px; font-size: 14px; font-weight: 800; }
+  .pf-rings .sub { font-size: 11px; opacity: 0.6; font-weight: 600; }
+  .ring-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 10px; }
+  .ring-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .ring-svg { width: 50px; height: 50px; }
+  .ring-bg { fill: none; stroke: #FFE3C2; stroke-width: 8; }
+  .ring-fg { fill: none; stroke-width: 8; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; }
+  .ring-cell .ico { font-size: 20px; position: absolute; }
+  .ring-wrap { position: relative; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; }
+  .ring-cell .nm { font-size: 11px; font-weight: 700; opacity: 0.8; }
+  .ring-cell .pr { font-size: 11px; font-weight: 800; }
+  .ring-cell.alert .pr { color: var(--berry); }
+  .ring-cell.junk .pr { color: var(--queasy); }
+  /* Profile badges strip */
+  .profile-badges {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 18px; padding: 14px 16px;
+  }
+  .pb-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .pb-head h4 { margin: 0; font-size: 14px; font-weight: 800; }
+  .pb-all { background: transparent; border: none; color: var(--berry); font-size: 12px; font-weight: 800; cursor: pointer; }
+  .pb-strip {
+    display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px;
+  }
+  .pb-tile {
+    background: #FFEAB5;
+    border: 1.5px solid #E0B850;
+    border-radius: 12px; padding: 8px 4px;
+    text-align: center; cursor: pointer;
+    position: relative;
+  }
+  .pb-tile.rare { background: #DCEEFE; border-color: #5BB8FF; }
+  .pb-tile.legendary { background: linear-gradient(135deg, #FFD96B, #FF8A5C); border-color: #B8420A; }
+  .pb-em { font-size: 22px; line-height: 1; }
+  .pb-nm { font-size: 9px; font-weight: 800; margin-top: 2px; line-height: 1.1; }
+  .pb-ct { font-size: 8px; opacity: 0.65; font-weight: 800; }
+  .pb-tile.legendary .pb-ct { color: #4A1B0C; opacity: 0.9; }
+
+  .pf-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 4px; }
+  .pf-act { background: var(--ink); color: white; padding: 16px 14px; border-radius: 16px; font-size: 16px; font-weight: 800; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .pf-act.alt { background: var(--berry); }
+  .pf-act.ghost { background: var(--paper); color: var(--ink); border: 1px solid var(--line); }
+
+  /* ============ CHARACTER PICKER ============ */
+  .pick { padding: 26px 32px; background: linear-gradient(180deg, #FFF6E5 0%, #FFE3C2 100%); display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
+  .pick-head h2 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
+  .pick-head p { margin: 4px 0 14px; font-size: 14px; opacity: 0.65; font-weight: 600; }
+  .pick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .char-tile {
+    background: var(--paper); border-radius: 20px; padding: 16px 12px;
+    text-align: center; border: 2px solid transparent; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(42,36,64,0.06);
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .char-tile:hover { transform: translateY(-2px); }
+  .char-tile.sel { border-color: var(--berry); background: #FFF0F4; }
+  .char-tile .face {
+    width: 80px; height: 80px; margin: 0 auto 8px;
+    border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FFFFFF, #FFD8B4 60%, #FFB774);
+    display: flex; align-items: center; justify-content: center; font-size: 56px;
+  }
+  .char-tile .nm { font-size: 14px; font-weight: 800; }
+  .char-tile .tag { font-size: 11px; opacity: 0.65; font-weight: 600; margin-top: 2px; }
+  .char-tile .lock { position: absolute; }
+
+  .pick-side { background: var(--paper); border-radius: 20px; padding: 22px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 14px; }
+  .pick-preview { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .pick-preview-name { font-size: 24px; font-weight: 900; }
+  .pick-preview-blurb { font-size: 13px; opacity: 0.7; text-align: center; line-height: 1.4; }
+  .stages-strip { display: flex; align-items: flex-end; justify-content: center; gap: 6px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .stage-pip { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .stage-pip .b { width: 44px; height: 44px; border-radius: 50%; background: #FFF6E5; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .stage-pip.now .b { background: var(--berry); color: white; box-shadow: 0 0 0 4px rgba(232,74,111,0.2); transform: scale(1.15); }
+  .stage-pip .l { font-size: 9px; font-weight: 800; opacity: 0.6; }
+  .stage-pip.now .l { opacity: 1; color: var(--berry); }
+  .pick-cta { background: var(--berry); color: white; border: none; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; }
+
+  /* ============ MEAL LOG ============ */
+  .mlog { padding: 22px 28px; background: linear-gradient(180deg, #FFF6E5 0%, #FFE3C2 100%); display: grid; grid-template-columns: 1.05fr 1fr; gap: 18px; }
+  .mlog-left { display: flex; flex-direction: column; gap: 12px; }
+  .mlog-head { display: flex; justify-content: space-between; align-items: center; }
+  .mlog-title { font-size: 26px; font-weight: 900; margin: 0; letter-spacing: -0.5px; }
+  .mlog-sub { font-size: 13px; opacity: 0.6; }
+  /* Dinner behavior bonuses */
+  .behavior-bonuses { display: flex; flex-direction: column; gap: 8px; }
+  .bb-tile {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 14px; padding: 12px 14px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .bb-tile:hover { transform: translateY(-1px); }
+  .bb-tile[data-state="claimed"] {
+    background: linear-gradient(135deg, #EAF8E2, #C0DD97);
+    border-color: var(--leaf);
+    box-shadow: 0 4px 14px rgba(46, 139, 87, 0.18);
+  }
+  .bb-tile[data-state="lost"] {
+    background: #FCE0DC; border-color: #B43320;
+  }
+  .bb-tile[data-state="lost"] .bb-xp { background: #B43320; }
+  .bb-tile[data-state="locked"] {
+    opacity: 0.55; cursor: not-allowed;
+    background: #F2EFE8;
+  }
+  .bb-em { font-size: 28px; flex-shrink: 0; }
+  .bb-info { flex: 1; }
+  .bb-nm { font-size: 14px; font-weight: 800; }
+  .bb-meta { font-size: 11px; opacity: 0.65; font-weight: 600; margin-top: 2px; }
+  .bb-xp {
+    background: var(--leaf); color: white;
+    padding: 5px 12px; border-radius: 999px;
+    font-size: 13px; font-weight: 900;
+  }
+  .bb-check {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid var(--line); background: white;
+    position: relative; flex-shrink: 0;
+  }
+  .bb-tile[data-state="claimed"] .bb-check {
+    background: var(--leaf); border-color: var(--leaf);
+  }
+  .bb-tile[data-state="claimed"] .bb-check::after {
+    content: '✓'; position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 900; font-size: 16px;
+  }
+  .bb-tile[data-state="lost"] .bb-check {
+    background: #B43320; border-color: #B43320;
+  }
+  .bb-tile[data-state="lost"] .bb-check::after {
+    content: '✕'; position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 900; font-size: 16px;
+  }
+  .bb-tile.expectation .bb-xp.neutral {
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--line);
+    font-size: 11px; padding: 4px 10px;
+    font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .bb-tile.expectation[data-state="met"] {
+    background: #F8FAEB; border-color: #C0DD97;
+  }
+  .bb-tile.expectation[data-state="met"] .bb-check {
+    background: var(--leaf); border-color: var(--leaf);
+  }
+  .bb-tile.expectation[data-state="met"] .bb-check::after {
+    content: '✓'; position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 900; font-size: 16px;
+  }
+  .bb-tile.expectation[data-state="lost"] .bb-xp.neutral {
+    background: #B43320; color: white; border-color: #B43320;
+  }
+  .bb-tile { position: relative; overflow: visible; }
+
+  /* Floating points pop on bonus claim / loss */
+  .bb-popup {
+    position: absolute; top: 8px; right: 60px;
+    font-size: 26px; font-weight: 900; color: var(--leaf);
+    pointer-events: none; z-index: 6;
+    text-shadow: 0 2px 0 white, 0 0 10px rgba(46, 139, 87, 0.5);
+    animation: bb-float 1.4s ease-out forwards;
+  }
+  .bb-popup.lost {
+    color: #B43320;
+    text-shadow: 0 2px 0 white, 0 0 10px rgba(180, 51, 32, 0.5);
+  }
+  @keyframes bb-float {
+    0%   { transform: translateY(0) scale(0.5); opacity: 0; }
+    20%  { transform: translateY(-8px) scale(1.2); opacity: 1; }
+    100% { transform: translateY(-60px) scale(1); opacity: 0; }
+  }
+  .bb-section-lbl {
+    font-size: 11px; font-weight: 800; opacity: 0.6;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+
+  .ml-needs {
+    background: linear-gradient(135deg, #FFF1ED, #FFE4D7);
+    border: 2px solid var(--berry);
+    border-radius: 18px; padding: 12px 14px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .ml-needs-ava { flex-shrink: 0; }
+  .ml-needs-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; opacity: 0.65; margin-bottom: 6px; }
+  .ml-needs-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .needs-tag {
+    background: white; padding: 6px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 4px;
+    border: 1px solid var(--line);
+  }
+  .needs-tag .em { font-size: 16px; }
+  .needs-tag b { font-weight: 900; }
+  .needs-tag.urgent { background: #B43320; color: white; border-color: #B43320; }
+  .needs-tag.urgent b { color: #FFD96B; }
+  .needs-tag.deficit { background: #FFEAB5; border-color: #E0A800; }
+  .needs-tag.deficit b { color: #8B6500; }
+  .needs-tag.good { background: #E8F8E5; border-color: var(--leaf); }
+  .needs-tag.good b { color: var(--leaf); }
+
+  /* Weekly growth strip (profile) */
+  .growth-strip {
+    background: var(--paper); border-radius: 18px; padding: 14px 16px;
+    border: 1px solid var(--line);
+  }
+  .growth-strip h4 { margin: 0 0 8px; font-size: 14px; font-weight: 800; }
+  .growth-strip h4 span { font-size: 11px; font-weight: 700; opacity: 0.55; margin-left: 6px; }
+  .growth-days {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 4px; align-items: end;
+  }
+  .growth-day { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .growth-day .gd-ava {
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #FFFFFF, #FFD8B4 60%, #FFB774);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s ease;
+  }
+  .growth-day .gd-lbl { font-size: 10px; font-weight: 800; opacity: 0.7; }
+  .growth-day.now .gd-lbl { color: var(--berry); }
+  .growth-day.future .gd-ava { background: #F0EBE0; opacity: 0.45; filter: grayscale(0.5); }
+  .growth-day.future .gd-lbl { opacity: 0.45; }
+
+  .meal-primary {
+    background: linear-gradient(135deg, var(--ink), #4A3D6F);
+    color: white; border-radius: 18px;
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 14px;
+    border: 2px solid transparent; cursor: pointer;
+    box-shadow: 0 8px 20px rgba(42,36,64,0.25);
+  }
+  .meal-primary.sel { border-color: var(--berry); }
+  .meal-primary .mp-em { font-size: 38px; }
+  .meal-primary .mp-info { flex: 1; }
+  .meal-primary .mp-nm { font-size: 18px; font-weight: 900; }
+  .meal-primary .mp-hint { font-size: 12px; opacity: 0.8; font-weight: 600; margin-top: 2px; }
+  .meal-primary .mp-badge {
+    background: var(--berry); color: white;
+    padding: 6px 12px; border-radius: 999px;
+    font-size: 12px; font-weight: 800;
+  }
+  .meal-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .meal-chip { background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 10px 14px; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .meal-chip.sel { background: var(--ink); color: white; border-color: var(--ink); }
+  .meal-chip .em { font-size: 18px; }
+  .meal-chip .opt { font-size: 11px; font-weight: 800; opacity: 0.6; background: rgba(0,0,0,0.06); padding: 2px 8px; border-radius: 999px; }
+  .meal-chip.sel .opt { background: rgba(255,255,255,0.2); opacity: 0.9; }
+  .grp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grp-tile { background: var(--paper); border-radius: 18px; padding: 12px; border: 1px solid var(--line); position: relative; display: flex; gap: 12px; align-items: center; cursor: pointer; }
+  .grp-tile.alert { background: #FFF1F4; border: 2px solid var(--berry); }
+  .grp-tile.alert::after { content: '!'; position: absolute; top: -8px; right: -8px; background: var(--berry); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; }
+  .grp-tile.done { background: #EFFBEC; border-color: var(--leaf); }
+  .grp-tile.junk { background: #FFF8E5; border-color: #E0A800; }
+  .grp-tile.junk.over { background: #F1F5DC; border: 2px solid var(--queasy); }
+  .grp-tile.active { box-shadow: 0 0 0 3px rgba(232,74,111,0.25); }
+  .grp-icon { width: 50px; height: 50px; border-radius: 14px; background: #FFF6E5; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+  .grp-tile.junk .grp-icon { background: #FFF1C2; }
+  .grp-info { flex: 1; }
+  .grp-name { font-size: 15px; font-weight: 800; margin: 0; }
+  .grp-progress { height: 7px; border-radius: 4px; background: #FFE3C2; margin-top: 6px; position: relative; overflow: hidden; }
+  .grp-progress-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--grass); border-radius: 4px; }
+  .grp-progress-fill.low { background: var(--berry); }
+  .grp-progress-fill.junk { background: #E0A800; }
+  .grp-progress-fill.over { background: var(--queasy); }
+  .grp-meta { font-size: 11px; opacity: 0.7; font-weight: 600; margin-top: 4px; }
+
+  .mlog-right { background: var(--paper); border-radius: 20px; padding: 18px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+  .ml-step-label { font-size: 11px; font-weight: 800; color: var(--berry); letter-spacing: 1px; text-transform: uppercase; }
+  .ml-q { font-size: 22px; font-weight: 900; margin: 0; line-height: 1.2; }
+  .ml-q .em { font-size: 28px; }
+  .ml-foods { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .ml-food { aspect-ratio: 1; border-radius: 14px; background: #FFF6E5; border: 2px solid transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; }
+  .ml-food .nm { font-size: 10px; font-weight: 700; margin-top: 2px; opacity: 0.7; }
+  .ml-food.sel { border-color: var(--berry); background: #FFE6EE; }
+  .ml-food.other { background: transparent; border: 2px dashed var(--ink); opacity: 0.5; font-size: 20px; }
+  .ml-amounts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .ml-amount { padding: 12px; border-radius: 14px; background: #FFF6E5; border: 1px solid var(--line); display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 800; cursor: pointer; position: relative; }
+  .ml-amount .em { font-size: 24px; }
+  .ml-amount .nm { flex: 1; }
+  .ml-amount .xp-tag {
+    background: var(--berry); color: white;
+    padding: 3px 8px; border-radius: 999px;
+    font-size: 11px; font-weight: 900;
+  }
+  .ml-amount.sel { background: var(--ink); color: white; border-color: var(--ink); }
+  .ml-amount.sel .xp-tag { background: var(--sun-1); color: var(--ink); }
+  .ml-amount.skip { color: #B43320; }
+  .ml-amount.skip .xp-tag { background: #B43320; }
+  .ml-amount.skip.sel { background: #B43320; color: white; }
+  .ml-amount.skip.sel .xp-tag { background: white; color: #B43320; }
+  .ml-amount.bonus::before {
+    content: 'BONUS!'; position: absolute; top: -8px; right: 8px;
+    background: var(--leaf); color: white;
+    padding: 2px 8px; border-radius: 999px;
+    font-size: 9px; font-weight: 900; letter-spacing: 0.5px;
+  }
+
+  .feed-btn {
+    width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--berry), var(--sun-3));
+    color: white; border: none; border-radius: 16px;
+    font-size: 18px; font-weight: 900; cursor: pointer;
+    box-shadow: 0 8px 20px rgba(232,74,111,0.35);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .feed-btn .em { font-size: 22px; }
+
+  .ml-react {
+    background: #FFF6E5; border-radius: 16px; padding: 14px;
+    display: flex; align-items: center; gap: 12px; border: 1px solid var(--line);
+    transition: background 0.4s;
+  }
+  .ml-react.queasy { background: #F1F5DC; }
+  .ml-react.sick { background: #E8EFD0; }
+  .ml-react .av-mini {
+    width: 60px; height: 60px; flex-shrink: 0;
+    border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FFFFFF, #FFD8B4 60%, #FFB774);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; transition: all 0.3s;
+  }
+  .ml-react.queasy .av-mini { background: radial-gradient(circle at 35% 30%, #F5FFE3, #C5E08A 60%, #8FB94B); }
+  .ml-react.sick .av-mini { background: radial-gradient(circle at 35% 30%, #E8F0D2, #9DB571 60%, #5C8A2A); filter: saturate(0.7); }
+  .ml-react .msg { font-size: 14px; font-weight: 800; line-height: 1.3; }
+  .ml-react .msg .xp { color: var(--berry); }
+  .ml-react.queasy .msg .xp { color: var(--queasy); }
+  .ml-react.sick .msg .xp { color: var(--sick); }
+
+  /* Avatar staging panel under feed button */
+  .demo-states {
+    display: flex; gap: 6px; flex-wrap: wrap; padding: 8px;
+    background: rgba(255,255,255,0.5); border-radius: 12px;
+  }
+  .demo-state {
+    flex: 1; min-width: 90px; padding: 8px;
+    border-radius: 10px; background: white;
+    font-size: 11px; font-weight: 700; text-align: center;
+    border: 1px solid var(--line); cursor: pointer;
+  }
+  .demo-state.sel { background: var(--ink); color: white; border-color: var(--ink); }
+  .demo-state .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+  .demo-state .dot.healthy { background: var(--leaf); }
+  .demo-state .dot.queasy { background: var(--queasy); }
+  .demo-state .dot.sick { background: var(--sick); }
+  .demo-state .dot.weak { background: #C0A088; }
+
+  /* ============ KID RECAP ============ */
+  .wrap-bg { min-height: 560px; background: radial-gradient(ellipse at top, #FFC76B 0%, #FF6F61 60%, #B33771 100%); color: white; padding: 28px 36px; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+  .wrap-bg::before { content: ''; position: absolute; top: -80px; right: -80px; width: 320px; height: 320px; border-radius: 50%; background: rgba(255,255,255,0.08); }
+  .wrap-bg::after { content: ''; position: absolute; bottom: -120px; left: -60px; width: 280px; height: 280px; border-radius: 50%; background: rgba(255,255,255,0.06); }
+  .wrap-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; position: relative; z-index: 2; }
+  .wrap-eyebrow { font-size: 13px; font-weight: 700; opacity: 0.85; letter-spacing: 1px; text-transform: uppercase; }
+  .wrap-pageno { font-size: 12px; opacity: 0.7; }
+  .wrap-content { flex: 1; display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 2; }
+  .wrap-card-title { font-size: 56px; font-weight: 900; line-height: 1; margin: 0 0 12px; letter-spacing: -1.5px; }
+  .wrap-card-sub { font-size: 22px; opacity: 0.92; line-height: 1.3; max-width: 80%; }
+  .avatar-stage { display: flex; align-items: flex-end; justify-content: center; gap: 24px; margin: 18px 0; }
+  .avatar-step { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .avatar-bubble { background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.35); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+  .avatar-bubble.big { width: 130px; height: 130px; font-size: 70px; background: rgba(255,255,255,0.28); box-shadow: 0 0 0 8px rgba(255,255,255,0.1); }
+  .avatar-bubble.small { width: 60px; height: 60px; font-size: 32px; }
+  .avatar-arrow { font-size: 28px; opacity: 0.6; align-self: center; }
+  .avatar-tag { font-size: 12px; font-weight: 700; opacity: 0.9; }
+  .stat-mega { font-size: 140px; font-weight: 900; line-height: 1; background: linear-gradient(180deg, #FFFFFF 30%, #FFD8A0 100%); -webkit-background-clip: text; background-clip: text; color: transparent; letter-spacing: -3px; margin: 8px 0; }
+  .food-row { display: flex; gap: 18px; margin: 12px 0; flex-wrap: wrap; }
+  .food-tile { background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.25); border-radius: 18px; padding: 14px 18px; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 96px; }
+  .food-tile .ico { font-size: 44px; }
+  .food-tile .lbl { font-size: 13px; font-weight: 700; opacity: 0.95; }
+  .food-tile .pct { font-size: 11px; opacity: 0.75; }
+  .day-bars { display: flex; align-items: flex-end; gap: 14px; height: 160px; margin: 16px 0; }
+  .day-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .day-bar .bar { width: 100%; max-width: 60px; border-radius: 12px 12px 6px 6px; background: rgba(255,255,255,0.7); }
+  .day-bar.win .bar { background: white; box-shadow: 0 0 24px rgba(255,255,255,0.6); }
+  .day-bar .lbl { font-size: 12px; font-weight: 700; opacity: 0.85; }
+  .wrap-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; position: relative; z-index: 2; }
+  .wrap-dots { display: flex; gap: 6px; }
+  .wrap-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); }
+  .wrap-dot.active { background: white; width: 22px; border-radius: 4px; }
+  .wrap-btn { background: white; color: var(--ink); border: none; border-radius: 999px; padding: 12px 26px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: var(--shadow); }
+
+  /* ============ PARENT RECAP ============ */
+  .parent { padding: 26px 32px; background: linear-gradient(180deg, #FFF6E5 0%, #FFE3C2 100%); color: var(--ink); }
+  .parent-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 18px; }
+  .parent-title { font-size: 28px; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
+  .parent-sub { font-size: 14px; opacity: 0.6; margin: 4px 0 0; }
+  .parent-toggle { display: flex; gap: 8px; }
+  .pt-chip { background: var(--paper); padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; border: 1px solid var(--line); }
+  .pt-chip.active { background: var(--ink); color: var(--sun-1); border-color: var(--ink); }
+  .kid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .kid-card { background: var(--paper); border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 14px; border: 1px solid var(--line); }
+  .kid-card.flag { border: 2px solid #FFB36B; background: #FFFAF1; }
+  .kid-head { display: flex; align-items: center; gap: 12px; }
+  .kid-ava { width: 56px; height: 56px; border-radius: 50%; background: var(--sun-2); display: flex; align-items: center; justify-content: center; font-size: 30px; }
+  .kid-name { font-size: 18px; font-weight: 800; margin: 0; }
+  .kid-meta { font-size: 12px; opacity: 0.6; margin: 2px 0 0; }
+  .kid-delta { margin-left: auto; padding: 6px 12px; border-radius: 999px; font-size: 14px; font-weight: 800; }
+  .kid-delta.up { background: #DDF5DA; color: #2C7A20; }
+  .kid-delta.down { background: #FCE0DC; color: #B43320; }
+  .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .kpi { background: #FFF6E5; border-radius: 14px; padding: 10px 12px; text-align: center; }
+  .kpi .v { font-size: 22px; font-weight: 800; }
+  .kpi .l { font-size: 11px; opacity: 0.65; font-weight: 600; }
+  .group-bars { display: flex; gap: 8px; align-items: flex-end; }
+  .group-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .group-bar .b { width: 100%; max-width: 28px; border-radius: 6px; background: var(--grass); min-height: 10px; }
+  .group-bar .b.low { background: #FFB36B; }
+  .group-bar .b.warn { background: #E84A6F; }
+  .group-bar .b.junk { background: #E0A800; }
+  .group-bar .ico { font-size: 18px; }
+  .group-bar .pct { font-size: 11px; font-weight: 700; opacity: 0.7; }
+  .insight { background: #FFF1E0; border-left: 3px solid #FFB36B; border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.4; }
+  .insight.good { background: #E8F8E5; border-left-color: var(--leaf); }
+  .insight strong { font-weight: 800; }
+  .nudge-btn { background: var(--ink); color: var(--sun-1); border: none; border-radius: 12px; padding: 10px 14px; font-size: 14px; font-weight: 700; cursor: pointer; align-self: flex-start; }
+
+  /* ============ CUSTOM CHORES ============ */
+  .chores { padding: 26px 32px; background: linear-gradient(180deg, #FFF6E5 0%, #FFE3C2 100%); color: var(--ink); display: flex; flex-direction: column; gap: 18px; }
+  .chores-left { display: flex; flex-direction: column; gap: 14px; max-width: 720px; margin: 0 auto; width: 100%; }
+  .chores-foot {
+    max-width: 720px; margin: 0 auto; width: 100%;
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 16px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .cf-em { font-size: 28px; }
+  .cf-msg { flex: 1; font-size: 13px; font-weight: 700; opacity: 0.85; }
+  .cf-msg b { color: var(--berry); }
+  .cf-btn {
+    background: var(--ink); color: white; border: none;
+    padding: 10px 16px; border-radius: 10px;
+    font-size: 13px; font-weight: 800; cursor: pointer;
+  }
+  .ch-head { display: flex; justify-content: space-between; align-items: center; }
+  .ch-title { font-size: 22px; font-weight: 800; margin: 0; }
+  .ch-sub { font-size: 13px; opacity: 0.6; margin: 2px 0 0; }
+  .ch-kidpicker { display: flex; gap: 8px; }
+  .ch-kidchip { display: flex; align-items: center; gap: 6px; background: var(--paper); padding: 6px 10px 6px 6px; border-radius: 999px; font-size: 13px; font-weight: 700; border: 1px solid var(--line); }
+  .ch-kidchip.active { background: var(--ink); color: white; border-color: var(--ink); }
+  .ch-kidchip .av { width: 26px; height: 26px; border-radius: 50%; background: var(--sun-2); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  /* Trust meter */
+  .trust-card {
+    background: linear-gradient(135deg, #FFF1ED, #FFE2A8);
+    border: 1px solid var(--line);
+    border-radius: 18px; padding: 16px 18px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .trust-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .trust-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; opacity: 0.6; }
+  .trust-name { margin: 4px 0; font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+  .trust-stars { font-size: 16px; }
+  .trust-stars span { font-size: 11px; font-weight: 800; opacity: 0.65; margin-left: 6px; vertical-align: middle; }
+  .trust-points { text-align: right; }
+  .tp-num { font-size: 32px; font-weight: 900; line-height: 1; color: var(--berry); letter-spacing: -1px; }
+  .tp-lbl { font-size: 10px; font-weight: 800; opacity: 0.65; margin-top: 2px; }
+  .trust-bar {
+    height: 22px; border-radius: 11px;
+    background: rgba(255,255,255,0.6);
+    position: relative; margin: 8px 0;
+  }
+  .trust-fill {
+    height: 100%; border-radius: 11px;
+    background: linear-gradient(90deg, var(--berry), var(--sun-3));
+  }
+  .trust-tier {
+    position: absolute; top: 50%; transform: translate(-50%, -50%);
+    width: 26px; height: 26px; border-radius: 50%;
+    background: white; border: 2px solid rgba(42,36,64,0.2);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1;
+  }
+  .trust-tier span { font-size: 9px; font-weight: 900; opacity: 0.6; }
+  .trust-tier.achieved { background: var(--leaf); border-color: var(--leaf); }
+  .trust-tier.achieved span { color: white; opacity: 1; }
+  .trust-marker {
+    position: absolute; top: -22px; transform: translateX(-50%);
+    background: var(--ink); color: white;
+    padding: 3px 8px; border-radius: 999px;
+    font-size: 9px; font-weight: 900; letter-spacing: 0.5px;
+    z-index: 2;
+  }
+  .trust-marker::after {
+    content: ''; position: absolute; bottom: -6px; left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 5px solid transparent; border-right: 5px solid transparent;
+    border-top: 6px solid var(--ink);
+  }
+  .trust-next { font-size: 13px; font-weight: 700; opacity: 0.85; text-align: center; }
+  .trust-next b { color: var(--berry); }
+  .trust-pace { font-size: 11px; font-weight: 700; opacity: 0.65; text-align: center; padding: 6px 8px; background: #FFF6E5; border-radius: 8px; }
+
+  /* Daily/Weekly cadence tabs */
+  .ch-cadence {
+    display: flex; gap: 6px; padding: 4px;
+    background: #FFF6E5; border-radius: 12px;
+  }
+  .cad-tab {
+    flex: 1; padding: 10px; border-radius: 8px;
+    text-align: center; font-size: 13px; font-weight: 800;
+    cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;
+  }
+  .cad-tab.active { background: var(--ink); color: white; }
+  .cad-tab .ct-count {
+    font-size: 10px; font-weight: 800;
+    background: rgba(0,0,0,0.08); padding: 2px 8px; border-radius: 999px;
+  }
+  .cad-tab.active .ct-count { background: rgba(255,255,255,0.18); }
+  .ch-cap { font-size: 11px; opacity: 0.55; font-weight: 700; text-align: center; }
+
+  /* Privilege grid */
+  .priv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .priv-col { display: flex; flex-direction: column; gap: 6px; }
+  .priv-lbl { font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; padding: 4px 0; }
+  .priv-lbl.earned { color: var(--leaf); }
+  .priv-lbl.locked { color: #B43320; }
+  .priv-tile {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 12px; padding: 10px 12px;
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .priv-tile.earned { background: #E8F8E5; border-color: var(--leaf); }
+  .priv-tile.locked { opacity: 0.55; filter: grayscale(0.4); }
+  .priv-tile .em { font-size: 18px; }
+
+  .ch-section-lbl {
+    font-size: 12px; font-weight: 800; opacity: 0.6;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-top: 8px;
+  }
+
+  /* Customize Rewards */
+  .rewards-customize {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 18px; padding: 16px;
+    display: flex; flex-direction: column; gap: 12px;
+    position: relative;
+  }
+  .pin-lock {
+    position: absolute; inset: 0;
+    background: rgba(255, 246, 229, 0.94);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    border-radius: 18px; z-index: 5;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; padding: 30px;
+    text-align: center;
+  }
+  .pin-lock.unlocked { display: none; }
+  .pin-icon { font-size: 42px; }
+  .pin-title { font-size: 18px; font-weight: 900; }
+  .pin-msg { font-size: 13px; opacity: 0.65; font-weight: 600; }
+  .pin-input { display: flex; gap: 8px; margin: 6px 0; }
+  .pin-digit {
+    width: 44px; height: 56px; border-radius: 12px;
+    border: 2px solid var(--line);
+    text-align: center; font-size: 22px; font-weight: 900;
+    background: white; color: var(--ink);
+  }
+  .pin-digit:focus { outline: none; border-color: var(--berry); }
+  .pin-unlock {
+    background: var(--berry); color: white; border: none;
+    padding: 10px 20px; border-radius: 10px;
+    font-size: 14px; font-weight: 800; cursor: pointer;
+  }
+  .pin-foot { font-size: 11px; opacity: 0.55; font-weight: 700; }
+  .rc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+  .rc-title { font-size: 16px; font-weight: 900; margin: 0; }
+  .rc-sub { font-size: 11px; opacity: 0.6; font-weight: 600; margin: 2px 0 0; }
+  .rc-level-picker { display: flex; gap: 6px; flex-wrap: wrap; }
+  .rc-level {
+    flex: 1; min-width: 80px;
+    background: #FFF6E5; border-radius: 12px;
+    padding: 10px 8px; text-align: center;
+    cursor: pointer; border: 2px solid transparent;
+    transition: transform 0.12s;
+  }
+  .rc-level:hover { transform: translateY(-2px); }
+  .rc-level.active { background: var(--ink); color: white; border-color: var(--berry); }
+  .rc-level .lv { font-size: 16px; font-weight: 900; line-height: 1; }
+  .rc-level .nm { font-size: 11px; font-weight: 700; margin-top: 2px; opacity: 0.7; }
+  .rc-level.active .nm { opacity: 0.85; }
+  .rc-edit-head {
+    background: #FFF6E5; border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .rc-eye { opacity: 0.6; }
+  .rc-current { color: var(--berry); font-weight: 900; }
+  .rc-pts { margin-left: auto; opacity: 0.7; font-weight: 700; }
+  .rc-pts b { color: var(--leaf); font-weight: 900; }
+  .rc-list { display: flex; flex-direction: column; gap: 6px; }
+  .rc-item { display: flex; gap: 8px; align-items: center; }
+  .rc-em {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: #FFF6E5; border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; cursor: pointer; padding: 0;
+  }
+  .rc-name {
+    flex: 1; padding: 9px 12px;
+    background: #FFF6E5; border: 1px solid var(--line);
+    border-radius: 10px; font-size: 13px; font-weight: 700; color: var(--ink);
+  }
+  .rc-del {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: transparent; border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 900; cursor: pointer; opacity: 0.55;
+  }
+  .rc-add {
+    background: transparent; border: 2px dashed var(--ink);
+    border-radius: 10px; padding: 10px;
+    text-align: center; font-size: 13px; font-weight: 800;
+    cursor: pointer; opacity: 0.6;
+  }
+  .rc-plus { font-size: 18px; font-weight: 900; vertical-align: middle; }
+
+  .ch-tile .xp.trust { color: var(--leaf); }
+
+  .ch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .ch-tile { background: var(--paper); border-radius: 16px; padding: 14px 10px; text-align: center; border: 1px solid var(--line); position: relative; cursor: pointer; }
+  .ch-tile .ico { font-size: 36px; }
+  .ch-tile .nm { font-size: 13px; font-weight: 700; margin-top: 4px; }
+  .ch-tile .xp { font-size: 11px; font-weight: 800; color: var(--berry); margin-top: 2px; }
+  .ch-tile.add { background: transparent; border: 2px dashed var(--ink); opacity: 0.55; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 92px; }
+  .ch-tile.add .plus { font-size: 36px; font-weight: 900; line-height: 1; }
+  .ch-tile.add .lbl { font-size: 12px; font-weight: 700; }
+  .ch-tile.editing { border: 2px solid var(--berry); background: #FFF0F4; }
+  .ch-tile .badge { position: absolute; top: -6px; right: -6px; background: var(--berry); color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .editor-label { font-size: 12px; font-weight: 700; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .icon-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+  .icon-pick { aspect-ratio: 1; border-radius: 12px; background: #FFF6E5; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; border: 2px solid transparent; }
+  .icon-pick.sel { border-color: var(--berry); background: #FFE6EE; }
+  .editor-name { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); font-size: 16px; font-weight: 600; background: #FFF6E5; color: var(--ink); }
+  .xp-slider { display: flex; align-items: center; gap: 12px; }
+  .xp-track { flex: 1; height: 12px; border-radius: 6px; background: #FFE3C2; position: relative; }
+  .xp-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 60%; background: var(--berry); border-radius: 6px; }
+  .xp-thumb { position: absolute; left: 60%; top: 50%; transform: translate(-50%,-50%); width: 26px; height: 26px; border-radius: 50%; background: white; border: 3px solid var(--berry); box-shadow: var(--shadow); }
+  .xp-val { font-size: 22px; font-weight: 800; color: var(--berry); min-width: 60px; text-align: right; }
+  .freq-row { display: flex; gap: 8px; }
+  .freq-chip { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid var(--line); background: #FFF6E5; text-align: center; font-size: 14px; font-weight: 700; }
+  .freq-chip.sel { background: var(--ink); color: white; border-color: var(--ink); }
+  .age-row { display: flex; gap: 8px; }
+  .age-chip { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: #FFF6E5; font-size: 13px; font-weight: 700; }
+  .age-chip.sel { background: var(--leaf); color: white; border-color: var(--leaf); }
+  .editor-actions { display: flex; gap: 10px; margin-top: 4px; }
+  .btn-primary { flex: 1; padding: 14px; border-radius: 14px; border: none; background: var(--berry); color: white; font-size: 16px; font-weight: 800; cursor: pointer; }
+  .btn-secondary { padding: 14px 18px; border-radius: 14px; background: transparent; border: 1px solid var(--line); color: var(--ink); font-size: 16px; font-weight: 700; cursor: pointer; }
+  .footer-note { margin-top: 14px; text-align: center; font-size: 12px; opacity: 0.6; }
+
+  /* ============ SETTINGS (Parent zone) ============ */
+  .settings {
+    padding: 26px 32px;
+    background: linear-gradient(180deg, #FFF6E5 0%, #FFE3C2 100%);
+    color: var(--ink);
+    display: flex; flex-direction: column; gap: 16px;
+    position: relative; min-height: 600px;
+  }
+  .settings-head { padding: 0; }
+  .settings-title { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
+  .settings-sub { margin: 4px 0 0; font-size: 13px; opacity: 0.65; font-weight: 600; }
+  .set-card {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 18px; padding: 18px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .set-card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .set-h3 { margin: 0; font-size: 17px; font-weight: 900; }
+  .set-action {
+    background: transparent; border: 1px solid var(--line);
+    padding: 6px 12px; border-radius: 999px;
+    font-size: 12px; font-weight: 800; cursor: pointer;
+  }
+  .set-note { font-size: 12px; opacity: 0.65; font-weight: 600; margin: -2px 0 4px; }
+  .set-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 800; opacity: 0.7;
+  }
+  .set-toggle input { width: 36px; height: 20px; appearance: none; background: var(--line); border-radius: 999px; position: relative; cursor: pointer; transition: 0.2s; }
+  .set-toggle input:checked { background: var(--leaf); }
+  .set-toggle input::before { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: white; top: 2px; left: 2px; transition: 0.2s; }
+  .set-toggle input:checked::before { left: 18px; }
+  .set-icon-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: transparent; border: 1px solid var(--line);
+    font-size: 14px; cursor: pointer; opacity: 0.65;
+  }
+
+  /* Family member rows */
+  .member-row {
+    display: grid; grid-template-columns: 56px 1fr auto auto; gap: 12px;
+    align-items: center; padding: 10px 12px;
+    background: #FFF6E5; border-radius: 12px;
+  }
+  .member-ava {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--sun-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+  }
+  .member-name { font-size: 16px; font-weight: 900; }
+  .member-name .age { font-size: 12px; font-weight: 700; opacity: 0.55; margin-left: 6px; }
+  .member-meta { font-size: 12px; opacity: 0.7; font-weight: 600; }
+
+  /* Bonus rows */
+  .bonus-list { display: flex; flex-direction: column; gap: 6px; }
+  .bonus-row {
+    display: grid; grid-template-columns: 32px 1fr 80px auto; gap: 10px;
+    align-items: center; padding: 8px 12px;
+    background: #FFF6E5; border-radius: 10px;
+  }
+  .bonus-row.expectation { background: #F8FAEB; border: 1px solid #C0DD97; }
+  .bonus-row.off { opacity: 0.5; }
+  .bonus-row .bem { font-size: 22px; }
+  .bonus-row .bnm { font-size: 13px; font-weight: 800; }
+  .bonus-row .bmeta { font-size: 11px; opacity: 0.65; font-weight: 600; }
+  .bonus-row .b-pts {
+    width: 70px; padding: 6px 10px; border-radius: 8px;
+    border: 1px solid var(--line); background: white;
+    font-size: 13px; font-weight: 800; text-align: center;
+    color: var(--ink);
+  }
+
+  /* Kid picker chips */
+  .set-kid-pick { display: flex; gap: 6px; }
+  .kp-chip {
+    background: transparent; border: 1px solid var(--line);
+    padding: 6px 12px; border-radius: 999px;
+    font-size: 12px; font-weight: 800; cursor: pointer;
+  }
+  .kp-chip.active { background: var(--ink); color: white; border-color: var(--ink); }
+
+  .set-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .set-sublbl { font-size: 12px; font-weight: 800; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+
+  /* Suggestions */
+  .suggest-box {
+    background: linear-gradient(135deg, #FFF1ED, #FFE2A8);
+    border-radius: 14px; padding: 14px;
+  }
+  .sug-head { margin-bottom: 10px; }
+  .sug-title { margin: 0; font-size: 14px; font-weight: 900; }
+  .sug-sub { margin: 2px 0 0; font-size: 11px; opacity: 0.65; font-weight: 700; }
+  .sug-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sug-tile {
+    background: white; border-radius: 10px; padding: 10px 8px;
+    text-align: center; cursor: pointer;
+    border: 1px solid var(--line);
+  }
+  .sug-tile .ico { font-size: 24px; }
+  .sug-tile .nm { font-size: 11px; font-weight: 800; margin-top: 2px; }
+  .sug-tile .pts { font-size: 10px; color: var(--leaf); font-weight: 900; margin-top: 2px; }
+
+  /* Conversation prompt */
+  .convo-prompt {
+    background: #FFF1ED; border: 1px solid #FFB36B;
+    border-radius: 14px; padding: 14px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .cp-em { font-size: 28px; }
+  .cp-body { flex: 1; }
+  .cp-title { font-size: 14px; font-weight: 900; }
+  .cp-msg { font-size: 12px; font-weight: 600; opacity: 0.85; margin-top: 4px; line-height: 1.4; }
+  .cp-msg b { color: var(--berry); }
+  .cp-actions { display: flex; gap: 6px; margin-top: 6px; }
+
+  /* App pref rows */
+  .pref-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px; background: #FFF6E5; border-radius: 10px;
+  }
+  .pref-lbl { font-size: 13px; font-weight: 700; }
+
+  /* Parent editor tabs */
+  .ed-tabs {
+    display: flex; gap: 4px; padding: 4px;
+    background: #FFF6E5; border-radius: 12px;
+    margin-bottom: 4px;
+  }
+  .ed-tab {
+    flex: 1; padding: 8px 6px; border-radius: 8px;
+    font-size: 12px; font-weight: 800; cursor: pointer;
+    text-align: center;
+  }
+  .ed-tab.active { background: var(--ink); color: white; }
+  .ed-pane { display: none; flex-direction: column; gap: 14px; }
+  .ed-pane.active { display: flex; }
+
+  /* Editor list (daily / weekly chores) */
+  .ed-list { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+  .ed-list-item {
+    display: grid; grid-template-columns: 32px 1fr auto auto; gap: 8px;
+    align-items: center; padding: 8px 12px;
+    background: #FFF6E5; border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+  .ed-list-item .em { font-size: 22px; }
+  .ed-list-item .nm { font-size: 13px; font-weight: 700; }
+  .ed-list-item .pt {
+    font-size: 11px; font-weight: 900;
+    background: var(--leaf); color: white;
+    padding: 3px 8px; border-radius: 999px;
+  }
+  .ed-list-item .ed-x {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: transparent; border: 1px solid var(--line);
+    font-size: 16px; font-weight: 900;
+    cursor: pointer; opacity: 0.5;
+  }
+  .ed-list-add {
+    background: transparent; border: 2px dashed var(--ink);
+    border-radius: 10px; padding: 8px;
+    text-align: center; font-size: 12px; font-weight: 800;
+    cursor: pointer; opacity: 0.55;
+  }
+  .ed-list-add span { font-size: 16px; font-weight: 900; }
+
+  /* 3D head-turn rotator + cosmetic depth */
+  .dress-stage-wrap { perspective: 700px; perspective-origin: 50% 40%; }
+  #dress-avatar { transform-style: preserve-3d; }
+  .ava-3d-rotator {
+    transform-style: preserve-3d;
+    animation: head-turn 7s ease-in-out infinite;
+  }
+  @keyframes head-turn {
+    0%, 100% { transform: rotateY(0); }
+    25% { transform: rotateY(-14deg); }
+    75% { transform: rotateY(14deg); }
+  }
+  .cos { transform-style: preserve-3d; }
+  /* Slot-specific depth so items feel attached, not floating */
+  .cos.cos-head   { transform: translate(-50%, -50%) translateZ(15px) scale(1); }
+  .cos.cos-eyes   { transform: translate(-50%, -50%) translateZ(20px) scale(1); }
+  .cos.cos-cape   { transform: translate(-50%, -50%) translateZ(-25px) scale(1); }
+  .cos.cos-effect { transform: translate(-50%, -50%) translateZ(30px) scale(1); }
+  .cos.cos-acc    { transform: translate(-50%, -50%) translateZ(8px) scale(1); }
+  .cos:not(.on)   { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+
+  /* Mood / face expressions floating near the avatar */
+  .mood-indicator {
+    position: absolute; top: -12px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 32px;
+    pointer-events: none;
+    animation: mood-bob 1.6s ease-in-out infinite;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    z-index: 30;
+  }
+  @keyframes mood-bob {
+    0%, 100% { transform: translateX(-50%) translateY(0) scale(1); }
+    50%      { transform: translateX(-50%) translateY(-6px) scale(1.1); }
+  }
+
+  /* ============ LEADERBOARD ============ */
+  .lb { padding: 26px 32px; background: linear-gradient(180deg, #FFF6E5 0%, #FFE3C2 100%); display: flex; flex-direction: column; gap: 18px; }
+  .lb-head { display: flex; justify-content: space-between; align-items: flex-end; }
+  .lb-title { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
+  .lb-sub { margin: 4px 0 0; font-size: 13px; opacity: 0.65; font-weight: 600; }
+  .lb-toggle { display: flex; gap: 6px; background: rgba(255,255,255,0.6); padding: 4px; border-radius: 12px; }
+  .lb-chip { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .lb-chip.active { background: var(--ink); color: white; }
+
+  .podium {
+    display: grid; grid-template-columns: 1fr 1.2fr 1fr;
+    gap: 12px; align-items: end; margin: 8px 0 0;
+  }
+  .pod-bar { display: flex; flex-direction: column; align-items: center; }
+  .pod-ava-wrap { position: relative; margin-bottom: 8px; }
+  .pod-medal { position: absolute; bottom: -6px; right: -6px; font-size: 32px; }
+  .pod-name { font-size: 18px; font-weight: 900; }
+  .pod-tag { font-size: 12px; opacity: 0.7; font-weight: 600; }
+  .pod-xp { font-size: 14px; font-weight: 800; color: var(--berry); margin: 4px 0; }
+  .pod-block {
+    width: 100%; display: flex; align-items: center; justify-content: center;
+    font-size: 38px; font-weight: 900; color: white;
+    border-radius: 14px 14px 0 0;
+    margin-top: 4px;
+  }
+  .pod-block-1 { background: linear-gradient(180deg, #FFD96B, #E6A91A); height: 110px; box-shadow: 0 -4px 12px rgba(230,169,26,0.35); }
+  .pod-block-2 { background: linear-gradient(180deg, #C9D4E0, #8896A8); height: 80px; }
+  .pod-block-3 { background: linear-gradient(180deg, #E8B07A, #B07440); height: 60px; }
+
+  .lb-list { display: flex; flex-direction: column; gap: 10px; }
+  .lb-row {
+    background: var(--paper); border-radius: 16px; padding: 12px 14px;
+    border: 1px solid var(--line);
+    display: grid; grid-template-columns: 36px 56px 1fr auto; gap: 12px; align-items: center;
+  }
+  .lb-row.gold { border: 2px solid #E6A91A; background: #FFFAEB; }
+  .lb-row.silver { border-color: #B4C0CC; }
+  .lb-row.bronze { border-color: #D9A878; }
+  .lb-rank { font-size: 22px; font-weight: 900; text-align: center; opacity: 0.6; }
+  .lb-row.gold .lb-rank { color: #E6A91A; opacity: 1; }
+  .lb-ava {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #FFFFFF, #FFD8B4 60%, #FFB774);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+  }
+  .lb-name { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .lb-meta { font-size: 12px; opacity: 0.65; font-weight: 600; margin-top: 2px; }
+  .lb-bar { height: 10px; border-radius: 5px; background: #FFE3C2; margin-top: 8px; overflow: hidden; position: relative; }
+  .lb-bar-fill { height: 100%; background: linear-gradient(90deg, var(--berry), var(--sun-3)); border-radius: 5px; }
+  .lb-bar-fill.weak { background: linear-gradient(90deg, #C0A088, #A88068); }
+  .lb-bar-target {
+    position: absolute; top: -2px; bottom: -2px; right: 0;
+    width: 3px; background: var(--leaf); border-radius: 2px;
+  }
+  .lb-bar-lbl { font-size: 11px; font-weight: 700; opacity: 0.7; margin-top: 4px; }
+  .lb-bar-lbl b { color: var(--berry); font-size: 12px; }
+  .lb-badge { background: #DDF5DA; color: #2C7A20; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+  .lb-badge.gold { background: #FFEAB5; color: #8B6500; }
+  .lb-badge.danger { background: #FCE0DC; color: #B43320; }
+  .lb-xp { font-size: 22px; font-weight: 900; text-align: right; }
+  .lb-xp span { display: block; font-size: 10px; opacity: 0.6; font-weight: 700; letter-spacing: 1px; }
+
+  .lb-date {
+    font-size: 13px; font-weight: 800; opacity: 0.55;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .lb-row { transition: transform 0.15s, box-shadow 0.15s; cursor: pointer; }
+  .lb-row:hover { transform: translateX(2px); box-shadow: 0 4px 12px rgba(42,36,64,0.08); }
+  .lb-row.hungry { background: #FFEEE7; border-color: #B43320; }
+  .lb-row.hungry .lb-ava { background: radial-gradient(circle at 35% 30%, #E8E4DC, #B0A89E 60%, #88807A); }
+  .lb-tap { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .lb-log-btn {
+    background: var(--ink); color: white;
+    border: none; border-radius: 999px;
+    padding: 8px 14px; font-size: 12px; font-weight: 800;
+    cursor: pointer; white-space: nowrap;
+  }
+  .lb-log-btn.urgent-btn {
+    background: #B43320;
+    animation: pulse-urgent-btn 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse-urgent-btn {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(180, 51, 32, 0.5); }
+    50%      { box-shadow: 0 0 0 6px rgba(180, 51, 32, 0); }
+  }
+
+  /* Sluggish avatar treatment */
+  .lb-ava.sluggish {
+    filter: saturate(0.5) brightness(0.92);
+    animation: droop 2.4s ease-in-out infinite;
+    position: relative;
+  }
+  @keyframes droop {
+    0%, 100% { transform: rotate(-6deg) translateY(2px); }
+    50%      { transform: rotate(6deg) translateY(2px); }
+  }
+  .lb-ava .zzz {
+    position: absolute; top: -6px; right: -10px;
+    font-size: 18px; opacity: 0.85;
+    animation: zzz-float 2s ease-in-out infinite;
+  }
+  @keyframes zzz-float {
+    0%, 100% { transform: translateY(0); opacity: 0.4; }
+    50%      { transform: translateY(-6px); opacity: 1; }
+  }
+
+  .lb-foot {
+    text-align: center; padding: 12px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 12px;
+    font-size: 13px; font-weight: 700; opacity: 0.75;
+  }
+
+  .lb-callout {
+    background: var(--paper); border-radius: 16px; padding: 14px;
+    border: 1px solid var(--line);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .lb-cb-em { font-size: 32px; }
+  .lb-cb-title { font-size: 15px; font-weight: 800; }
+  .lb-cb-msg { font-size: 12px; opacity: 0.7; font-weight: 600; margin-top: 2px; }
+
+  /* Scoring reference card */
+  .scoring-card {
+    background: #FFF6E5; border-radius: 14px; padding: 12px 14px;
+    border: 1px solid var(--line);
+  }
+  .sc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .sc-title { font-size: 13px; font-weight: 800; }
+  .sc-tag {
+    background: var(--ink); color: var(--sun-1);
+    padding: 4px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 800;
+  }
+  .sc-grid { display: flex; flex-direction: column; gap: 6px; }
+  .sc-row {
+    display: grid; grid-template-columns: 22px 1fr auto;
+    gap: 8px; align-items: center;
+    font-size: 12px; font-weight: 700;
+    padding: 4px 0; border-bottom: 1px dashed var(--line);
+  }
+  .sc-row:last-child { border-bottom: none; }
+  .sc-row.primary { background: rgba(232,74,111,0.08); margin: -2px -8px; padding: 6px 8px; border-radius: 8px; }
+  .sc-row.primary .sc-val b { color: var(--berry); font-size: 14px; }
+  .sc-row.warn .sc-val { color: #B43320; }
+  .sc-em { font-size: 16px; }
+  .sc-val { font-variant-numeric: tabular-nums; opacity: 0.85; }
+  .sc-foot { font-size: 11px; opacity: 0.65; font-weight: 700; margin-top: 6px; text-align: center; }
+
+  /* ============ TROPHIES (Champions Wall + Cosmetic Unlock) ============ */
+  .tro {
+    padding: 24px 28px;
+    background: linear-gradient(180deg, #FFF6E5 0%, #FFE3C2 100%);
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .tro-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+  }
+  .tro-stat {
+    background: var(--paper); border-radius: 14px; padding: 12px 14px;
+    border: 1px solid var(--line);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .tro-stat-em { font-size: 26px; }
+  .tro-stat-v { font-size: 16px; font-weight: 900; line-height: 1.1; }
+  .tro-stat-l { font-size: 11px; opacity: 0.65; font-weight: 700; }
+
+  /* Unlock celebration card */
+  .unlock-card {
+    position: relative; overflow: hidden;
+    background: linear-gradient(135deg, #2A2440 0%, #4A3D6F 60%, #8E5BD9 100%);
+    color: white; border-radius: 22px; padding: 22px;
+    display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px;
+    align-items: center;
+    box-shadow: 0 14px 36px rgba(42,36,64,0.35);
+  }
+  .unlock-shimmer {
+    position: absolute; top: 0; left: -100%;
+    width: 60%; height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.18), transparent);
+    animation: shimmer 3.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes shimmer {
+    0% { left: -100%; }
+    60% { left: 140%; }
+    100% { left: 140%; }
+  }
+  .unlock-eyebrow {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    padding: 6px 12px; border-radius: 999px;
+    font-size: 11px; font-weight: 800; letter-spacing: 0.5px;
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  .unlock-name { margin: 4px 0 8px; font-size: 38px; font-weight: 900; letter-spacing: -1px; line-height: 1; }
+  .rarity {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 900; letter-spacing: 1px;
+    background: rgba(255,255,255,0.12);
+    margin-bottom: 12px;
+  }
+  .rarity .dot { width: 8px; height: 8px; border-radius: 50%; background: #C9D4E0; }
+  .rarity.rare .dot { background: #5BB8FF; }
+  .rarity.rare { color: #B0DBFF; }
+  .rarity.legendary { background: linear-gradient(90deg, #FFD96B, #FF8A5C); color: #2A2440; }
+  .rarity.legendary .dot { background: #B8420A; }
+  .unlock-desc { font-size: 14px; opacity: 0.92; line-height: 1.45; margin: 0 0 14px; }
+  .unlock-actions { display: flex; gap: 10px; }
+  .unlock-actions .btn-primary { flex: 0; padding: 12px 20px; }
+  .unlock-actions .btn-secondary { color: white; border-color: rgba(255,255,255,0.4); padding: 12px 18px; }
+
+  .unlock-right { display: flex; justify-content: center; align-items: center; }
+  .unlock-stage { position: relative; width: 200px; height: 200px; }
+  .unlock-stage .ava-shell { animation: bob 2.2s ease-in-out infinite, gentle-spin 8s linear infinite; }
+  @keyframes gentle-spin { 0%,100% { rotate: -3deg; } 50% { rotate: 3deg; } }
+  .unlock-sparkle {
+    position: absolute;
+    font-size: 28px;
+    animation: sparkle-pulse 1.6s ease-in-out infinite;
+  }
+  .unlock-sparkle.s1 { top: 8%; left: 0; animation-delay: 0s; }
+  .unlock-sparkle.s2 { top: 0; right: 14%; animation-delay: 0.4s; font-size: 22px; }
+  .unlock-sparkle.s3 { bottom: 12%; left: 8%; animation-delay: 0.8s; font-size: 32px; }
+  .unlock-sparkle.s4 { bottom: 0; right: 0; animation-delay: 1.2s; }
+  @keyframes sparkle-pulse {
+    0%, 100% { opacity: 0.4; transform: scale(0.8) rotate(0); }
+    50% { opacity: 1; transform: scale(1.2) rotate(15deg); }
+  }
+
+  /* ============ DRESSING ROOM ============ */
+  .dress {
+    background: var(--paper); border-radius: 22px; padding: 20px;
+    border: 1px solid var(--line);
+  }
+  .dress-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .dress-title { margin: 0; font-size: 20px; font-weight: 900; }
+  .dress-sub { margin: 4px 0 0; font-size: 12px; opacity: 0.65; font-weight: 600; max-width: 460px; }
+  .dress-actions { display: flex; gap: 8px; }
+  .dress-stage { display: grid; grid-template-columns: 1fr 1.4fr; gap: 18px; align-items: start; }
+  .dress-preview {
+    background: linear-gradient(180deg, #FFF1D6, #FFD8B4);
+    border-radius: 18px; padding: 18px;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .dress-equipped { width: 100%; }
+  .dress-eq-lbl { font-size: 11px; font-weight: 800; opacity: 0.6; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px; }
+  .dress-eq-list { display: flex; flex-wrap: wrap; gap: 4px; min-height: 28px; }
+  .dress-eq-item {
+    background: white; border: 1px solid var(--line);
+    padding: 4px 10px 4px 8px; border-radius: 999px;
+    font-size: 12px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .dress-eq-item .x { opacity: 0.4; cursor: pointer; font-weight: 900; }
+
+  /* Dressing stage with proper 3D-ish avatar */
+  .dress-stage-wrap {
+    position: relative;
+    width: 280px; height: 280px;
+    margin: 0 auto;
+    touch-action: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #dress-avatar { position: relative; overflow: visible; }
+  .ava-emoji {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: inherit; line-height: 1;
+    filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));
+    z-index: 1;
+  }
+  /* True 3D-ish look: sphere lighting + cast shadow */
+  .ava-shell.ava-3d {
+    background:
+      radial-gradient(circle at 30% 22%, rgba(255,255,255,0.85) 0%, transparent 32%),
+      radial-gradient(circle at 70% 78%, rgba(0,0,0,0.20) 0%, transparent 50%),
+      radial-gradient(circle at 35% 30%, #FFFFFF 0%, #FFD8B4 60%, #FFB774 100%);
+    box-shadow:
+      inset -10px -10px 28px rgba(180, 90, 30, 0.32),
+      inset 10px 10px 24px rgba(255, 255, 255, 0.45),
+      0 18px 36px rgba(42, 36, 64, 0.28),
+      0 4px 12px rgba(42, 36, 64, 0.18);
+  }
+  .cos {
+    position: absolute;
+    transform: translate(-50%, -50%) scale(0.4);
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity: 0; pointer-events: none;
+    user-select: none; -webkit-user-select: none;
+    cursor: grab;
+    z-index: 5;
+  }
+  .cos.on { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+  .cos.dragging {
+    transition: none;
+    cursor: grabbing;
+    transform: translate(-50%, -50%) scale(1.15);
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.3));
+    z-index: 20;
+    animation: none !important;
+  }
+  .cos-head { font-size: 64px; }
+  .cos-eyes { font-size: 50px; }
+  .cos-cape { font-size: 76px; }
+  .cos-effect { font-size: 44px; animation: sparkle-pulse 1.6s ease-in-out infinite; }
+  .cos-acc { font-size: 38px; }
+
+  /* Rainbow effect: hue-rotates the entire avatar (emoji included) */
+  .ava-shell.fx-rainbow .ava-emoji {
+    animation: rainbow-hue 3s linear infinite;
+  }
+  .ava-shell.fx-rainbow {
+    animation: bob 2.2s ease-in-out infinite, rainbow-bg 3s linear infinite !important;
+  }
+  @keyframes rainbow-hue {
+    0%   { filter: hue-rotate(0deg) saturate(1.6) drop-shadow(2px 4px 4px rgba(0,0,0,0.3)); }
+    100% { filter: hue-rotate(360deg) saturate(1.6) drop-shadow(2px 4px 4px rgba(0,0,0,0.3)); }
+  }
+  @keyframes rainbow-bg {
+    0%   { background-color: #FF6F61; }
+    16%  { background-color: #FFC76B; }
+    33%  { background-color: #6CC36A; }
+    50%  { background-color: #5BB8FF; }
+    66%  { background-color: #8E5BD9; }
+    83%  { background-color: #E84A6F; }
+    100% { background-color: #FF6F61; }
+  }
+
+  /* Sparkle effect: brightness pulses + shimmer sweep on the avatar itself */
+  .ava-shell.fx-sparkle .ava-emoji {
+    animation: sparkle-shimmer 1.4s ease-in-out infinite;
+  }
+  @keyframes sparkle-shimmer {
+    0%, 100% { filter: brightness(1) saturate(1) drop-shadow(2px 4px 4px rgba(0,0,0,0.25)); }
+    50%      { filter: brightness(1.6) saturate(1.4) drop-shadow(0 0 12px rgba(255,220,100,0.95)) drop-shadow(2px 4px 4px rgba(0,0,0,0.25)); }
+  }
+  .ava-shell.fx-sparkle::before {
+    content: '';
+    position: absolute; inset: 0; border-radius: 50%;
+    background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.75) 50%, transparent 70%);
+    animation: shine-sweep 2s ease-in-out infinite;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+  @keyframes shine-sweep {
+    0%   { background-position: -200% 0; opacity: 0; }
+    50%  { opacity: 1; }
+    100% { background-position: 200% 0; opacity: 0; }
+  }
+  .ava-shell.fx-sparkle::after {
+    content: '✨ ✨ ✨';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10% 8%;
+    font-size: 22px;
+    pointer-events: none;
+    animation: sparkle-twinkle 1.6s ease-in-out infinite;
+  }
+  @keyframes sparkle-twinkle {
+    0%, 100% { opacity: 0.4; transform: scale(0.85); }
+    50%      { opacity: 1; transform: scale(1.1); }
+  }
+  .drag-hint {
+    position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%);
+    font-size: 11px; font-weight: 700; opacity: 0.55;
+    white-space: nowrap;
+  }
+
+  /* Closet */
+  .dress-tabs {
+    display: flex; gap: 4px; flex-wrap: wrap;
+    padding: 4px; border-radius: 12px;
+    background: #FFF6E5; margin-bottom: 12px;
+  }
+  .dress-tab {
+    padding: 8px 12px; border-radius: 8px;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    background: transparent;
+  }
+  .dress-tab.active { background: var(--ink); color: white; }
+
+  .cos-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    max-height: 340px; overflow-y: auto; padding: 2px;
+  }
+  .cos-tile {
+    background: #FFF6E5; border-radius: 14px; padding: 12px 8px;
+    text-align: center; border: 2px solid transparent;
+    cursor: pointer; position: relative;
+    transition: transform 0.12s, border-color 0.12s;
+  }
+  .cos-tile:hover { transform: translateY(-2px); }
+  .cos-tile-em { font-size: 36px; line-height: 1; }
+  .cos-tile-nm { font-size: 11px; font-weight: 800; margin-top: 4px; }
+  .cos-tile-meta { font-size: 9px; opacity: 0.55; font-weight: 700; margin-top: 2px; }
+  .cos-tile.equipped {
+    border-color: var(--berry);
+    background: #FFE6EE;
+  }
+  .cos-tile.equipped::before {
+    content: '✓'; position: absolute; top: -6px; right: -6px;
+    background: var(--berry); color: white;
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 900;
+    box-shadow: 0 2px 6px rgba(232,74,111,0.4);
+  }
+  .cos-tile.locked { opacity: 1; pointer-events: auto; }
+  .cos-tile.locked .cos-tile-em {
+    filter: blur(6px) grayscale(0.6);
+    opacity: 0.5;
+  }
+  .cos-tile.locked .cos-tile-nm { opacity: 0.5; filter: blur(0.5px); }
+  .cos-tile.locked::after {
+    content: '🔒'; position: absolute; top: 8px; right: 8px;
+    font-size: 14px; opacity: 0.85;
+  }
+  .cos-tile.locked .cos-tile-meta {
+    color: #B43320; font-weight: 800; opacity: 0.85; filter: none;
+  }
+  .cos-tile-rarity {
+    display: inline-block; margin-top: 4px;
+    font-size: 8px; font-weight: 900; letter-spacing: 0.5px;
+    padding: 2px 6px; border-radius: 999px;
+    background: #FFEAB5; color: #8B6500;
+  }
+  .cos-tile-rarity.rare { background: #DCEEFE; color: #0C447C; }
+  .cos-tile-rarity.legendary { background: linear-gradient(90deg, #FFD96B, #FF8A5C); color: #4A1B0C; }
+
+  /* Champions Wall */
+  .wall-head { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 4px; }
+  .wall-title { font-size: 22px; font-weight: 900; margin: 0; letter-spacing: -0.5px; }
+  .wall-toggle { display: flex; gap: 6px; background: rgba(255,255,255,0.6); padding: 4px; border-radius: 12px; }
+  .wall-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  }
+  .wall-card {
+    background: var(--paper); border-radius: 18px; padding: 14px;
+    border: 1px solid var(--line);
+    display: flex; flex-direction: column; gap: 8px;
+    cursor: pointer; transition: transform 0.2s;
+  }
+  .wall-card:hover { transform: translateY(-3px); }
+  .wall-card.current { border: 2px solid var(--berry); background: #FFF1F4; }
+  .wall-card.hit { background: #FFFBEB; border: 1px solid #E0B850; }
+  .wall-card.streak {
+    background: linear-gradient(135deg, #FFF1ED, #FFE2A8);
+    border: 2px solid #FF8A5C;
+    position: relative;
+  }
+  .wall-card.streak::before {
+    content: '🔥 STREAK'; position: absolute; top: -10px; right: 10px;
+    background: linear-gradient(90deg, #E84A6F, #FF8A5C); color: white;
+    padding: 3px 10px; border-radius: 999px; font-size: 10px; font-weight: 900; letter-spacing: 0.5px;
+  }
+  .wall-card.miss { background: #F2EFE8; opacity: 0.85; }
+  .wall-week { font-size: 11px; font-weight: 800; opacity: 0.55; letter-spacing: 0.5px; text-transform: uppercase; }
+  .wall-status { font-size: 12px; font-weight: 800; }
+  .wall-status.hit { color: var(--leaf); }
+  .wall-status.miss { color: #B43320; opacity: 0.7; }
+  .wall-ava { display: flex; justify-content: center; align-items: center; padding: 8px; position: relative; }
+  .wall-acc {
+    position: absolute; bottom: 0; right: 25%;
+    background: white; width: 32px; height: 32px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    border: 2px solid var(--berry);
+  }
+  .wall-bar { height: 6px; border-radius: 3px; background: #FFE3C2; overflow: hidden; }
+  .wall-bar-fill { height: 100%; background: linear-gradient(90deg, var(--berry), var(--sun-3)); border-radius: 3px; }
+  .wall-bar-fill.weak { background: #C0A088; }
+  .wall-score { font-size: 11px; font-weight: 700; opacity: 0.85; line-height: 1.3; }
+  .wall-score b { color: var(--berry); }
+  .wall-card.miss .wall-score b { color: #888; }
+
+  /* Badge row on each wall card */
+  .wall-badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .wbadge {
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    background: #FFEAB5;
+    border: 1.5px solid #E0B850;
+  }
+  .wbadge.rare { background: #DCEEFE; border-color: #5BB8FF; }
+  .wbadge.legendary { background: linear-gradient(135deg, #FFD96B, #FF8A5C); border-color: #B8420A; }
+
+  /* Full badge collection */
+  .badge-collection {
+    background: var(--paper); border-radius: 18px; padding: 18px;
+    border: 1px solid var(--line);
+  }
+  .bc-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .bc-title { font-size: 18px; font-weight: 900; margin: 0; }
+  .bc-count { font-size: 12px; font-weight: 700; opacity: 0.6; }
+  .bc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .bc-tile {
+    background: #FFF6E5; border-radius: 14px; padding: 12px;
+    text-align: center; border: 1px solid var(--line);
+    position: relative;
+  }
+  .bc-tile.locked { opacity: 0.4; filter: grayscale(0.8); }
+  .bc-tile.locked::after {
+    content: '🔒'; position: absolute; top: 6px; right: 6px;
+    font-size: 12px; opacity: 0.6;
+  }
+  .bc-tile.earned.legendary {
+    background: linear-gradient(135deg, #FFF1ED, #FFE2A8);
+    border: 2px solid #FF8A5C;
+    box-shadow: 0 4px 14px rgba(255,138,92,0.25);
+  }
+  .bc-tile.earned.rare { background: #DCEEFE; border-color: #5BB8FF; }
+  .bc-tile-em { font-size: 36px; margin-bottom: 4px; }
+  .bc-tile-nm { font-size: 13px; font-weight: 800; }
+  .bc-tile-meta { font-size: 10px; opacity: 0.65; font-weight: 700; margin-top: 2px; }
+
+  .wall-foot { text-align: center; padding: 12px; font-size: 12px; opacity: 0.6; font-weight: 700; }
+
+  /* 72-hour urgent treatment */
+  .pf-bubble.urgent { border-color: #B43320; background: #FFF1ED; position: relative; padding-top: 22px; }
+  .pf-bubble.urgent::after { border-top-color: #B43320; }
+  .urgent-flag {
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    background: #B43320; color: white;
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 900; letter-spacing: 1px;
+    animation: pulse-urgent 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse-urgent {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.08); }
+  }
+  .grp-tile.urgent {
+    background: #FFEEE7;
+    border: 2px solid #B43320;
+    animation: pulse-tile 1.6s ease-in-out infinite;
+  }
+  .grp-tile.urgent::after {
+    content: '🚨'; position: absolute; top: -10px; right: -8px;
+    background: #B43320; color: white; padding: 3px 8px;
+    border-radius: 999px; font-size: 12px; font-weight: 900;
+  }
+  @keyframes pulse-tile {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(180, 51, 32, 0.45); }
+    50% { box-shadow: 0 0 0 6px rgba(180, 51, 32, 0); }
+  }
+  .urgent-pill {
+    background: var(--leaf); color: white;
+    padding: 2px 8px; border-radius: 999px;
+    font-size: 10px; font-weight: 900; letter-spacing: 0.5px;
+    margin-left: 6px; vertical-align: middle;
+  }
+
+  /* Big-bonus indicator on amount button when urgent — label is set per-group via JS */
+  .ml-amount.urgent::before {
+    content: var(--urgent-label, '+25 URGENT'); position: absolute; top: -8px; right: 8px;
+    background: #B43320; color: white;
+    padding: 2px 8px; border-radius: 999px;
+    font-size: 9px; font-weight: 900; letter-spacing: 0.5px;
+  }
+
+  /* Floss dance + goal celebration */
+  .ava-shell.dancing {
+    animation: floss 0.4s ease-in-out 8 !important;
+  }
+  @keyframes floss {
+    0%   { transform: translateX(0) rotate(0); }
+    25%  { transform: translateX(-10px) rotate(10deg); }
+    50%  { transform: translateX(0) rotate(0); }
+    75%  { transform: translateX(10px) rotate(-10deg); }
+    100% { transform: translateX(0) rotate(0); }
+  }
+  .goal-banner {
+    position: absolute; top: 0; left: 0; right: 0;
+    background: linear-gradient(90deg, var(--leaf), var(--grass));
+    color: white; padding: 14px;
+    text-align: center; font-size: 18px; font-weight: 900;
+    z-index: 10;
+    animation: banner-slide 3s ease-out forwards;
+    transform: translateY(-100%);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.2);
+  }
+  @keyframes banner-slide {
+    0% { transform: translateY(-100%); }
+    15% { transform: translateY(0); }
+    85% { transform: translateY(0); }
+    100% { transform: translateY(-100%); }
+  }
+  .confetti-piece {
+    position: absolute; width: 10px; height: 14px;
+    animation: confetti-fall 2.4s ease-in forwards;
+  }
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0); opacity: 1; }
+    100% { transform: translateY(420px) rotate(720deg); opacity: 0; }
+  }
+
+  /* ============ FEED ANIMATION ============ */
+  .feed-burst {
+    position: absolute; pointer-events: none;
+    width: 100%; height: 100%; top: 0; left: 0;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 5;
+  }
+  .burst-ring {
+    position: absolute; top: 50%; left: 50%;
+    width: 60px; height: 60px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%; border: 4px solid rgba(255, 220, 100, 0.9);
+    animation: burst-ring 0.9s ease-out forwards;
+  }
+  @keyframes burst-ring {
+    0% { width: 60px; height: 60px; opacity: 1; }
+    100% { width: 280px; height: 280px; opacity: 0; }
+  }
+  .burst-spark {
+    position: absolute; top: 50%; left: 50%;
+    margin-top: -7px; margin-left: -7px;
+    width: 14px; height: 14px;
+    background: #FFD96B; border-radius: 50%;
+    box-shadow: 0 0 12px rgba(255, 200, 80, 0.9);
+    animation: burst-spark 0.9s ease-out forwards;
+  }
+  @keyframes burst-spark {
+    0% { transform: translate(0,0) scale(0); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0.4); opacity: 0; }
+  }
+  .xp-pop {
+    position: absolute; top: 50%; left: 50%;
+    pointer-events: none; z-index: 6;
+    font-size: 48px; font-weight: 900;
+    color: white;
+    text-shadow: 0 2px 0 var(--berry), 0 0 18px rgba(232,74,111,0.6);
+    animation: xp-pop 1.4s ease-out forwards;
+    letter-spacing: -1px;
+  }
+  @keyframes xp-pop {
+    0% { transform: translate(-50%, -40%) scale(0.4); opacity: 0; }
+    20% { transform: translate(-50%, -60%) scale(1.2); opacity: 1; }
+    80% { transform: translate(-50%, -160%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -200%) scale(0.85); opacity: 0; }
+  }
+  .ava-shell.feeding {
+    animation: feed-punch 0.6s ease-out;
+  }
+  @keyframes feed-punch {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.18) rotate(-3deg); }
+    55% { transform: scale(1.10) rotate(3deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+  .feed-host {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    background: linear-gradient(135deg, #FFE2A8, #FFB774);
+    border-radius: 16px;
+    overflow: visible;
+  }
+
+  @media (max-width: 1100px) {
+    .pf-stage { grid-template-columns: 1fr; }
+    .mlog { grid-template-columns: 1fr; }
+    .pick { grid-template-columns: 1fr; }
+    .kid-row { grid-template-columns: 1fr; }
+    .chores { grid-template-columns: 1fr; }
+    .wall-grid { grid-template-columns: repeat(3, 1fr); }
+    .tro-stats { grid-template-columns: repeat(2, 1fr); }
+    .unlock-card { grid-template-columns: 1fr; }
+    .dress-stage { grid-template-columns: 1fr; }
+    .stat-mega { font-size: 96px; }
+    .wrap-card-title { font-size: 42px; }
+    .ava-shell { width: 180px; height: 180px; font-size: 110px; }
+  }
+  @media (max-width: 720px) {
+    .stage { padding: 12px; }
+    .ipad { padding: 8px; border-radius: 22px; }
+    .screen { border-radius: 16px; }
+    .profile, .mlog, .parent, .chores, .pick { padding: 18px; }
+    .wrap-bg { padding: 22px 20px; min-height: 480px; }
+    .wrap-card-title { font-size: 34px; }
+    .stat-mega { font-size: 72px; }
+    .ml-foods { grid-template-columns: repeat(3, 1fr); }
+    .icon-grid { grid-template-columns: repeat(6, 1fr); }
+    .ch-grid { grid-template-columns: repeat(2, 1fr); }
+    .pick-grid { grid-template-columns: repeat(2, 1fr); }
+    .pf-actions { grid-template-columns: 1fr; }
+    .ring-grid { grid-template-columns: repeat(3, 1fr); }
+    .wall-grid { grid-template-columns: repeat(2, 1fr); }
+    .bc-grid { grid-template-columns: repeat(3, 1fr); }
+    .cos-grid { grid-template-columns: repeat(3, 1fr); }
+    .priv-grid { grid-template-columns: 1fr; }
+    .pb-strip { grid-template-columns: repeat(4, 1fr); }
+    .rc-level-picker { grid-template-columns: repeat(2, 1fr); }
+    .unlock-name { font-size: 28px; }
+    .ed-tabs { flex-wrap: wrap; }
+    .ed-tab { font-size: 11px; }
+    .set-2col { grid-template-columns: 1fr; }
+    .sug-grid { grid-template-columns: repeat(2, 1fr); }
+    .bonus-row { grid-template-columns: 28px 1fr 60px auto; }
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="header">
+    <div class="logo">M</div>
+    <div>
+      <h1>MightyBites — Mockups</h1>
+      <p>Tap a tab to switch screens. Designed for iPad landscape.</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-view="leaderboard">Home</button>
+    <button class="tab" data-view="characters">Choose Buddy</button>
+    <button class="tab" data-view="profile">Profile</button>
+    <button class="tab" data-view="meal">Meal Log</button>
+    <button class="tab" data-view="trophies">Trophies</button>
+    <button class="tab" data-view="chores">Responsibility</button>
+    <button class="tab" data-view="settings">⚙️ Settings</button>
+    <button class="tab" data-view="kid">Recap (Kid)</button>
+    <button class="tab" data-view="parent">Recap (Parent)</button>
+  </div>
+
+  <div class="ipad">
+    <div class="screen">
+
+      <!-- ============ PROFILE ============ -->
+      <div class="view" id="view-profile">
+        <div class="profile">
+          <div class="profile-top">
+            <div class="pf-back"><div class="av">←</div><span>Switch kid</span></div>
+            <div class="pf-meta">
+              <div class="pf-streak"><span style="font-size:18px;">🔥</span> 6-day streak</div>
+              <div class="pf-trust" title="Trust feature is on for Emma">⭐ <b>L3</b> Trusted Crew</div>
+              <div class="pf-gear">⚙️</div>
+            </div>
+          </div>
+
+          <div class="weekly-goal">
+            <div class="wg-left">
+              <div class="wg-title">This week's goal</div>
+              <div class="wg-big">540 <span>/ 700 pts</span></div>
+              <div class="wg-meta">5 of 7 dinners done · 2 to go for the goal!</div>
+              <div class="wg-bar"><div class="wg-bar-fill" style="width: 77%;"></div><div class="wg-bar-target"></div></div>
+              <div class="wg-axis">
+                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+              </div>
+            </div>
+            <div class="wg-right">
+              <div class="wg-delta">
+                <div class="wg-delta-arrow">↑</div>
+                <div>
+                  <div class="wg-delta-num">+85</div>
+                  <div class="wg-delta-lbl">vs last week</div>
+                </div>
+              </div>
+              <div class="wg-spark">
+                <div class="spark-bar" style="height: 30%;" title="Wk -3"></div>
+                <div class="spark-bar" style="height: 48%;" title="Wk -2"></div>
+                <div class="spark-bar" style="height: 65%;" title="Last wk"></div>
+                <div class="spark-bar now" style="height: 77%;" title="This wk"></div>
+              </div>
+              <div class="wg-spark-lbl">last 4 weeks</div>
+            </div>
+          </div>
+
+          <div class="pf-stage">
+            <div class="pf-avatar-col">
+              <div class="pf-bubble urgent">
+                <span class="urgent-flag">🚨 72 HOURS</span>
+                <span class="lead">I haven't had veggies since Sunday!</span><br/>
+                Feed me one and you'll earn a <b>+35 urgent bonus</b>. 🥦
+              </div>
+              <div class="ava-shell">
+                🦖
+                <div class="crown">👑</div>
+                <div class="sweat">💧</div>
+              </div>
+              <div class="pf-stage-label">Tough Dino · Stage 4 of 6</div>
+              <button class="pf-swap">✨ Switch buddy</button>
+            </div>
+            <div class="pf-stats">
+              <div class="pf-strength pf-trust-card">
+                <div class="pf-strength-row">
+                  <div class="lbl">⭐ Trust Level</div>
+                  <div class="v">L3 · Trusted Crew</div>
+                </div>
+                <div class="pf-bar"><div class="pf-bar-fill" style="background: linear-gradient(90deg, #FFD96B, #FF8A5C); width: 34%;"></div></div>
+                <div class="pf-stage-arrow"><b style="color: var(--berry);">160 pts to Family MVP</b> · ~6 weeks at her pace</div>
+              </div>
+
+              <div class="growth-strip">
+                <h4>This week's growth <span>watch your dino get bigger</span></h4>
+                <div class="growth-days">
+                  <div class="growth-day"><div class="gd-ava" style="width:24px;height:24px;font-size:14px;">🥚</div><div class="gd-lbl">Mon</div></div>
+                  <div class="growth-day now"><div class="gd-ava" style="width:38px;height:38px;font-size:24px;border:2px solid var(--berry);">🦖</div><div class="gd-lbl">Tue NOW</div></div>
+                  <div class="growth-day future"><div class="gd-ava" style="width:34px;height:34px;font-size:22px;">🦖</div><div class="gd-lbl">Wed</div></div>
+                  <div class="growth-day future"><div class="gd-ava" style="width:40px;height:40px;font-size:26px;">🦖</div><div class="gd-lbl">Thu</div></div>
+                  <div class="growth-day future"><div class="gd-ava" style="width:46px;height:46px;font-size:30px;">🦖</div><div class="gd-lbl">Fri</div></div>
+                  <div class="growth-day future"><div class="gd-ava" style="width:52px;height:52px;font-size:34px;">🦖</div><div class="gd-lbl">Sat</div></div>
+                  <div class="growth-day future"><div class="gd-ava" style="width:58px;height:58px;font-size:38px;">👑</div><div class="gd-lbl">Sun goal</div></div>
+                </div>
+              </div>
+              <div class="pf-rings">
+                <h4>Today's plate <span class="sub">· age 9 daily targets</span></h4>
+                <div class="ring-grid">
+                  <div class="ring-cell">
+                    <div class="ring-wrap">
+                      <svg class="ring-svg" viewBox="0 0 56 56"><circle class="ring-bg" cx="28" cy="28" r="22"></circle><circle class="ring-fg" cx="28" cy="28" r="22" stroke="#5BB8FF" stroke-dasharray="92 138" /></svg>
+                      <span class="ico">🥛</span>
+                    </div>
+                    <div class="nm">Dairy</div><div class="pr">2/3</div>
+                  </div>
+                  <div class="ring-cell">
+                    <div class="ring-wrap">
+                      <svg class="ring-svg" viewBox="0 0 56 56"><circle class="ring-bg" cx="28" cy="28" r="22"></circle><circle class="ring-fg" cx="28" cy="28" r="22" stroke="#E84A6F" stroke-dasharray="69 138" /></svg>
+                      <span class="ico">🍗</span>
+                    </div>
+                    <div class="nm">Protein</div><div class="pr">1/2</div>
+                  </div>
+                  <div class="ring-cell">
+                    <div class="ring-wrap">
+                      <svg class="ring-svg" viewBox="0 0 56 56"><circle class="ring-bg" cx="28" cy="28" r="22"></circle><circle class="ring-fg" cx="28" cy="28" r="22" stroke="#BA7517" stroke-dasharray="110 138" /></svg>
+                      <span class="ico">🍞</span>
+                    </div>
+                    <div class="nm">Grains</div><div class="pr">4/5</div>
+                  </div>
+                  <div class="ring-cell">
+                    <div class="ring-wrap">
+                      <svg class="ring-svg" viewBox="0 0 56 56"><circle class="ring-bg" cx="28" cy="28" r="22"></circle><circle class="ring-fg" cx="28" cy="28" r="22" stroke="#FF6F61" stroke-dasharray="69 138" /></svg>
+                      <span class="ico">🍎</span>
+                    </div>
+                    <div class="nm">Fruit</div><div class="pr">1/2</div>
+                  </div>
+                  <div class="ring-cell alert">
+                    <div class="ring-wrap">
+                      <svg class="ring-svg" viewBox="0 0 56 56"><circle class="ring-bg" cx="28" cy="28" r="22"></circle><circle class="ring-fg" cx="28" cy="28" r="22" stroke="#6CC36A" stroke-dasharray="0 138" /></svg>
+                      <span class="ico">🥦</span>
+                    </div>
+                    <div class="nm">Veggies</div><div class="pr">0/2</div>
+                  </div>
+                  <div class="ring-cell junk">
+                    <div class="ring-wrap">
+                      <svg class="ring-svg" viewBox="0 0 56 56"><circle class="ring-bg" cx="28" cy="28" r="22"></circle><circle class="ring-fg" cx="28" cy="28" r="22" stroke="#E0A800" stroke-dasharray="46 138" /></svg>
+                      <span class="ico">🍩</span>
+                    </div>
+                    <div class="nm">Treats</div><div class="pr">1/2</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="profile-badges">
+            <div class="pb-head">
+              <h4>🎖️ Badges earned</h4>
+              <button class="pb-all">View all 14 →</button>
+            </div>
+            <div class="pb-strip">
+              <div class="pb-tile legendary"><span class="pb-em">🔥</span><div class="pb-nm">4-Week Streak</div><div class="pb-ct">×1</div></div>
+              <div class="pb-tile rare"><span class="pb-em">🏆</span><div class="pb-nm">Family #1</div><div class="pb-ct">×3</div></div>
+              <div class="pb-tile rare"><span class="pb-em">🥦</span><div class="pb-nm">Veggie Champ</div><div class="pb-ct">×2</div></div>
+              <div class="pb-tile"><span class="pb-em">✓</span><div class="pb-nm">Goal Hit</div><div class="pb-ct">×7</div></div>
+              <div class="pb-tile"><span class="pb-em">🌙</span><div class="pb-nm">Full Dinner</div><div class="pb-ct">×5</div></div>
+              <div class="pb-tile rare"><span class="pb-em">🌟</span><div class="pb-nm">Brave Bites</div><div class="pb-ct">×2</div></div>
+              <div class="pb-tile rare"><span class="pb-em">🚫</span><div class="pb-nm">No Junk</div><div class="pb-ct">×1</div></div>
+              <div class="pb-tile"><span class="pb-em">🚀</span><div class="pb-nm">Comeback</div><div class="pb-ct">×1</div></div>
+            </div>
+          </div>
+
+          <div class="pf-actions">
+            <button class="pf-act alt">🍽️ Log a meal</button>
+            <button class="pf-act">⭐ Log a chore</button>
+            <button class="pf-act ghost">📊 See my week</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ LEADERBOARD (HOME) ============ -->
+      <div class="view active" id="view-leaderboard">
+        <div class="lb">
+          <div class="lb-head">
+            <div>
+              <div class="lb-date">Tuesday, April 28</div>
+              <h2 class="lb-title">🏆 Family Leaderboard</h2>
+              <p class="lb-sub">Tap a kid's tile to log their meal.</p>
+            </div>
+            <div class="lb-toggle">
+              <div class="lb-chip active">This week</div>
+              <div class="lb-chip">All-time</div>
+            </div>
+          </div>
+
+          <div class="podium">
+            <div class="pod-bar pod-2">
+              <div class="pod-ava-wrap">
+                <div class="ava-shell" style="width:90px;height:90px;font-size:54px;">🐉</div>
+                <div class="pod-medal">🥈</div>
+              </div>
+              <div class="pod-name">Jordan</div>
+              <div class="pod-tag">Tough Dragon · 12</div>
+              <div class="pod-xp">3,120 XP</div>
+              <div class="pod-block pod-block-2">2</div>
+            </div>
+            <div class="pod-bar pod-1">
+              <div class="pod-ava-wrap">
+                <div class="ava-shell strong" style="width:110px;height:110px;font-size:68px;">🦖<div class="crown">👑</div></div>
+                <div class="pod-medal">🥇</div>
+              </div>
+              <div class="pod-name">Emma</div>
+              <div class="pod-tag">Champion Dino · 9</div>
+              <div class="pod-xp">4,280 XP</div>
+              <div class="pod-block pod-block-1">1</div>
+            </div>
+            <div class="pod-bar pod-3">
+              <div class="pod-ava-wrap">
+                <div class="ava-shell" style="width:80px;height:80px;font-size:48px;">🐱</div>
+                <div class="pod-medal">🥉</div>
+              </div>
+              <div class="pod-name">Theo</div>
+              <div class="pod-tag">Tween Kitty · 5</div>
+              <div class="pod-xp">2,110 XP</div>
+              <div class="pod-block pod-block-3">3</div>
+            </div>
+          </div>
+
+          <div class="lb-list">
+            <div class="lb-row gold">
+              <div class="lb-rank">1</div>
+              <div class="lb-ava">🦖</div>
+              <div class="lb-info">
+                <div class="lb-name">Emma <span class="lb-badge gold">7 dinners 🌙</span> <span class="lb-badge danger">🥦 needs veggies +35</span></div>
+                <div class="lb-meta">Champion Dino · age 9 · 3 weeks won 🏆</div>
+                <div class="lb-bar">
+                  <div class="lb-bar-fill" style="width: 91%;"></div>
+                  <div class="lb-bar-target"></div>
+                </div>
+                <div class="lb-bar-lbl"><b>635</b> / 700 weekly goal · all-time 4,280</div>
+              </div>
+              <div class="lb-tap">
+                <div class="lb-xp">635<span>this week</span></div>
+                <button class="lb-log-btn">Log dinner →</button>
+              </div>
+            </div>
+            <div class="lb-row silver">
+              <div class="lb-rank">2</div>
+              <div class="lb-ava">🐉</div>
+              <div class="lb-info">
+                <div class="lb-name">Jordan <span class="lb-badge">5 dinners 🌙</span></div>
+                <div class="lb-meta">Tough Dragon · age 12 · 1 week won</div>
+                <div class="lb-bar">
+                  <div class="lb-bar-fill" style="width: 60%;"></div>
+                  <div class="lb-bar-target"></div>
+                </div>
+                <div class="lb-bar-lbl"><b>420</b> / 700 weekly goal · all-time 3,120</div>
+              </div>
+              <div class="lb-tap">
+                <div class="lb-xp">420<span>this week</span></div>
+                <button class="lb-log-btn">Log dinner →</button>
+              </div>
+            </div>
+            <div class="lb-row bronze hungry">
+              <div class="lb-rank">3</div>
+              <div class="lb-ava sluggish">🐱<span class="zzz">💤</span></div>
+              <div class="lb-info">
+                <div class="lb-name">Theo <span class="lb-badge danger">😟 Hungry · needs protein +50</span></div>
+                <div class="lb-meta">Tween Kitty · age 5 · last meal 4hrs ago · sluggish</div>
+                <div class="lb-bar">
+                  <div class="lb-bar-fill weak" style="width: 34%;"></div>
+                  <div class="lb-bar-target"></div>
+                </div>
+                <div class="lb-bar-lbl"><b>240</b> / 700 weekly goal · all-time 2,110</div>
+              </div>
+              <div class="lb-tap">
+                <div class="lb-xp">240<span>this week</span></div>
+                <button class="lb-log-btn urgent-btn">⚡ Feed Theo →</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="lb-callout">
+            <div class="lb-cb-em">⚡</div>
+            <div>
+              <div class="lb-cb-title">Theo's avatar is sluggish</div>
+              <div class="lb-cb-msg">No protein in 96 hours and no dinner today. Logging now earns +50 urgent bonus.</div>
+            </div>
+            <button class="nudge-btn" style="margin-left: auto;">Cheer Theo →</button>
+          </div>
+
+          <div class="lb-foot">👆 Tap your kid to log a meal · this screen lives on the kitchen iPad</div>
+        </div>
+      </div>
+
+      <!-- ============ CHARACTER PICKER ============ -->
+      <div class="view" id="view-characters">
+        <div class="pick">
+          <div>
+            <div class="pick-head">
+              <h2>Pick your buddy, Emma!</h2>
+              <p>Each one grows differently. Pick whichever feels like you.</p>
+            </div>
+            <div class="pick-grid" id="char-grid">
+              <div class="char-tile sel" data-key="dino"><div class="face">🦖</div><div class="nm">Dino</div><div class="tag">Ancient powerhouse</div></div>
+              <div class="char-tile" data-key="dragon"><div class="face">🐉</div><div class="nm">Dragon</div><div class="tag">Fiery & fierce</div></div>
+              <div class="char-tile" data-key="robot"><div class="face">🤖</div><div class="nm">Robo</div><div class="tag">Built to last</div></div>
+              <div class="char-tile" data-key="cat"><div class="face">🐱</div><div class="nm">Kitty</div><div class="tag">Curious & quick</div></div>
+              <div class="char-tile" data-key="bear"><div class="face">🐻</div><div class="nm">Bear</div><div class="tag">Strong & cuddly</div></div>
+              <div class="char-tile" data-key="fox"><div class="face">🦊</div><div class="nm">Fox</div><div class="tag">Clever trickster</div></div>
+              <div class="char-tile" data-key="unicorn"><div class="face">🦄</div><div class="nm">Unicorn</div><div class="tag">Magical mover</div></div>
+              <div class="char-tile" data-key="shark"><div class="face">🦈</div><div class="nm">Shark</div><div class="tag">Ocean champion</div></div>
+              <div class="char-tile" data-key="bunny"><div class="face">🐰</div><div class="nm">Bunny</div><div class="tag">Hop hop power</div></div>
+            </div>
+          </div>
+          <div class="pick-side">
+            <div class="pick-preview">
+              <div class="ava-shell small" id="char-preview">🦖</div>
+              <div class="pick-preview-name" id="char-name">Dino</div>
+              <div class="pick-preview-blurb" id="char-blurb">Eat well and I'll grow into a Champion Dino. Eat too much junk and… you'll see.</div>
+            </div>
+            <div>
+              <div class="editor-label">Growth path</div>
+              <div class="stages-strip" id="stages-strip">
+                <div class="stage-pip"><div class="b">🥚</div><div class="l">SPROUT</div></div>
+                <div class="stage-pip"><div class="b">🦎</div><div class="l">BABY</div></div>
+                <div class="stage-pip"><div class="b">🦖</div><div class="l">TWEEN</div></div>
+                <div class="stage-pip now"><div class="b">🦖</div><div class="l">TOUGH</div></div>
+                <div class="stage-pip"><div class="b">👑</div><div class="l">CHAMP</div></div>
+                <div class="stage-pip"><div class="b">⭐</div><div class="l">LEGEND</div></div>
+              </div>
+            </div>
+            <button class="pick-cta">Pick this buddy ✨</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ MEAL LOG ============ -->
+      <div class="view" id="view-meal">
+        <div class="mlog">
+          <div class="mlog-left">
+            <div class="mlog-head">
+              <div>
+                <h2 class="mlog-title">What did you eat, Emma?</h2>
+                <div class="mlog-sub">Tap a food group to log it</div>
+              </div>
+            </div>
+
+            <div class="ml-needs">
+              <div class="ml-needs-ava">
+                <div class="ava-shell" style="width:64px;height:64px;font-size:42px;">🦖</div>
+              </div>
+              <div class="ml-needs-body">
+                <div class="ml-needs-eyebrow">Dino is asking for…</div>
+                <div class="ml-needs-list">
+                  <div class="needs-tag urgent"><span class="em">🥦</span> Veggies <b>+35 urgent</b></div>
+                  <div class="needs-tag deficit"><span class="em">🍗</span> Protein <b>+8 deficit</b></div>
+                  <div class="needs-tag good"><span class="em">🍩</span> Skip a treat <b>+5</b></div>
+                </div>
+              </div>
+            </div>
+            <div class="meal-primary sel" data-meal="dinner">
+              <div class="mp-em">🌙</div>
+              <div class="mp-info">
+                <div class="mp-nm">Dinner</div>
+                <div class="mp-hint">The main quest · up to 100 pts/night</div>
+              </div>
+              <div class="mp-badge">5 of 7 this week</div>
+            </div>
+            <div class="meal-chips">
+              <div class="meal-chip" data-meal="breakfast"><span class="em">🌅</span>Breakfast <span class="opt">+25 pts</span></div>
+              <div class="meal-chip" data-meal="lunch"><span class="em">☀️</span>Lunch <span class="opt">+25 pts</span></div>
+              <div class="meal-chip" data-meal="snack"><span class="em">🍪</span>Snack <span class="opt">bonus</span></div>
+            </div>
+
+            <div class="bb-section-lbl">📋 Dinner expectations &amp; bonuses</div>
+            <div class="behavior-bonuses">
+              <div class="bb-tile expectation" id="bb-seated" data-state="met">
+                <span class="bb-em">🪑</span>
+                <div class="bb-info">
+                  <div class="bb-nm" id="bb-seated-nm">Stayed seated</div>
+                  <div class="bb-meta" id="bb-seated-meta">EXPECTATION · −10 if you got up</div>
+                </div>
+                <div class="bb-xp neutral">expected</div>
+                <div class="bb-check"></div>
+              </div>
+
+              <div class="bb-tile bonus" id="bb-no-whining" data-state="unclaimed" data-pts="5">
+                <span class="bb-em">😊</span>
+                <div class="bb-info">
+                  <div class="bb-nm">No whining</div>
+                  <div class="bb-meta">Calm dinner pays off · tap to claim</div>
+                </div>
+                <div class="bb-xp">+5</div>
+                <div class="bb-check"></div>
+              </div>
+
+              <div class="bb-tile bonus" id="bb-cleanup" data-state="unclaimed" data-pts="10">
+                <span class="bb-em">🧹</span>
+                <div class="bb-info">
+                  <div class="bb-nm">Helped clean up</div>
+                  <div class="bb-meta">Cleared plates, wiped table</div>
+                </div>
+                <div class="bb-xp">+10</div>
+                <div class="bb-check"></div>
+              </div>
+
+              <div class="bb-tile bonus" id="bb-new-food" data-state="unclaimed" data-pts="10">
+                <span class="bb-em">🌟</span>
+                <div class="bb-info">
+                  <div class="bb-nm">Tried something new</div>
+                  <div class="bb-meta">Brave bites · auto-tracked when you log a new food</div>
+                </div>
+                <div class="bb-xp">+10</div>
+                <div class="bb-check"></div>
+              </div>
+            </div>
+            <div class="grp-grid" id="grp-grid">
+              <div class="grp-tile done" data-grp="dairy"><div class="grp-icon">🥛</div><div class="grp-info"><h4 class="grp-name">Dairy</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 67%;"></div></div><div class="grp-meta">2 of 3 servings</div></div></div>
+              <div class="grp-tile" data-grp="protein"><div class="grp-icon">🍗</div><div class="grp-info"><h4 class="grp-name">Protein</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 50%;"></div></div><div class="grp-meta">1 of 2 servings</div></div></div>
+              <div class="grp-tile" data-grp="grains"><div class="grp-icon">🍞</div><div class="grp-info"><h4 class="grp-name">Grains</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 80%;"></div></div><div class="grp-meta">4 of 5 servings</div></div></div>
+              <div class="grp-tile" data-grp="fruit"><div class="grp-icon">🍎</div><div class="grp-info"><h4 class="grp-name">Fruit</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 50%;"></div></div><div class="grp-meta">1 of 2 servings</div></div></div>
+              <div class="grp-tile urgent active" data-grp="veggies">
+                <div class="grp-icon" style="background: #FFE6EE;">🥦</div>
+                <div class="grp-info">
+                  <h4 class="grp-name">Veggies <span class="urgent-pill">+35 URGENT</span></h4>
+                  <div class="grp-progress"><div class="grp-progress-fill low" style="width: 0%;"></div></div>
+                  <div class="grp-meta">Last logged 72hrs ago · dino is begging!</div>
+                </div>
+              </div>
+              <div class="grp-tile junk" data-grp="treats"><div class="grp-icon">🍩</div><div class="grp-info"><h4 class="grp-name">Treats</h4><div class="grp-progress"><div class="grp-progress-fill junk" style="width: 50%;"></div></div><div class="grp-meta">1 of 2 OK · keep it balanced</div></div></div>
+            </div>
+          </div>
+
+          <div class="mlog-right">
+            <div>
+              <div class="ml-step-label" id="ml-meal-label">Dinner · Veggies 🥦</div>
+              <h3 class="ml-q" id="ml-q">How much did you have?</h3>
+            </div>
+
+            <div class="ml-amounts" id="ml-amounts">
+              <div class="ml-amount skip" data-amt="skipped"><span class="em">🚫</span><span class="nm">Skipped</span><span class="xp-tag">0 XP</span></div>
+              <div class="ml-amount" data-amt="tried"><span class="em">👅</span><span class="nm">Tried it</span><span class="xp-tag">+10</span></div>
+              <div class="ml-amount" data-amt="half"><span class="em">🙂</span><span class="nm">Ate half</span><span class="xp-tag">+20</span></div>
+              <div class="ml-amount sel bonus" data-amt="finished"><span class="em">🏆</span><span class="nm">Finished!</span><span class="xp-tag">+60</span></div>
+            </div>
+
+            <button class="feed-btn" id="feed-btn"><span class="em">🍽️</span> Feed your dino · <span id="feed-xp">+60 XP</span></button>
+
+            <div class="feed-host" id="feed-host">
+              <div class="ava-shell" id="feed-avatar" style="width:120px;height:120px;font-size:74px;">🦖<div class="sweat">💧</div></div>
+              <div class="feed-burst" id="feed-burst"></div>
+            </div>
+
+            <div class="ml-react" id="ml-react">
+              <div class="av-mini" id="av-mini">🦖</div>
+              <div class="msg" id="ml-react-msg">
+                <span class="xp">+60 XP!</span> Veggies are deficit today — bonus! One more and I level up. 💪
+              </div>
+            </div>
+
+            <div>
+              <div class="editor-label" style="margin-bottom: 4px;">See how dino reacts</div>
+              <div class="demo-states" id="demo-states">
+                <div class="demo-state sel" data-mood="strong"><span class="dot healthy"></span>Strong</div>
+                <div class="demo-state" data-mood="weak"><span class="dot weak"></span>Weak</div>
+                <div class="demo-state" data-mood="queasy"><span class="dot queasy"></span>Queasy</div>
+                <div class="demo-state" data-mood="sick"><span class="dot sick"></span>Sick</div>
+                <div class="demo-state goal" id="demo-goal" style="background: var(--leaf); color: white; border-color: var(--leaf);">🕺 Goal hit! Dance</div>
+              </div>
+            </div>
+
+            <div class="scoring-card">
+              <div class="sc-head">
+                <div class="sc-title">How points work</div>
+                <div class="sc-tag">Weekly goal: 700 pts</div>
+              </div>
+              <div class="sc-grid">
+                <div class="sc-row primary">
+                  <span class="sc-em">🌙</span>
+                  <span class="sc-lbl">Dinner (the main quest)</span>
+                  <span class="sc-val">100 pts × 7 = <b>700</b></span>
+                </div>
+                <div class="sc-row"><span class="sc-em">🌅</span><span class="sc-lbl">Breakfast bonus</span><span class="sc-val">25 × 7 = +175</span></div>
+                <div class="sc-row"><span class="sc-em">☀️</span><span class="sc-lbl">Lunch bonus</span><span class="sc-val">25 × 7 = +175</span></div>
+                <div class="sc-row"><span class="sc-em">⭐</span><span class="sc-lbl">Chores</span><span class="sc-val">up to +140</span></div>
+                <div class="sc-row warn"><span class="sc-em">🍩</span><span class="sc-lbl">3rd treat / day</span><span class="sc-val">−15 each</span></div>
+              </div>
+              <div class="sc-foot">Eat dinner all 7 nights = full goal. Everything else is upside.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ TROPHIES (Champions Wall + latest unlock) ============ -->
+      <div class="view" id="view-trophies">
+        <div class="tro">
+          <!-- Lifetime stats bar -->
+          <div class="tro-stats">
+            <div class="tro-stat">
+              <div class="tro-stat-em">⭐</div>
+              <div>
+                <div class="tro-stat-v">Tough Dino</div>
+                <div class="tro-stat-l">Lifetime stage · 4,820 XP</div>
+              </div>
+            </div>
+            <div class="tro-stat">
+              <div class="tro-stat-em">🏆</div>
+              <div><div class="tro-stat-v">7</div><div class="tro-stat-l">Weeks won</div></div>
+            </div>
+            <div class="tro-stat">
+              <div class="tro-stat-em">🔥</div>
+              <div><div class="tro-stat-v">4</div><div class="tro-stat-l">Streak weeks</div></div>
+            </div>
+            <div class="tro-stat">
+              <div class="tro-stat-em">🎀</div>
+              <div><div class="tro-stat-v">11</div><div class="tro-stat-l">Cosmetics owned</div></div>
+            </div>
+          </div>
+
+          <!-- Latest unlock celebration card -->
+          <div class="unlock-card">
+            <div class="unlock-shimmer"></div>
+            <div class="unlock-left">
+              <div class="unlock-eyebrow">🎉 Just unlocked! 4-week streak reward</div>
+              <h2 class="unlock-name">Champion Crown</h2>
+              <div class="rarity legendary"><span class="dot"></span>LEGENDARY</div>
+              <p class="unlock-desc">You hit the weekly goal 4 weeks in a row. Your Dino now wears the Champion Crown — and walks 1.2× faster on the leaderboard 🏃‍♀️.</p>
+              <div class="unlock-actions">
+                <button class="btn-primary" style="background: var(--berry);">Equip now</button>
+                <button class="btn-secondary">Save for later</button>
+              </div>
+            </div>
+            <div class="unlock-right">
+              <div class="unlock-stage">
+                <div class="ava-shell strong" style="width:160px;height:160px;font-size:100px;">
+                  🦖<div class="crown" style="font-size:62px; top:-22px; right:6px;">👑</div>
+                </div>
+                <div class="unlock-sparkle s1">✨</div>
+                <div class="unlock-sparkle s2">✨</div>
+                <div class="unlock-sparkle s3">⭐</div>
+                <div class="unlock-sparkle s4">✨</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dressing Room -->
+          <div class="dress">
+            <div class="dress-head">
+              <div>
+                <h2 class="dress-title">👗 Dress your dino</h2>
+                <p class="dress-sub">Tap any earned item to wear or remove it. Locked items unlock from badges &amp; streaks.</p>
+              </div>
+              <div class="dress-actions">
+                <button class="btn-secondary" id="dress-reset">Reset</button>
+                <button class="btn-primary" style="background: var(--berry); flex: 0; padding: 10px 18px;" id="dress-save">Save outfit</button>
+              </div>
+            </div>
+
+            <div class="dress-stage">
+              <div class="dress-preview">
+                <div class="dress-stage-wrap" id="dress-stage-wrap">
+                  <div class="mood-indicator" id="dress-mood">🤩</div>
+                  <div class="ava-3d-rotator">
+                    <div class="ava-shell ava-3d" id="dress-avatar" style="width:180px;height:180px;font-size:115px;">
+                      <span class="ava-emoji">🦖</span>
+                      <span class="cos cos-head" data-slot="head">👑</span>
+                      <span class="cos cos-eyes" data-slot="eyes">🕶</span>
+                      <span class="cos cos-cape" data-slot="cape">⚡</span>
+                      <span class="cos cos-effect" data-slot="effect">✨</span>
+                      <span class="cos cos-acc" data-slot="acc">🎀</span>
+                    </div>
+                  </div>
+                  <div class="drag-hint">✋ Drag items · 💾 Save outfit pins their position</div>
+                </div>
+                <div class="dress-equipped">
+                  <div class="dress-eq-lbl">Wearing</div>
+                  <div class="dress-eq-list" id="dress-eq-list"></div>
+                </div>
+              </div>
+
+              <div class="dress-closet">
+                <div class="dress-tabs" id="dress-tabs">
+                  <div class="dress-tab active" data-slot="all">All</div>
+                  <div class="dress-tab" data-slot="head">🎩 Head</div>
+                  <div class="dress-tab" data-slot="eyes">🕶 Eyes</div>
+                  <div class="dress-tab" data-slot="cape">⚡ Cape</div>
+                  <div class="dress-tab" data-slot="effect">✨ Effects</div>
+                  <div class="dress-tab" data-slot="acc">🎀 Extras</div>
+                </div>
+                <div class="cos-grid" id="cos-grid"><!-- populated by JS --></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Champions Wall -->
+          <div class="wall-head">
+            <h2 class="wall-title">🏛️ Emma's Champions Wall</h2>
+            <div class="wall-toggle">
+              <div class="lb-chip active">All</div>
+              <div class="lb-chip">Goal hits</div>
+              <div class="lb-chip">By species</div>
+            </div>
+          </div>
+          <div class="wall-grid">
+            <div class="wall-card current">
+              <div class="wall-week">Week 18 · Apr 28–May 4</div>
+              <div class="wall-status">In progress</div>
+              <div class="wall-ava">
+                <div class="ava-shell" style="width:88px;height:88px;font-size:54px;">🦖<div class="crown" style="font-size:30px; top:-10px; right:0;">👑</div></div>
+              </div>
+              <div class="wall-bar"><div class="wall-bar-fill" style="width: 77%;"></div></div>
+              <div class="wall-score"><b>540</b> / 700 so far</div>
+            </div>
+
+            <div class="wall-card streak">
+              <div class="wall-week">Week 17 · Apr 21–27</div>
+              <div class="wall-status hit">✓ Goal hit · 4-week streak</div>
+              <div class="wall-ava">
+                <div class="ava-shell strong" style="width:88px;height:88px;font-size:54px;">🦖<div class="crown" style="font-size:30px; top:-10px; right:0;">👑</div></div>
+                <div class="wall-acc">⚡</div>
+              </div>
+              <div class="wall-bar"><div class="wall-bar-fill" style="width: 100%;"></div></div>
+              <div class="wall-score"><b>720</b> / 700 · earned ⚡ Lightning Cape</div>
+              <div class="wall-badges">
+                <div class="wbadge legendary" title="4-Week Streak">🔥</div>
+                <div class="wbadge" title="Goal Hit">✓</div>
+                <div class="wbadge rare" title="Family #1">🏆</div>
+                <div class="wbadge" title="Full Dinner Week">🌙</div>
+                <div class="wbadge rare" title="Veggie Champion">🥦</div>
+              </div>
+            </div>
+
+            <div class="wall-card hit">
+              <div class="wall-week">Week 16 · Apr 14–20</div>
+              <div class="wall-status hit">✓ Goal hit</div>
+              <div class="wall-ava">
+                <div class="ava-shell" style="width:88px;height:88px;font-size:54px;">🦖<div class="crown" style="font-size:30px; top:-10px; right:0;">👑</div></div>
+                <div class="wall-acc">🕶</div>
+              </div>
+              <div class="wall-bar"><div class="wall-bar-fill" style="width: 100%;"></div></div>
+              <div class="wall-score"><b>700</b> / 700 · earned 🕶 Cool Shades</div>
+              <div class="wall-badges">
+                <div class="wbadge" title="Goal Hit">✓</div>
+                <div class="wbadge" title="Full Dinner Week">🌙</div>
+                <div class="wbadge rare" title="Brave Bites">🌟</div>
+              </div>
+            </div>
+
+            <div class="wall-card miss">
+              <div class="wall-week">Week 15 · Apr 7–13</div>
+              <div class="wall-status miss">Missed goal</div>
+              <div class="wall-ava">
+                <div class="ava-shell weak" style="width:88px;height:88px;font-size:54px;">🦖</div>
+              </div>
+              <div class="wall-bar"><div class="wall-bar-fill weak" style="width: 68%;"></div></div>
+              <div class="wall-score"><b>480</b> / 700 · streak broken 💔</div>
+            </div>
+
+            <div class="wall-card hit">
+              <div class="wall-week">Week 14 · Mar 31–Apr 6</div>
+              <div class="wall-status hit">✓ Goal hit</div>
+              <div class="wall-ava">
+                <div class="ava-shell" style="width:88px;height:88px;font-size:54px;">🦖</div>
+                <div class="wall-acc">🎀</div>
+              </div>
+              <div class="wall-bar"><div class="wall-bar-fill" style="width: 100%;"></div></div>
+              <div class="wall-score"><b>730</b> / 700 · earned 🎀 Bow Tie</div>
+              <div class="wall-badges">
+                <div class="wbadge" title="Goal Hit">✓</div>
+                <div class="wbadge rare" title="Family #1">🏆</div>
+                <div class="wbadge rare" title="No Junk Week">🚫</div>
+              </div>
+            </div>
+
+            <div class="wall-card hit">
+              <div class="wall-week">Week 13 · Mar 24–30</div>
+              <div class="wall-status hit">✓ Goal hit</div>
+              <div class="wall-ava">
+                <div class="ava-shell" style="width:88px;height:88px;font-size:54px;">🦖</div>
+                <div class="wall-acc">🤠</div>
+              </div>
+              <div class="wall-bar"><div class="wall-bar-fill" style="width: 100%;"></div></div>
+              <div class="wall-score"><b>705</b> / 700 · earned 🤠 Bandana</div>
+              <div class="wall-badges">
+                <div class="wbadge" title="Goal Hit">✓</div>
+                <div class="wbadge" title="Full Dinner Week">🌙</div>
+              </div>
+            </div>
+
+            <div class="wall-card miss">
+              <div class="wall-week">Week 12 · Mar 17–23</div>
+              <div class="wall-status miss">Missed goal</div>
+              <div class="wall-ava">
+                <div class="ava-shell weak" style="width:88px;height:88px;font-size:54px;">🦖</div>
+              </div>
+              <div class="wall-bar"><div class="wall-bar-fill weak" style="width: 52%;"></div></div>
+              <div class="wall-score"><b>365</b> / 700</div>
+            </div>
+
+            <div class="wall-card hit">
+              <div class="wall-week">Week 11 · Mar 10–16</div>
+              <div class="wall-status hit">✓ Goal hit</div>
+              <div class="wall-ava">
+                <div class="ava-shell" style="width:88px;height:88px;font-size:54px;">🐉</div>
+                <div class="wall-acc">⭐</div>
+              </div>
+              <div class="wall-bar"><div class="wall-bar-fill" style="width: 100%;"></div></div>
+              <div class="wall-score"><b>740</b> / 700 · raised a Dragon · earned ⭐ Star Badge</div>
+            </div>
+          </div>
+
+          <!-- Badge Collection -->
+          <div class="badge-collection">
+            <div class="bc-head">
+              <h3 class="bc-title">🎖️ Badges</h3>
+              <div class="bc-count"><b>14 of 18 earned</b> · 4 still locked</div>
+            </div>
+            <div class="bc-grid">
+              <div class="bc-tile earned">
+                <div class="bc-tile-em">✓</div>
+                <div class="bc-tile-nm">Goal Hit</div>
+                <div class="bc-tile-meta">earned ×7</div>
+              </div>
+              <div class="bc-tile earned legendary">
+                <div class="bc-tile-em">🔥</div>
+                <div class="bc-tile-nm">4-Week Streak</div>
+                <div class="bc-tile-meta">LEGENDARY · ×1</div>
+              </div>
+              <div class="bc-tile earned rare">
+                <div class="bc-tile-em">🏆</div>
+                <div class="bc-tile-nm">Family #1</div>
+                <div class="bc-tile-meta">RARE · ×3</div>
+              </div>
+              <div class="bc-tile earned">
+                <div class="bc-tile-em">🌙</div>
+                <div class="bc-tile-nm">Full Dinner Week</div>
+                <div class="bc-tile-meta">earned ×5</div>
+              </div>
+              <div class="bc-tile earned rare">
+                <div class="bc-tile-em">🥦</div>
+                <div class="bc-tile-nm">Veggie Champion</div>
+                <div class="bc-tile-meta">RARE · ×2</div>
+              </div>
+              <div class="bc-tile earned rare">
+                <div class="bc-tile-em">🌟</div>
+                <div class="bc-tile-nm">Brave Bites</div>
+                <div class="bc-tile-meta">3+ new foods · ×2</div>
+              </div>
+              <div class="bc-tile earned rare">
+                <div class="bc-tile-em">🚫</div>
+                <div class="bc-tile-nm">No Junk Week</div>
+                <div class="bc-tile-meta">RARE · ×1</div>
+              </div>
+              <div class="bc-tile earned">
+                <div class="bc-tile-em">🚀</div>
+                <div class="bc-tile-nm">Comeback Kid</div>
+                <div class="bc-tile-meta">earned ×1</div>
+              </div>
+              <div class="bc-tile locked rare">
+                <div class="bc-tile-em">⚡</div>
+                <div class="bc-tile-nm">Speed Logger</div>
+                <div class="bc-tile-meta">log dinner before 7pm × 7</div>
+              </div>
+              <div class="bc-tile locked rare">
+                <div class="bc-tile-em">👫</div>
+                <div class="bc-tile-nm">Sibling Cheer</div>
+                <div class="bc-tile-meta">cheer + log together × 5</div>
+              </div>
+              <div class="bc-tile locked legendary">
+                <div class="bc-tile-em">👑</div>
+                <div class="bc-tile-nm">Perfect Week</div>
+                <div class="bc-tile-meta">LEGENDARY · all 5 groups every dinner</div>
+              </div>
+              <div class="bc-tile locked legendary">
+                <div class="bc-tile-em">💎</div>
+                <div class="bc-tile-nm">Month Master</div>
+                <div class="bc-tile-meta">LEGENDARY · 4× Family #1 in a row</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wall-foot">Tap any card to relive that week's recap · earn badges by hitting weekly milestones</div>
+        </div>
+      </div>
+
+      <!-- ============ SETTINGS (Parent zone) ============ -->
+      <div class="view" id="view-settings">
+        <div class="settings">
+          <div class="pin-lock" id="settings-pin-lock">
+            <div class="pin-icon">🔒</div>
+            <div class="pin-title">Parent zone</div>
+            <div class="pin-msg">Settings, chores, and rewards live here. Enter the family PIN.</div>
+            <div class="pin-input">
+              <input class="pin-digit" type="password" maxlength="1" />
+              <input class="pin-digit" type="password" maxlength="1" />
+              <input class="pin-digit" type="password" maxlength="1" />
+              <input class="pin-digit" type="password" maxlength="1" />
+            </div>
+            <button class="pin-unlock" id="settings-pin-unlock">Unlock</button>
+            <div class="pin-foot">PIN can be changed below · default 0000</div>
+          </div>
+
+          <div class="settings-head">
+            <h2 class="settings-title">⚙️ Family Settings</h2>
+            <p class="settings-sub">Manage kids, chores, rewards, and bonuses · auto-locks after 5 min of idle</p>
+          </div>
+
+          <!-- ============ Family members ============ -->
+          <section class="set-card">
+            <div class="set-card-head">
+              <h3 class="set-h3">👨‍👩‍👧‍👦 Family members</h3>
+              <button class="set-action">+ Add a kid</button>
+            </div>
+            <div class="member-row">
+              <div class="member-ava">🦖</div>
+              <div class="member-info">
+                <div class="member-name">Emma <span class="age">age 9</span></div>
+                <div class="member-meta">Buddy: Dino · Trust: <b>L3 Trusted Crew</b> · 340 lifetime pts</div>
+              </div>
+              <label class="set-toggle"><input type="checkbox" checked /> <span>Trust ON</span></label>
+              <button class="set-icon-btn">✎</button>
+            </div>
+            <div class="member-row">
+              <div class="member-ava" style="background:#A6E0FF;">🐱</div>
+              <div class="member-info">
+                <div class="member-name">Theo <span class="age">age 5</span></div>
+                <div class="member-meta">Buddy: Kitty · Trust: <b>L1 Helper</b> · 35 lifetime pts</div>
+              </div>
+              <label class="set-toggle"><input type="checkbox" checked /> <span>Trust ON</span></label>
+              <button class="set-icon-btn">✎</button>
+            </div>
+          </section>
+
+          <!-- ============ Behavior bonuses ============ -->
+          <section class="set-card">
+            <div class="set-card-head">
+              <h3 class="set-h3">🍽️ Dinner expectations &amp; bonuses</h3>
+              <button class="set-action">+ Custom bonus</button>
+            </div>
+            <p class="set-note">Toggle which apply to your family. Expectations cost points if not met. Bonuses earn points when claimed.</p>
+            <div class="bonus-list">
+              <div class="bonus-row expectation">
+                <span class="bem">🪑</span>
+                <div class="binfo">
+                  <div class="bnm">Stayed seated</div>
+                  <div class="bmeta">EXPECTATION · −10 if violated</div>
+                </div>
+                <input type="number" class="b-pts" value="-10" />
+                <label class="set-toggle"><input type="checkbox" checked /> <span>On</span></label>
+              </div>
+              <div class="bonus-row">
+                <span class="bem">😊</span>
+                <div class="binfo">
+                  <div class="bnm">No whining</div>
+                  <div class="bmeta">Bonus · calm dinner pays off</div>
+                </div>
+                <input type="number" class="b-pts" value="5" />
+                <label class="set-toggle"><input type="checkbox" checked /> <span>On</span></label>
+              </div>
+              <div class="bonus-row">
+                <span class="bem">🧹</span>
+                <div class="binfo">
+                  <div class="bnm">Helped clean up</div>
+                  <div class="bmeta">Bonus · cleared plates / wiped table</div>
+                </div>
+                <input type="number" class="b-pts" value="10" />
+                <label class="set-toggle"><input type="checkbox" checked /> <span>On</span></label>
+              </div>
+              <div class="bonus-row">
+                <span class="bem">🌟</span>
+                <div class="binfo">
+                  <div class="bnm">Tried something new</div>
+                  <div class="bmeta">Bonus · brave bites · auto-tracked</div>
+                </div>
+                <input type="number" class="b-pts" value="10" />
+                <label class="set-toggle"><input type="checkbox" checked /> <span>On</span></label>
+              </div>
+              <div class="bonus-row off">
+                <span class="bem">🙏</span>
+                <div class="binfo">
+                  <div class="bnm">Thanked the cook</div>
+                  <div class="bmeta">Bonus · politeness counts</div>
+                </div>
+                <input type="number" class="b-pts" value="5" />
+                <label class="set-toggle"><input type="checkbox" /> <span>Off</span></label>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ Responsibility setup (per kid) ============ -->
+          <section class="set-card">
+            <div class="set-card-head">
+              <h3 class="set-h3">⭐ Responsibility setup</h3>
+              <div class="set-kid-pick">
+                <button class="kp-chip">Emma · 9</button>
+                <button class="kp-chip active">Theo · 5</button>
+              </div>
+            </div>
+
+            <p class="set-note">Tracking starts at age 3 with simple, picture-led chores. Lists scale with age — see suggestions below.</p>
+
+            <div class="set-2col">
+              <div>
+                <div class="set-sublbl">📅 Daily list (4 chores)</div>
+                <div class="ed-list">
+                  <div class="ed-list-item"><span class="em">🧸</span><span class="nm">Pick up toys</span><span class="pt">+1</span><button class="ed-x">×</button></div>
+                  <div class="ed-list-item"><span class="em">🦷</span><span class="nm">Brush teeth (with help)</span><span class="pt">+1</span><button class="ed-x">×</button></div>
+                  <div class="ed-list-item"><span class="em">🍽️</span><span class="nm">Carry plate to sink</span><span class="pt">+1</span><button class="ed-x">×</button></div>
+                  <div class="ed-list-item"><span class="em">👕</span><span class="nm">Clothes in hamper</span><span class="pt">+1</span><button class="ed-x">×</button></div>
+                  <div class="ed-list-add"><span>+</span> Add a daily chore</div>
+                </div>
+              </div>
+              <div>
+                <div class="set-sublbl">🗓️ Weekly list (2 chores)</div>
+                <div class="ed-list">
+                  <div class="ed-list-item"><span class="em">🛏️</span><span class="nm">Help make bed</span><span class="pt">+3</span><button class="ed-x">×</button></div>
+                  <div class="ed-list-item"><span class="em">🌱</span><span class="nm">Water one plant</span><span class="pt">+3</span><button class="ed-x">×</button></div>
+                  <div class="ed-list-add"><span>+</span> Add a weekly chore</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Age-appropriate suggestions -->
+            <div class="suggest-box">
+              <div class="sug-head">
+                <div>
+                  <h4 class="sug-title">💡 Suggestions for age 5</h4>
+                  <p class="sug-sub">Tap any to add to Theo's daily list</p>
+                </div>
+              </div>
+              <div class="sug-grid">
+                <div class="sug-tile"><span class="ico">🐾</span><div class="nm">Feed pet (with help)</div><div class="pts">+2</div></div>
+                <div class="sug-tile"><span class="ico">📚</span><div class="nm">Pick up books</div><div class="pts">+1</div></div>
+                <div class="sug-tile"><span class="ico">🪥</span><div class="nm">Get pajamas on</div><div class="pts">+1</div></div>
+                <div class="sug-tile"><span class="ico">🥄</span><div class="nm">Set spoons at table</div><div class="pts">+1</div></div>
+              </div>
+            </div>
+
+            <!-- Conversation prompt -->
+            <div class="convo-prompt">
+              <div class="cp-em">💬</div>
+              <div class="cp-body">
+                <div class="cp-title">Time to talk?</div>
+                <div class="cp-msg">Theo's done <b>Pick up toys</b> 28 days running. He's ready to add a new responsibility — try <b>Set the table</b>?</div>
+              </div>
+              <div class="cp-actions">
+                <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px;">Maybe later</button>
+                <button class="btn-primary" style="padding: 6px 12px; font-size: 12px; flex: 0;">Add chore</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ Trust rewards customizer ============ -->
+          <section class="set-card">
+            <div class="set-card-head">
+              <h3 class="set-h3">🎁 Trust rewards per level</h3>
+              <div class="set-kid-pick">
+                <button class="kp-chip">Emma · 9</button>
+                <button class="kp-chip active">Theo · 5</button>
+              </div>
+            </div>
+            <p class="set-note">Rewards scale per kid — what unlocks for Theo at L3 may differ from Emma's L3.</p>
+            <div class="rc-level-picker">
+              <div class="rc-level active"><div class="lv">L1</div><div class="nm">Helper</div></div>
+              <div class="rc-level"><div class="lv">L2</div><div class="nm">Reliable</div></div>
+              <div class="rc-level"><div class="lv">L3</div><div class="nm">Crew</div></div>
+              <div class="rc-level"><div class="lv">L4</div><div class="nm">MVP</div></div>
+              <div class="rc-level"><div class="lv">L5</div><div class="nm">Indep.</div></div>
+            </div>
+            <div class="rc-edit-head">
+              <span class="rc-eye">Editing</span>
+              <b class="rc-current">L1 · Helper Apprentice</b>
+              <span class="rc-pts">starts at <b>0 pts</b></span>
+            </div>
+            <div class="rc-list">
+              <div class="rc-item"><button class="rc-em">🌟</button><input class="rc-name" value="Sticker chart star · daily" /><button class="rc-del">×</button></div>
+              <div class="rc-item"><button class="rc-em">🤗</button><input class="rc-name" value="Pick the bedtime hug song" /><button class="rc-del">×</button></div>
+              <div class="rc-add"><span class="rc-plus">+</span> Add a reward</div>
+            </div>
+          </section>
+
+          <!-- ============ App preferences ============ -->
+          <section class="set-card">
+            <div class="set-card-head">
+              <h3 class="set-h3">🔧 App preferences</h3>
+            </div>
+            <div class="pref-row"><div class="pref-lbl">Change family PIN</div><button class="set-action">Change</button></div>
+            <div class="pref-row"><div class="pref-lbl">Auto-lock after</div><div><select><option>1 min</option><option selected>5 min</option><option>15 min</option><option>Never</option></select></div></div>
+            <div class="pref-row"><div class="pref-lbl">Weekly recap email</div><label class="set-toggle"><input type="checkbox" checked /> <span>On</span></label></div>
+            <div class="pref-row"><div class="pref-lbl">Kitchen-iPad mode</div><label class="set-toggle"><input type="checkbox" checked /> <span>On</span></label></div>
+          </section>
+        </div>
+      </div>
+
+      <!-- ============ KID RECAP ============ -->
+      <div class="view" id="view-kid">
+        <div class="wrap-bg">
+          <div class="wrap-top">
+            <div class="wrap-eyebrow" id="wrap-eyebrow">Emma's Week · Apr 20–26</div>
+            <div class="wrap-pageno"><span id="wrap-pn">1</span> / 6</div>
+          </div>
+          <div class="wrap-content" id="wrap-slot"></div>
+          <div class="wrap-controls">
+            <button class="wrap-btn" id="wrap-prev">← Back</button>
+            <div class="wrap-dots" id="wrap-dots"></div>
+            <button class="wrap-btn" id="wrap-next">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ PARENT RECAP ============ -->
+      <div class="view" id="view-parent">
+        <div class="parent">
+          <div class="parent-header">
+            <div>
+              <h2 class="parent-title">Family week · Apr 20–26</h2>
+              <p class="parent-sub">Weekly recap · 2 kids · Sunday 7:00 PM</p>
+            </div>
+            <div class="parent-toggle">
+              <div class="pt-chip">Day</div>
+              <div class="pt-chip active">Week</div>
+              <div class="pt-chip">Month</div>
+            </div>
+          </div>
+          <div class="kid-row">
+            <div class="kid-card">
+              <div class="kid-head">
+                <div class="kid-ava">🦖</div>
+                <div><h3 class="kid-name">Emma</h3><p class="kid-meta">Age 9 · Dino · 6-day streak</p></div>
+                <div class="kid-delta up">+540 XP</div>
+              </div>
+              <div class="kpi-row">
+                <div class="kpi"><div class="v">28</div><div class="l">Meals logged</div></div>
+                <div class="kpi"><div class="v">14</div><div class="l">Chores done</div></div>
+                <div class="kpi"><div class="v">86%</div><div class="l">Goal met</div></div>
+              </div>
+              <div>
+                <div class="editor-label" style="margin-bottom: 8px;">Food groups</div>
+                <div class="group-bars">
+                  <div class="group-bar"><div class="b" style="height: 88px;"></div><div class="ico">🥛</div><div class="pct">95%</div></div>
+                  <div class="group-bar"><div class="b" style="height: 72px;"></div><div class="ico">🍗</div><div class="pct">80%</div></div>
+                  <div class="group-bar"><div class="b" style="height: 78px;"></div><div class="ico">🍞</div><div class="pct">85%</div></div>
+                  <div class="group-bar"><div class="b" style="height: 70px;"></div><div class="ico">🍎</div><div class="pct">75%</div></div>
+                  <div class="group-bar"><div class="b warn" style="height: 22px;"></div><div class="ico">🥦</div><div class="pct">22%</div></div>
+                  <div class="group-bar"><div class="b junk" style="height: 50px;"></div><div class="ico">🍩</div><div class="pct">7/wk</div></div>
+                </div>
+              </div>
+              <div class="insight"><strong>Heads up.</strong> Emma skipped veggies 4 of 7 days. Try roasted sweet potato or smoothie packs.</div>
+              <button class="nudge-btn">Send a "veggie quest" to Emma →</button>
+            </div>
+            <div class="kid-card flag">
+              <div class="kid-head">
+                <div class="kid-ava" style="background:#A6E0FF;">🐱</div>
+                <div><h3 class="kid-name">Theo</h3><p class="kid-meta">Age 5 · Kitty · 2-day streak</p></div>
+                <div class="kid-delta down">−120 XP</div>
+              </div>
+              <div class="kpi-row">
+                <div class="kpi"><div class="v">19</div><div class="l">Meals logged</div></div>
+                <div class="kpi"><div class="v">—</div><div class="l">Chores</div></div>
+                <div class="kpi"><div class="v">54%</div><div class="l">Goal met</div></div>
+              </div>
+              <div>
+                <div class="editor-label" style="margin-bottom: 8px;">Food groups</div>
+                <div class="group-bars">
+                  <div class="group-bar"><div class="b" style="height: 84px;"></div><div class="ico">🥛</div><div class="pct">90%</div></div>
+                  <div class="group-bar"><div class="b low" style="height: 38px;"></div><div class="ico">🍗</div><div class="pct">42%</div></div>
+                  <div class="group-bar"><div class="b" style="height: 80px;"></div><div class="ico">🍞</div><div class="pct">88%</div></div>
+                  <div class="group-bar"><div class="b" style="height: 64px;"></div><div class="ico">🍎</div><div class="pct">68%</div></div>
+                  <div class="group-bar"><div class="b warn" style="height: 18px;"></div><div class="ico">🥦</div><div class="pct">15%</div></div>
+                  <div class="group-bar"><div class="b warn" style="height: 90px;"></div><div class="ico">🍩</div><div class="pct">11/wk</div></div>
+                </div>
+              </div>
+              <div class="insight"><strong>Slipping + too many treats.</strong> Theo's avatar shrunk a stage and went queasy 3 times. Try halving daily treat budget for the week.</div>
+              <button class="nudge-btn">Open Theo's profile →</button>
+            </div>
+          </div>
+          <div class="footer-note">Sent every Sunday at 7:00 PM · Tap any kid card to drill in</div>
+        </div>
+      </div>
+
+      <!-- ============ CUSTOM CHORES ============ -->
+      <div class="view" id="view-chores">
+        <div class="chores">
+          <div class="chores-left">
+            <div class="ch-head">
+              <div>
+                <h2 class="ch-title">⭐ Trust &amp; Responsibility</h2>
+                <p class="ch-sub">Separate from food strength — fair across ages. Earns privileges, not leaderboard XP.</p>
+              </div>
+            </div>
+            <div class="ch-kidpicker">
+              <div class="ch-kidchip active"><div class="av">🦖</div>Emma · 9</div>
+              <div class="ch-kidchip"><div class="av" style="background:#A6E0FF;">🐱</div>Theo · 5</div>
+            </div>
+
+            <div class="trust-card">
+              <div class="trust-head">
+                <div>
+                  <div class="trust-eyebrow">Emma's Trust Level</div>
+                  <h3 class="trust-name">Trusted Crew</h3>
+                  <div class="trust-stars">⭐⭐⭐☆☆ <span>Level 3 of 5</span></div>
+                </div>
+                <div class="trust-points">
+                  <div class="tp-num">340</div>
+                  <div class="tp-lbl">lifetime<br/>trust pts</div>
+                </div>
+              </div>
+              <div class="trust-bar">
+                <div class="trust-tier" style="left: 0%;"><span>L1</span></div>
+                <div class="trust-tier achieved" style="left: 12%;"><span>L2</span></div>
+                <div class="trust-tier achieved" style="left: 30%;"><span>L3</span></div>
+                <div class="trust-tier" style="left: 60%;"><span>L4</span></div>
+                <div class="trust-tier" style="left: 100%;"><span>L5</span></div>
+                <div class="trust-fill" style="width: 34%;"></div>
+                <div class="trust-marker" style="left: 34%;">YOU</div>
+              </div>
+              <div class="trust-next"><b>160 pts to Family MVP</b> (Level 4) · about <b>6 weeks</b> at her current pace</div>
+              <div class="trust-pace">⏳ Trust builds slowly — by design. Levels reflect months of consistent responsibility, not days.</div>
+            </div>
+
+            <div class="priv-grid">
+              <div class="priv-col">
+                <div class="priv-lbl earned">✓ Unlocked</div>
+                <div class="priv-tile earned"><span class="em">🎮</span> 30 min screen time daily</div>
+                <div class="priv-tile earned"><span class="em">🍦</span> Pick the family dessert Friday</div>
+                <div class="priv-tile earned"><span class="em">📚</span> Choose your bedtime story</div>
+              </div>
+              <div class="priv-col">
+                <div class="priv-lbl locked">🔒 Next at Level 4 (80 pts)</div>
+                <div class="priv-tile locked"><span class="em">🌙</span> Stay up 30 min later</div>
+                <div class="priv-tile locked"><span class="em">💵</span> $5/week allowance</div>
+                <div class="priv-tile locked"><span class="em">🎬</span> Pick the family movie</div>
+              </div>
+            </div>
+
+            <div class="ch-section-lbl">📅 Daily chores · tap to log</div>
+            <div class="ch-grid">
+              <div class="ch-tile"><div class="ico">🛏️</div><div class="nm">Make bed</div><div class="xp trust">+2 trust</div></div>
+              <div class="ch-tile"><div class="ico">🦷</div><div class="nm">Brush teeth · AM</div><div class="xp trust">+1 trust</div></div>
+              <div class="ch-tile"><div class="ico">🦷</div><div class="nm">Brush teeth · PM</div><div class="xp trust">+1 trust</div></div>
+              <div class="ch-tile"><div class="ico">🍽️</div><div class="nm">Clear plate</div><div class="xp trust">+2 trust</div></div>
+              <div class="ch-tile"><div class="ico">🎒</div><div class="nm">Pack bag</div><div class="xp trust">+2 trust</div></div>
+              <div class="ch-tile"><div class="ico">🐕</div><div class="nm">Feed dog</div><div class="xp trust">+3 trust</div><div class="badge">!</div></div>
+            </div>
+
+            <div class="ch-section-lbl">🗓️ Weekly chores · tap to log</div>
+            <div class="ch-grid">
+              <div class="ch-tile"><div class="ico">🧹</div><div class="nm">Tidy room</div><div class="xp trust">+8 trust</div></div>
+              <div class="ch-tile editing"><div class="ico">🪴</div><div class="nm">Water plants</div><div class="xp trust">+5 trust</div></div>
+              <div class="ch-tile"><div class="ico">🧺</div><div class="nm">Laundry</div><div class="xp trust">+10 trust</div></div>
+              <div class="ch-tile"><div class="ico">🚮</div><div class="nm">Take out trash</div><div class="xp trust">+6 trust</div></div>
+              <div class="ch-tile"><div class="ico">🧴</div><div class="nm">Wipe bathroom</div><div class="xp trust">+8 trust</div></div>
+            </div>
+            <div class="ch-cap">Daily max ≈ 11 pts · Weekly max ≈ 37 pts · ~50 pts/week sustainable</div>
+          </div>
+          <div class="chores-foot">
+            <div class="cf-em">⚙️</div>
+            <div class="cf-msg">Parents can manage chores, rewards, and behavior bonuses in <b>Settings</b>.</div>
+            <button class="cf-btn" id="cf-go-settings">Open Settings →</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <p class="footer-note">6 mockup screens · iPad landscape · scroll for more</p>
+</div>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      document.getElementById('view-' + t.dataset.view).classList.add('active');
+    });
+  });
+
+  // ============ Character picker ============
+  const characters = {
+    dino:    { face: '🦖', nm: 'Dino',    blurb: "Eat well and I'll grow into a Champion Dino. Eat too much junk and… you'll see.", stages: ['🥚','🦎','🦖','🦖','👑','⭐'] },
+    dragon:  { face: '🐉', nm: 'Dragon',  blurb: "Feed me protein and fruits — I breathe fire when I'm strong.", stages: ['🥚','🐲','🐉','🐉','👑','⭐'] },
+    robot:   { face: '🤖', nm: 'Robo',    blurb: "Balanced fuel keeps my circuits humming. Sugar makes me glitchy.", stages: ['⚙️','🔩','🤖','🤖','👑','⭐'] },
+    cat:     { face: '🐱', nm: 'Kitty',   blurb: "Quick paws need real food. Treats are tasty — but not too many.", stages: ['🥚','🐾','🐱','🐱','👑','⭐'] },
+    bear:    { face: '🐻', nm: 'Bear',    blurb: "Big bears love variety. The more food groups, the bigger I grow.", stages: ['🥚','🧸','🐻','🐻','👑','⭐'] },
+    fox:     { face: '🦊', nm: 'Fox',     blurb: "Sneaky-smart eaters get bonus XP. Try a new food and surprise me!", stages: ['🥚','🐾','🦊','🦊','👑','⭐'] },
+    unicorn: { face: '🦄', nm: 'Unicorn', blurb: "Rainbow plates power my magic. Eat all five groups for sparkles.", stages: ['🥚','🌟','🦄','🦄','👑','⭐'] },
+    shark:   { face: '🦈', nm: 'Shark',   blurb: "Protein-loving predator. Skip a meal and I'll lose my edge.", stages: ['🥚','🐟','🦈','🦈','👑','⭐'] },
+    bunny:   { face: '🐰', nm: 'Bunny',   blurb: "Veggie-powered hops. Bunnies that veg out grow champion ears.", stages: ['🥚','🐾','🐰','🐰','👑','⭐'] }
+  };
+  const stageLabels = ['SPROUT','BABY','TWEEN','TOUGH','CHAMP','LEGEND'];
+  document.querySelectorAll('.char-tile').forEach(tile => {
+    tile.addEventListener('click', () => {
+      document.querySelectorAll('.char-tile').forEach(x => x.classList.remove('sel'));
+      tile.classList.add('sel');
+      const k = tile.dataset.key;
+      const c = characters[k];
+      document.getElementById('char-preview').textContent = c.face;
+      document.getElementById('char-name').textContent = c.nm;
+      document.getElementById('char-blurb').textContent = c.blurb;
+      const strip = document.getElementById('stages-strip');
+      strip.innerHTML = c.stages.map((s,i) => `<div class="stage-pip ${i===3?'now':''}"><div class="b">${s}</div><div class="l">${stageLabels[i]}</div></div>`).join('');
+    });
+  });
+
+  // ============ Meal log: per-group food pickers ============
+  const groupFoods = {
+    dairy:   { q: "Dairy! Pick what you had", em: "🥛", foods: [['🥛','Milk'],['🧀','Cheese'],['🍦','Yogurt'],['🥣','Cereal+milk'],['🧈','Butter'],['🍨','Cottage'],['🥛','Smoothie'],['📷','Other']] },
+    protein: { q: "Protein! Pick what you had", em: "🍗", foods: [['🍗','Chicken'],['🥩','Beef'],['🐟','Fish'],['🥚','Eggs'],['🥜','Nuts'],['🫘','Beans'],['🧀','Cheese'],['📷','Other']] },
+    grains:  { q: "Grains! Pick what you had", em: "🍞", foods: [['🍞','Bread'],['🍚','Rice'],['🍝','Pasta'],['🥐','Croissant'],['🥯','Bagel'],['🌾','Oats'],['🌮','Tortilla'],['📷','Other']] },
+    fruit:   { q: "Fruit! Pick what you had", em: "🍎", foods: [['🍎','Apple'],['🍌','Banana'],['🍓','Berries'],['🍇','Grapes'],['🍊','Orange'],['🥝','Kiwi'],['🍉','Melon'],['📷','Other']] },
+    veggies: { q: "Veggies! Pick what you ate", em: "🥦", foods: [['🥕','Carrot'],['🥦','Broccoli'],['🥒','Cucumber'],['🌽','Corn'],['🥬','Lettuce'],['🍅','Tomato'],['🥔','Potato'],['📷','Other']] },
+    treats:  { q: "Treat time! Just one?", em: "🍩", foods: [['🍪','Cookie'],['🍩','Donut'],['🍫','Chocolate'],['🍬','Candy'],['🍰','Cake'],['🍦','Ice cream'],['🥤','Soda'],['🍕','Pizza']] }
+  };
+  const reactions = {
+    healthy: { mood: 'strong', avatar: '🦖', cls: '', msg: '<span class="xp">+30 XP!</span> Nice — I can feel it. Keep going! 💪' },
+    junk_ok: { mood: 'strong', avatar: '🦖', cls: '', msg: '<span class="xp">Tasty!</span> One treat is fine — let\'s eat real food next. 🙂' },
+    junk_warn: { mood: 'queasy', avatar: '🟢🦖', cls: 'queasy', msg: '<span class="xp">Uhh…</span> My tummy feels weird. Maybe a fruit next?' },
+    junk_sick: { mood: 'sick', avatar: '🤢', cls: 'sick', msg: '<span class="xp">I don\'t feel good.</span> Too many treats today. I need a veggie to feel better. 😵‍💫' }
+  };
+
+  // POINTS SYSTEM (backed math)
+  // Weekly goal = 700 pts = 7 dinners × 100 pts/night max
+  // Per-dinner ceiling sums to 100: 25 veggies + 25 protein + 20 dairy + 15 fruit + 15 grains
+  // Breakfast/Lunch are 25% weighted (max 25 pts each meal). Snack is 15%.
+  const groupBase = { dairy: 20, protein: 25, grains: 15, fruit: 15, veggies: 25, treats: 0 };
+  const amtMult = { skipped: 0, tried: 0.2, half: 0.5, finished: 1 };
+  const mealMult = { breakfast: 0.25, lunch: 0.25, dinner: 1, snack: 0.15 };
+  const groupDeficit = { dairy: false, protein: false, grains: false, fruit: false, veggies: true, treats: false };
+  // Hours since last logged per group (mockup snapshot for Emma)
+  const hoursSince = { dairy: 4, protein: 12, grains: 6, fruit: 18, veggies: 72, treats: 2 };
+  // Scaling urgent bonus: 48hr → +25, 72hr → +35, 96hr+ → +50
+  function urgentBonus(grp) {
+    const h = hoursSince[grp] || 0;
+    if (grp === 'treats') return 0;
+    if (h >= 96) return 50;
+    if (h >= 72) return 35;
+    if (h >= 48) return 25;
+    return 0;
+  }
+  function isUrgent(grp) { return urgentBonus(grp) > 0; }
+
+  let currentGroup = 'veggies';
+  let currentAmt = 'finished';
+  let currentMeal = 'dinner';
+  // Once-per-day celebration gate
+  let goalCelebratedToday = false;
+
+  function calcXP(grp, amt) {
+    if (grp === 'treats') {
+      if (amt === 'skipped') return 5;
+      if (amt === 'tried') return 0;
+      if (amt === 'half') return -5;
+      if (amt === 'finished') return -15;
+    }
+    let xp = groupBase[grp] * amtMult[amt] * mealMult[currentMeal];
+    if (groupDeficit[grp] && amt !== 'skipped') xp = xp * 1.5;
+    xp = Math.round(xp);
+    // Scaling urgent bonus stacks on top
+    if (isUrgent(grp) && amt !== 'skipped') xp += urgentBonus(grp);
+    return xp;
+  }
+
+  function refreshXPLabels() {
+    document.querySelectorAll('#ml-amounts .ml-amount').forEach(b => {
+      const amt = b.dataset.amt;
+      const xp = calcXP(currentGroup, amt);
+      const tag = b.querySelector('.xp-tag');
+      if (xp > 0) tag.textContent = '+' + xp;
+      else if (xp < 0) tag.textContent = xp + '';
+      else tag.textContent = '0 XP';
+      const urgentNow = isUrgent(currentGroup) && amt !== 'skipped' && currentGroup !== 'treats';
+      b.classList.toggle('bonus', groupDeficit[currentGroup] && amt !== 'skipped' && currentGroup !== 'treats' && !urgentNow);
+      b.classList.toggle('urgent', urgentNow);
+      // Update urgent ::before label dynamically via data-attr
+      b.style.setProperty('--urgent-label', `'+${urgentBonus(currentGroup)} URGENT'`);
+    });
+    const xp = calcXP(currentGroup, currentAmt);
+    const fxp = document.getElementById('feed-xp');
+    fxp.textContent = (xp >= 0 ? '+' : '') + xp + ' XP';
+  }
+
+  function setMood(mood) {
+    const ava = document.querySelector('#view-profile .ava-shell');
+    if (ava) {
+      ava.classList.remove('strong','weak','queasy','sick');
+      if (mood !== 'normal') ava.classList.add(mood);
+    }
+    const feedAva = document.getElementById('feed-avatar');
+    if (feedAva) {
+      feedAva.classList.remove('strong','weak','queasy','sick');
+      if (mood !== 'normal') feedAva.classList.add(mood);
+    }
+    const mini = document.getElementById('av-mini');
+    const react = document.getElementById('ml-react');
+    const msg = document.getElementById('ml-react-msg');
+    react.classList.remove('queasy','sick');
+    const xp = calcXP(currentGroup, currentAmt);
+    const xpStr = (xp >= 0 ? '+' : '') + xp;
+    if (mood === 'queasy') {
+      react.classList.add('queasy'); mini.textContent = '🦖';
+      msg.innerHTML = `<span class="xp">${xpStr} XP</span> Uhh… my tummy feels weird. Maybe a fruit next? 😵`;
+    } else if (mood === 'sick') {
+      react.classList.add('sick'); mini.textContent = '🤢';
+      msg.innerHTML = `<span class="xp">${xpStr} XP</span> I don't feel good. Too many treats today — I need a veggie. 😵‍💫`;
+    } else if (mood === 'weak') {
+      mini.textContent = '🦎';
+      msg.innerHTML = `<span class="xp">−10 XP</span> I'm getting tired… please eat something soon.`;
+    } else {
+      mini.textContent = '🦖';
+      const bonus = groupDeficit[currentGroup] && currentGroup !== 'treats';
+      msg.innerHTML = `<span class="xp">${xpStr} XP!</span> ${bonus ? "Deficit bonus — keep going!" : "Nice — I can feel it. 💪"}`;
+    }
+  }
+
+  const groupNames = { dairy: 'Dairy 🥛', protein: 'Protein 🍗', grains: 'Grains 🍞', fruit: 'Fruit 🍎', veggies: 'Veggies 🥦', treats: 'Treats 🍩' };
+  const mealNames = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
+
+  function refreshHeader() {
+    document.getElementById('ml-meal-label').textContent = `${mealNames[currentMeal]} · ${groupNames[currentGroup]}`;
+  }
+
+  function renderFoods(grp) {
+    currentGroup = grp;
+    refreshHeader();
+    refreshXPLabels();
+    if (grp === 'treats' && currentAmt !== 'skipped') setMood('queasy');
+    else setMood('strong');
+  }
+
+  function selectMeal(meal) {
+    currentMeal = meal;
+    document.querySelectorAll('.meal-primary, .meal-chip').forEach(x => x.classList.remove('sel'));
+    const target = document.querySelector(`[data-meal="${meal}"]`);
+    if (target) target.classList.add('sel');
+    refreshHeader();
+    refreshXPLabels();
+    setMood(currentGroup === 'treats' && currentAmt !== 'skipped' ? 'queasy' : 'strong');
+  }
+  document.querySelectorAll('.meal-primary, .meal-chip').forEach(el => {
+    el.addEventListener('click', () => selectMeal(el.dataset.meal));
+  });
+
+  document.querySelectorAll('#grp-grid .grp-tile').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('#grp-grid .grp-tile').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      renderFoods(t.dataset.grp);
+    });
+  });
+
+  document.querySelectorAll('.demo-state').forEach(d => {
+    d.addEventListener('click', () => {
+      if (!d.dataset.mood) return; // goal-dance button handled separately
+      document.querySelectorAll('.demo-state').forEach(x => x.classList.remove('sel'));
+      d.classList.add('sel');
+      setMood(d.dataset.mood);
+    });
+  });
+
+  document.querySelectorAll('.ml-amount').forEach(a => {
+    a.addEventListener('click', () => {
+      document.querySelectorAll('.ml-amount').forEach(x => x.classList.remove('sel'));
+      a.classList.add('sel');
+      currentAmt = a.dataset.amt;
+      refreshXPLabels();
+      // Update mood preview based on what they're picking
+      if (currentGroup === 'treats' && currentAmt === 'finished') setMood('sick');
+      else if (currentGroup === 'treats' && (currentAmt === 'half' || currentAmt === 'tried')) setMood('queasy');
+      else setMood('strong');
+    });
+  });
+
+  // Feed button: full animation with burst, sparks, XP pop, avatar punch
+  document.getElementById('feed-btn').addEventListener('click', () => {
+    const xp = calcXP(currentGroup, currentAmt);
+    const xpStr = (xp >= 0 ? '+' : '') + xp + ' XP';
+    const burst = document.getElementById('feed-burst');
+    const feedAva = document.getElementById('feed-avatar');
+    const profileAva = document.querySelector('#view-profile .ava-shell');
+
+    // Clear any prior burst children
+    burst.innerHTML = '';
+
+    // Ring(s)
+    const ring1 = document.createElement('div');
+    ring1.className = 'burst-ring';
+    burst.appendChild(ring1);
+    const ring2 = document.createElement('div');
+    ring2.className = 'burst-ring';
+    ring2.style.animationDelay = '0.15s';
+    ring2.style.borderColor = xp < 0 ? 'rgba(143, 185, 75, 0.7)' : 'rgba(255, 220, 100, 0.9)';
+    burst.appendChild(ring2);
+
+    // Sparks (only on positive XP)
+    if (xp > 0) {
+      for (let i = 0; i < 10; i++) {
+        const s = document.createElement('div');
+        s.className = 'burst-spark';
+        const angle = (Math.PI * 2 * i) / 10;
+        const dist = 90 + Math.random() * 40;
+        s.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+        s.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+        s.style.animationDelay = (Math.random() * 0.15) + 's';
+        burst.appendChild(s);
+      }
+    }
+
+    // XP pop number
+    const pop = document.createElement('div');
+    pop.className = 'xp-pop';
+    pop.textContent = xpStr + (xp > 0 ? '!' : '');
+    if (xp < 0) pop.style.color = '#ffe7c0';
+    burst.appendChild(pop);
+
+    // Punch the avatar
+    feedAva.classList.add('feeding');
+    setTimeout(() => feedAva.classList.remove('feeding'), 700);
+
+    // Make profile avatar react too
+    if (profileAva && xp > 0) {
+      profileAva.classList.remove('weak','queasy','sick');
+      profileAva.classList.add('strong');
+      setTimeout(() => profileAva.classList.remove('strong'), 1500);
+    }
+
+    // Clean up burst after anim
+    setTimeout(() => { burst.innerHTML = ''; }, 1500);
+
+    // Brief feedback in the button itself
+    const btn = document.getElementById('feed-btn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<span class="em">💪</span> Fed! ${xpStr}`;
+    setTimeout(() => btn.innerHTML = orig, 1400);
+
+    // If this feed clears the daily goal AND we haven't celebrated yet today, fire the dance
+    if (isUrgent(currentGroup) && currentAmt === 'finished' && currentGroup !== 'treats' && !goalCelebratedToday) {
+      goalCelebratedToday = true;
+      setTimeout(triggerGoalDance, 700);
+    }
+  });
+
+  // Leaderboard time toggle (visual only)
+  document.querySelectorAll('.lb-chip').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('.lb-chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+    });
+  });
+
+  // ============ Daily goal dance + confetti ============
+  function triggerGoalDance() {
+    // Dance every visible avatar
+    const avatars = [
+      document.querySelector('#view-profile .ava-shell'),
+      document.getElementById('feed-avatar')
+    ].filter(Boolean);
+    avatars.forEach(a => {
+      a.classList.remove('weak','queasy','sick');
+      a.classList.add('strong','dancing');
+      setTimeout(() => a.classList.remove('dancing'), 3400);
+    });
+
+    // Goal banner across the screen of whichever view is active
+    const activeView = document.querySelector('.view.active');
+    if (activeView) {
+      const banner = document.createElement('div');
+      banner.className = 'goal-banner';
+      banner.textContent = '🎉 DAILY GOAL HIT! Dino is doing the floss! 🕺';
+      activeView.querySelector(':scope > div')?.appendChild(banner);
+      const screenContainer = activeView.querySelector(':scope > div');
+      if (screenContainer && getComputedStyle(screenContainer).position === 'static') {
+        screenContainer.style.position = 'relative';
+      }
+      setTimeout(() => banner.remove(), 3200);
+
+      // Confetti
+      const colors = ['#FFD96B','#E84A6F','#6CC36A','#5BB8FF','#8E5BD9','#FF8A5C'];
+      for (let i = 0; i < 40; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti-piece';
+        c.style.left = (Math.random() * 100) + '%';
+        c.style.top = '0';
+        c.style.background = colors[i % colors.length];
+        c.style.animationDelay = (Math.random() * 0.8) + 's';
+        c.style.transform = `rotate(${Math.random()*360}deg)`;
+        screenContainer.appendChild(c);
+        setTimeout(() => c.remove(), 3200);
+      }
+    }
+  }
+  // Demo button: reset the gate so we can re-fire for showcase purposes
+  document.getElementById('demo-goal').addEventListener('click', () => {
+    goalCelebratedToday = false;
+    triggerGoalDance();
+  });
+
+  // ============ Master cosmetics catalog ============
+  // Slots: head, eyes, cape, effect, acc
+  // Rarities: common, rare, legendary
+  // unlock: how it's earned (string for display, also used as locked state when !owned)
+  const cosmetics = [
+    // HEAD
+    { id: 'crown',    slot: 'head',   em: '👑',  nm: 'Champion Crown',  rarity: 'legendary', owned: true,  unlock: '4-week streak' },
+    { id: 'tophat',   slot: 'head',   em: '🎩',  nm: 'Top Hat',         rarity: 'rare',      owned: true,  unlock: 'Family #1 ×2' },
+    { id: 'cowboy',   slot: 'head',   em: '🤠',  nm: 'Cowboy Hat',      rarity: 'common',    owned: true,  unlock: 'Bandana week' },
+    { id: 'mane',     slot: 'head',   em: '🦁',  nm: 'Lion Mane',       rarity: 'rare',      owned: false, unlock: 'Goal Hit ×10' },
+    { id: 'gradcap',  slot: 'head',   em: '🎓',  nm: 'Grad Cap',        rarity: 'legendary', owned: false, unlock: 'Win 10 weeks total' },
+    { id: 'beanie',   slot: 'head',   em: '🧢',  nm: 'Backwards Cap',   rarity: 'common',    owned: true,  unlock: 'Comeback Kid' },
+
+    // EYES
+    { id: 'shades',   slot: 'eyes',   em: '🕶',  nm: 'Cool Shades',     rarity: 'rare',      owned: true,  unlock: 'Family #1 once' },
+    { id: 'specs',    slot: 'eyes',   em: '👓',  nm: 'Smart Specs',     rarity: 'common',    owned: false, unlock: 'Brave Bites ×5' },
+    { id: 'goggles',  slot: 'eyes',   em: '🥽',  nm: 'Goggles',         rarity: 'rare',      owned: false, unlock: 'No Junk ×3' },
+
+    // CAPE
+    { id: 'cape',     slot: 'cape',   em: '⚡',   nm: 'Lightning Cape',  rarity: 'legendary', owned: true,  unlock: '4-week streak' },
+    { id: 'wings',    slot: 'cape',   em: '🦋',  nm: 'Butterfly Wings', rarity: 'legendary', owned: false, unlock: 'Perfect Week' },
+    { id: 'scarf',    slot: 'cape',   em: '🧣',  nm: 'Cozy Scarf',      rarity: 'common',    owned: true,  unlock: 'Goal Hit ×3' },
+
+    // EFFECTS
+    { id: 'sparkle',  slot: 'effect', em: '✨',  nm: 'Sparkle Aura',    rarity: 'rare',      owned: true,  unlock: 'Family #1' },
+    { id: 'fire',     slot: 'effect', em: '🔥',  nm: 'Fire Trail',      rarity: 'legendary', owned: false, unlock: '8 streak weeks' },
+    { id: 'stars',    slot: 'effect', em: '💫',  nm: 'Star Spin',       rarity: 'legendary', owned: false, unlock: 'Family #1 ×10' },
+    { id: 'rainbow',  slot: 'effect', em: '🌈',  nm: 'Rainbow Glow',    rarity: 'rare',      owned: true,  unlock: 'All 5 groups, 7 days' },
+
+    // ACCESSORIES
+    { id: 'bowtie',   slot: 'acc',    em: '🎀',  nm: 'Bow Tie',         rarity: 'common',    owned: true,  unlock: 'Goal Hit ×2' },
+    { id: 'star',     slot: 'acc',    em: '⭐',  nm: 'Star Badge',      rarity: 'common',    owned: true,  unlock: 'Goal Hit ×5' },
+    { id: 'shield',   slot: 'acc',    em: '🛡️', nm: 'Shield',          rarity: 'rare',      owned: false, unlock: 'Perfect Week ×3' },
+    { id: 'medal',    slot: 'acc',    em: '🏅',  nm: 'Gold Medal',      rarity: 'rare',      owned: true,  unlock: 'Month Master' },
+    { id: 'pet',      slot: 'acc',    em: '🐾',  nm: 'Pet Sidekick',    rarity: 'legendary', owned: false, unlock: 'Sibling Cheer ×10' }
+  ];
+
+  // Currently equipped per slot — defaults match what's shown on the preview
+  const equipped = {
+    head: 'crown',
+    eyes: 'shades',
+    cape: 'cape',
+    effect: 'sparkle',
+    acc: 'bowtie'
+  };
+
+  let activeSlotFilter = 'all';
+
+  function renderCosGrid() {
+    const grid = document.getElementById('cos-grid');
+    if (!grid) return;
+    const items = cosmetics.filter(c => activeSlotFilter === 'all' || c.slot === activeSlotFilter);
+    grid.innerHTML = items.map(c => {
+      const isEquipped = equipped[c.slot] === c.id;
+      const cls = ['cos-tile'];
+      if (!c.owned) cls.push('locked');
+      if (isEquipped) cls.push('equipped');
+      const rarityTag = c.rarity !== 'common' ? `<div class="cos-tile-rarity ${c.rarity}">${c.rarity.toUpperCase()}</div>` : '';
+      const meta = c.owned ? rarityTag : `<div class="cos-tile-meta">${c.unlock}</div>`;
+      return `
+        <div class="${cls.join(' ')}" data-id="${c.id}" data-slot="${c.slot}" data-owned="${c.owned}">
+          <div class="cos-tile-em">${c.em}</div>
+          <div class="cos-tile-nm">${c.nm}</div>
+          ${meta}
+        </div>`;
+    }).join('');
+    grid.querySelectorAll('.cos-tile').forEach(t => {
+      t.addEventListener('click', () => {
+        if (t.dataset.owned === 'false') {
+          // Show a brief shake on locked tiles
+          t.animate([
+            { transform: 'translateX(0)' },
+            { transform: 'translateX(-4px)' },
+            { transform: 'translateX(4px)' },
+            { transform: 'translateX(0)' }
+          ], { duration: 280 });
+          return;
+        }
+        const id = t.dataset.id;
+        const slot = t.dataset.slot;
+        // Toggle: if already equipped, unequip; else equip (replaces same slot)
+        if (equipped[slot] === id) equipped[slot] = null;
+        else equipped[slot] = id;
+        renderCosGrid();
+        renderEquipped();
+      });
+    });
+  }
+
+  // Default positions for cosmetics inside the 180×180 avatar shell (centered = 90,90)
+  // Negative values place items above/outside the shell; values >180 place them below/outside.
+  const cosPositions = {
+    head:   { x: 90,  y: -20 },   // above the head
+    eyes:   { x: 90,  y: 75 },    // on the face
+    cape:   { x: 170, y: 160 },   // lower-right (cape feel)
+    effect: { x: 165, y: 20 },    // upper-right sparkle
+    acc:    { x: 30,  y: 165 }    // lower-left accessory
+  };
+
+  function applyCosPosition(slot) {
+    const el = document.querySelector(`.cos[data-slot="${slot}"]`);
+    if (!el) return;
+    const p = cosPositions[slot];
+    el.style.left = p.x + 'px';
+    el.style.top = p.y + 'px';
+  }
+
+  function renderEquipped() {
+    // Update avatar cosmetic slots
+    document.querySelectorAll('.dress-stage-wrap .cos').forEach(el => {
+      const slot = el.dataset.slot;
+      const id = equipped[slot];
+      const c = cosmetics.find(x => x.id === id);
+      if (c) {
+        el.textContent = c.em;
+        el.classList.add('on');
+        applyCosPosition(slot);
+      } else {
+        el.classList.remove('on');
+      }
+    });
+    // Apply effect transformations (rainbow / sparkle) to the avatar shell
+    const dressAvatar = document.getElementById('dress-avatar');
+    if (dressAvatar) {
+      dressAvatar.classList.remove('fx-rainbow', 'fx-sparkle');
+      if (equipped.effect === 'rainbow') dressAvatar.classList.add('fx-rainbow');
+      if (equipped.effect === 'sparkle') dressAvatar.classList.add('fx-sparkle');
+    }
+    // Update equipped pill list
+    const list = document.getElementById('dress-eq-list');
+    if (!list) return;
+    const equippedItems = Object.entries(equipped)
+      .map(([slot, id]) => cosmetics.find(c => c.id === id))
+      .filter(Boolean);
+    if (equippedItems.length === 0) {
+      list.innerHTML = '<span style="font-size: 12px; opacity: 0.5; font-weight: 700;">Nothing equipped — naked dino!</span>';
+    } else {
+      list.innerHTML = equippedItems.map(c =>
+        `<span class="dress-eq-item" data-id="${c.id}" data-slot="${c.slot}">${c.em} ${c.nm} <span class="x">×</span></span>`
+      ).join('');
+      list.querySelectorAll('.dress-eq-item .x').forEach(x => {
+        x.addEventListener('click', (e) => {
+          const item = e.target.closest('.dress-eq-item');
+          equipped[item.dataset.slot] = null;
+          renderCosGrid();
+          renderEquipped();
+        });
+      });
+    }
+  }
+
+  // Slot tabs
+  document.querySelectorAll('.dress-tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.dress-tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      activeSlotFilter = t.dataset.slot;
+      renderCosGrid();
+    });
+  });
+
+  // Reset / Save
+  const resetBtn = document.getElementById('dress-reset');
+  if (resetBtn) resetBtn.addEventListener('click', () => {
+    Object.keys(equipped).forEach(k => equipped[k] = null);
+    renderCosGrid();
+    renderEquipped();
+  });
+  const saveBtn = document.getElementById('dress-save');
+  if (saveBtn) saveBtn.addEventListener('click', () => {
+    // Snapshot current cosmetic positions as "pinned" — already inside .ava-shell so they bob with avatar
+    saveBtn.textContent = '📌 Pinned!';
+    saveBtn.style.background = 'var(--leaf)';
+    // Briefly flash the avatar to confirm the pin
+    const ava = document.getElementById('dress-avatar');
+    if (ava) {
+      ava.animate([
+        { transform: 'scale(1)' },
+        { transform: 'scale(1.06)' },
+        { transform: 'scale(1)' }
+      ], { duration: 450, easing: 'ease-out' });
+    }
+    setTimeout(() => {
+      saveBtn.textContent = 'Save outfit';
+      saveBtn.style.background = '';
+    }, 1500);
+  });
+
+  // PIN lock: any 4 digits unlocks for the mockup (works for any pin-lock instance)
+  document.querySelectorAll('.pin-lock').forEach(lock => {
+    const digits = lock.querySelectorAll('.pin-digit');
+    digits.forEach((d, i) => {
+      d.addEventListener('input', () => {
+        if (d.value && i < digits.length - 1) digits[i + 1].focus();
+      });
+      d.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !d.value && i > 0) digits[i - 1].focus();
+      });
+    });
+    const btn = lock.querySelector('.pin-unlock');
+    if (btn) btn.addEventListener('click', () => lock.classList.add('unlocked'));
+  });
+
+  // Responsibility footer → jump to Settings
+  const cfBtn = document.getElementById('cf-go-settings');
+  if (cfBtn) cfBtn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+    document.querySelector('[data-view="settings"]').classList.add('active');
+    document.getElementById('view-settings').classList.add('active');
+  });
+
+  // ============ Behavior bonuses & expectations ============
+  function spawnPointPop(tile, text, isLoss) {
+    const p = document.createElement('div');
+    p.className = 'bb-popup' + (isLoss ? ' lost' : '');
+    p.textContent = text;
+    tile.appendChild(p);
+    setTimeout(() => p.remove(), 1400);
+  }
+  function pulseTile(tile) {
+    tile.animate([
+      { transform: 'scale(1)' },
+      { transform: 'scale(1.04)' },
+      { transform: 'scale(1)' }
+    ], { duration: 320 });
+  }
+
+  // Stayed seated: expectation. Default = met (assumed). Tap to mark violated → −10.
+  const seatedTile = document.getElementById('bb-seated');
+  if (seatedTile) {
+    seatedTile.addEventListener('click', () => {
+      const state = seatedTile.dataset.state;
+      if (state === 'met') {
+        if (!confirm("Mark as VIOLATED? Emma got up during dinner.\n−10 trust will be deducted and locked for today.")) return;
+        seatedTile.dataset.state = 'lost';
+        seatedTile.querySelector('.bb-nm').textContent = 'Got up from table';
+        seatedTile.querySelector('.bb-meta').textContent = '−10 deducted · locked until tomorrow';
+        seatedTile.querySelector('.bb-xp').textContent = '−10';
+        spawnPointPop(seatedTile, '−10', true);
+        pulseTile(seatedTile);
+      }
+    });
+  }
+
+  // Generic bonus tiles: tap to claim → +X popup, locked after claim
+  document.querySelectorAll('.bb-tile.bonus').forEach(tile => {
+    tile.addEventListener('click', () => {
+      const state = tile.dataset.state;
+      const pts = parseInt(tile.dataset.pts || '0', 10);
+      if (state === 'unclaimed') {
+        tile.dataset.state = 'claimed';
+        tile.querySelector('.bb-nm').textContent = '✓ Claimed today!';
+        tile.querySelector('.bb-meta').textContent = `+${pts} added to your dino`;
+        spawnPointPop(tile, '+' + pts, false);
+        pulseTile(tile);
+      }
+    });
+  });
+
+  // Parent-editor tabs (Chore / Daily-Weekly lists / Rewards)
+  document.querySelectorAll('.ed-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.ed-tab').forEach(x => x.classList.remove('active'));
+      tab.classList.add('active');
+      const which = tab.dataset.ed;
+      document.querySelectorAll('.ed-pane').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById('ed-pane-' + which);
+      if (target) target.classList.add('active');
+    });
+  });
+
+  // ============ Drag handlers (mouse + touch) ============
+  function initCosDrag() {
+    const stage = document.getElementById('dress-avatar');
+    if (!stage) return;
+
+    document.querySelectorAll('#dress-avatar .cos').forEach(el => {
+      let dragging = false;
+      let startPointerX, startPointerY, startElX, startElY;
+
+      function getPoint(e) {
+        const t = e.touches ? e.touches[0] : e;
+        return { x: t.clientX, y: t.clientY };
+      }
+
+      function onDown(e) {
+        if (!el.classList.contains('on')) return;
+        const p = getPoint(e);
+        dragging = true;
+        startPointerX = p.x; startPointerY = p.y;
+        const slot = el.dataset.slot;
+        startElX = cosPositions[slot].x;
+        startElY = cosPositions[slot].y;
+        el.classList.add('dragging');
+        e.preventDefault();
+      }
+
+      function onMove(e) {
+        if (!dragging) return;
+        const p = getPoint(e);
+        const dx = p.x - startPointerX;
+        const dy = p.y - startPointerY;
+        // Constrain near the avatar (allow some overhang for hats/capes)
+        const stageW = stage.offsetWidth;
+        const stageH = stage.offsetHeight;
+        const newX = Math.max(-50, Math.min(stageW + 50, startElX + dx));
+        const newY = Math.max(-50, Math.min(stageH + 50, startElY + dy));
+        const slot = el.dataset.slot;
+        cosPositions[slot] = { x: newX, y: newY };
+        applyCosPosition(slot);
+        e.preventDefault();
+      }
+
+      function onUp() {
+        if (!dragging) return;
+        dragging = false;
+        el.classList.remove('dragging');
+      }
+
+      el.addEventListener('mousedown', onDown);
+      el.addEventListener('touchstart', onDown, { passive: false });
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('mouseup', onUp);
+      document.addEventListener('touchend', onUp);
+      document.addEventListener('touchcancel', onUp);
+    });
+  }
+
+  // Initial render
+  renderCosGrid();
+  renderEquipped();
+  initCosDrag();
+
+  // Customize-rewards level picker (visual only)
+  const levelMap = {
+    'L1': { nm: 'Helper Apprentice', pts: '0 pts', rewards: ['🌟 1 sticker · daily', '😊 High-five from mom'] },
+    'L2': { nm: 'Reliable Helper',   pts: '20 pts', rewards: ['🍪 Pick a snack', '🎵 Pick the dinner song'] },
+    'L3': { nm: 'Trusted Crew',      pts: '50 pts', rewards: ['🎮 30 min screen time daily', '🍦 Pick the family dessert Friday', '📚 Choose your bedtime story'] },
+    'L4': { nm: 'Family MVP',        pts: '100 pts', rewards: ['🌙 Stay up 30 min later', '💵 $5/week allowance', '🎬 Pick the family movie'] },
+    'L5': { nm: 'Independent',       pts: '200 pts', rewards: ['🏠 Sleepover any Friday', '📱 Phone time Sat/Sun', '🛒 $10 spend at Target'] }
+  };
+  document.querySelectorAll('.rc-level').forEach(lvl => {
+    lvl.addEventListener('click', () => {
+      document.querySelectorAll('.rc-level').forEach(x => x.classList.remove('active'));
+      lvl.classList.add('active');
+      const levelKey = lvl.querySelector('.lv').textContent.trim();
+      const data = levelMap[levelKey];
+      if (!data) return;
+      const headerCurrent = document.querySelector('.rc-current');
+      const headerPts = document.querySelector('.rc-pts');
+      if (headerCurrent) headerCurrent.textContent = `${levelKey} · ${data.nm}`;
+      if (headerPts) headerPts.innerHTML = `unlocks at <b>${data.pts}</b>`;
+      const list = document.querySelector('.rc-list');
+      if (list) {
+        list.innerHTML = data.rewards.map(r => {
+          const em = r.split(' ')[0];
+          const name = r.split(' ').slice(1).join(' ');
+          return `<div class="rc-item">
+            <button class="rc-em">${em}</button>
+            <input class="rc-name" value="${name}" />
+            <button class="rc-del" title="Delete">×</button>
+          </div>`;
+        }).join('') + '<div class="rc-add"><span class="rc-plus">+</span> Add a reward</div>';
+      }
+    });
+  });
+
+  // Tap a leaderboard row → switch to meal log (kitchen-home flow)
+  document.querySelectorAll('.lb-row, .lb-log-btn').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+      document.querySelector('[data-view="meal"]').classList.add('active');
+      document.getElementById('view-meal').classList.add('active');
+    });
+  });
+
+  // Init meal log to veggies
+  renderFoods('veggies');
+
+  // ============ Wrapped slides (kid recap) ============
+  const slides = [
+    { eyebrow: "Emma's Week · Apr 20–26", html: `
+      <div style="text-align: center;">
+        <div class="avatar-bubble big" style="margin: 0 auto 16px;">🦖</div>
+        <h1 class="wrap-card-title" style="text-align:center;">Hey Emma!</h1>
+        <p class="wrap-card-sub" style="margin: 0 auto; text-align:center;">Your week was epic. Let's see what your dino did.</p>
+      </div>` },
+    { eyebrow: "Strength gained", html: `
+      <div style="text-align: center;">
+        <div class="stat-mega">+540</div>
+        <p class="wrap-card-sub" style="margin: 0 auto 16px; text-align:center;">strength points · your biggest week ever 🎉</p>
+        <div class="avatar-stage">
+          <div class="avatar-step"><div class="avatar-bubble small">🦎</div><div class="avatar-tag">LAST WEEK</div></div>
+          <div class="avatar-arrow">→</div>
+          <div class="avatar-step"><div class="avatar-bubble big">🦖</div><div class="avatar-tag">NOW</div></div>
+        </div>
+      </div>` },
+    { eyebrow: "Strongest day", html: `
+      <h1 class="wrap-card-title">Tuesday was<br/>your power day.</h1>
+      <p class="wrap-card-sub">You logged every food group AND made your bed. Nobody was stopping you.</p>
+      <div class="day-bars">
+        <div class="day-bar"><div class="bar" style="height: 30%;"></div><div class="lbl">M</div></div>
+        <div class="day-bar win"><div class="bar" style="height: 100%;"></div><div class="lbl">T</div></div>
+        <div class="day-bar"><div class="bar" style="height: 55%;"></div><div class="lbl">W</div></div>
+        <div class="day-bar"><div class="bar" style="height: 70%;"></div><div class="lbl">T</div></div>
+        <div class="day-bar"><div class="bar" style="height: 45%;"></div><div class="lbl">F</div></div>
+        <div class="day-bar"><div class="bar" style="height: 80%;"></div><div class="lbl">S</div></div>
+        <div class="day-bar"><div class="bar" style="height: 60%;"></div><div class="lbl">S</div></div>
+      </div>` },
+    { eyebrow: "Top food group", html: `
+      <h1 class="wrap-card-title">Dairy ruled<br/>your week. 🥛</h1>
+      <p class="wrap-card-sub">95% of the time. Bones and muscles, big thank-you.</p>
+      <div class="food-row">
+        <div class="food-tile"><div class="ico">🥛</div><div class="lbl">Dairy</div><div class="pct">95%</div></div>
+        <div class="food-tile"><div class="ico">🍞</div><div class="lbl">Grains</div><div class="pct">85%</div></div>
+        <div class="food-tile"><div class="ico">🍗</div><div class="lbl">Protein</div><div class="pct">80%</div></div>
+        <div class="food-tile"><div class="ico">🍎</div><div class="lbl">Fruit</div><div class="pct">75%</div></div>
+        <div class="food-tile"><div class="ico">🥦</div><div class="lbl">Veggies</div><div class="pct">22%</div></div>
+      </div>` },
+    { eyebrow: "Brave bites", html: `
+      <h1 class="wrap-card-title">You tried 3 new<br/>foods this week!</h1>
+      <p class="wrap-card-sub">Your taste buds got a workout. Bonus +60 XP.</p>
+      <div class="food-row" style="margin-top: 24px;">
+        <div class="food-tile"><div class="ico">🥑</div><div class="lbl">Avocado</div><div class="pct">+20</div></div>
+        <div class="food-tile"><div class="ico">🐟</div><div class="lbl">Salmon</div><div class="pct">+20</div></div>
+        <div class="food-tile"><div class="ico">🌶️</div><div class="lbl">Bell pepper</div><div class="pct">+20</div></div>
+      </div>` },
+    { eyebrow: "Final score", html: `
+      <div style="text-align: center;">
+        <h1 class="wrap-card-title" style="text-align:center;">You're a<br/>Champion Dino. 👑</h1>
+        <p class="wrap-card-sub" style="margin: 0 auto 12px; text-align: center;">2 levels up · #1 in the family this week</p>
+        <div class="avatar-bubble big" style="margin: 12px auto;">🦖</div>
+        <button class="wrap-btn" style="margin-top: 8px;">Share with family 📤</button>
+      </div>` }
+  ];
+  let s = 0;
+  const slot = document.getElementById('wrap-slot');
+  const dots = document.getElementById('wrap-dots');
+  const eyebrow = document.getElementById('wrap-eyebrow');
+  const pn = document.getElementById('wrap-pn');
+  function render() {
+    slot.innerHTML = slides[s].html;
+    eyebrow.textContent = slides[s].eyebrow;
+    pn.textContent = (s + 1).toString();
+    dots.innerHTML = slides.map((_, i) => `<div class="wrap-dot ${i === s ? 'active' : ''}"></div>`).join('');
+  }
+  document.getElementById('wrap-next').addEventListener('click', () => { s = (s + 1) % slides.length; render(); });
+  document.getElementById('wrap-prev').addEventListener('click', () => { s = (s - 1 + slides.length) % slides.length; render(); });
+  render();
+
+  // Chores tile interactions
+  document.querySelectorAll('.ch-tile').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.ch-tile').forEach(x => x.classList.remove('editing'));
+      if (!t.classList.contains('add')) t.classList.add('editing');
+    });
+  });
+  document.querySelectorAll('.icon-pick').forEach(i => {
+    i.addEventListener('click', () => {
+      document.querySelectorAll('.icon-pick').forEach(x => x.classList.remove('sel'));
+      i.classList.add('sel');
+    });
+  });
+</script>
+</body>
+</html>
