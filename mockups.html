@@ -3741,4 +3741,285 @@
     });
   });
 
-  // Tap a leaderboard row → switch to meal log (kitchen-ho
+  // Tap a leaderboard row → switch to meal log (kitchen-home flow)
+  document.querySelectorAll('.lb-row, .lb-log-btn').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+      document.querySelector('[data-view="meal"]').classList.add('active');
+      document.getElementById('view-meal').classList.add('active');
+    });
+  });
+
+  // Init meal log to veggies
+  renderFoods('veggies');
+
+  // ============ Wrapped slides (kid recap) ============
+  const slides = [
+    { eyebrow: "Emma's Week · Apr 20–26", html: `
+      <div style="text-align: center;">
+        <div class="avatar-bubble big" style="margin: 0 auto 16px;">🦖</div>
+        <h1 class="wrap-card-title" style="text-align:center;">Hey Emma!</h1>
+        <p class="wrap-card-sub" style="margin: 0 auto; text-align:center;">Your week was epic. Let's see what your dino did.</p>
+      </div>` },
+    { eyebrow: "Strength gained", html: `
+      <div style="text-align: center;">
+        <div class="stat-mega">+540</div>
+        <p class="wrap-card-sub" style="margin: 0 auto 16px; text-align:center;">strength points · your biggest week ever 🎉</p>
+        <div class="avatar-stage">
+          <div class="avatar-step"><div class="avatar-bubble small">🦎</div><div class="avatar-tag">LAST WEEK</div></div>
+          <div class="avatar-arrow">→</div>
+          <div class="avatar-step"><div class="avatar-bubble big">🦖</div><div class="avatar-tag">NOW</div></div>
+        </div>
+      </div>` },
+    { eyebrow: "Strongest day", html: `
+      <h1 class="wrap-card-title">Tuesday was<br/>your power day.</h1>
+      <p class="wrap-card-sub">You logged every food group AND made your bed. Nobody was stopping you.</p>
+      <div class="day-bars">
+        <div class="day-bar"><div class="bar" style="height: 30%;"></div><div class="lbl">M</div></div>
+        <div class="day-bar win"><div class="bar" style="height: 100%;"></div><div class="lbl">T</div></div>
+        <div class="day-bar"><div class="bar" style="height: 55%;"></div><div class="lbl">W</div></div>
+        <div class="day-bar"><div class="bar" style="height: 70%;"></div><div class="lbl">T</div></div>
+        <div class="day-bar"><div class="bar" style="height: 45%;"></div><div class="lbl">F</div></div>
+        <div class="day-bar"><div class="bar" style="height: 80%;"></div><div class="lbl">S</div></div>
+        <div class="day-bar"><div class="bar" style="height: 60%;"></div><div class="lbl">S</div></div>
+      </div>` },
+    { eyebrow: "Top food group", html: `
+      <h1 class="wrap-card-title">Dairy ruled<br/>your week. 🥛</h1>
+      <p class="wrap-card-sub">95% of the time. Bones and muscles, big thank-you.</p>
+      <div class="food-row">
+        <div class="food-tile"><div class="ico">🥛</div><div class="lbl">Dairy</div><div class="pct">95%</div></div>
+        <div class="food-tile"><div class="ico">🍞</div><div class="lbl">Grains</div><div class="pct">85%</div></div>
+        <div class="food-tile"><div class="ico">🍗</div><div class="lbl">Protein</div><div class="pct">80%</div></div>
+        <div class="food-tile"><div class="ico">🍎</div><div class="lbl">Fruit</div><div class="pct">75%</div></div>
+        <div class="food-tile"><div class="ico">🥦</div><div class="lbl">Veggies</div><div class="pct">22%</div></div>
+      </div>` },
+    { eyebrow: "Brave bites", html: `
+      <h1 class="wrap-card-title">You tried 3 new<br/>foods this week!</h1>
+      <p class="wrap-card-sub">Your taste buds got a workout. Bonus +60 XP.</p>
+      <div class="food-row" style="margin-top: 24px;">
+        <div class="food-tile"><div class="ico">🥑</div><div class="lbl">Avocado</div><div class="pct">+20</div></div>
+        <div class="food-tile"><div class="ico">🐟</div><div class="lbl">Salmon</div><div class="pct">+20</div></div>
+        <div class="food-tile"><div class="ico">🌶️</div><div class="lbl">Bell pepper</div><div class="pct">+20</div></div>
+      </div>` },
+    { eyebrow: "Final score", html: `
+      <div style="text-align: center;">
+        <h1 class="wrap-card-title" style="text-align:center;">You're a<br/>Champion Dino. 👑</h1>
+        <p class="wrap-card-sub" style="margin: 0 auto 12px; text-align: center;">2 levels up · #1 in the family this week</p>
+        <div class="avatar-bubble big" style="margin: 12px auto;">🦖</div>
+        <button class="wrap-btn" style="margin-top: 8px;">Share with family 📤</button>
+      </div>` }
+  ];
+  let s = 0;
+  const slot = document.getElementById('wrap-slot');
+  const dots = document.getElementById('wrap-dots');
+  const eyebrow = document.getElementById('wrap-eyebrow');
+  const pn = document.getElementById('wrap-pn');
+  function render() {
+    slot.innerHTML = slides[s].html;
+    eyebrow.textContent = slides[s].eyebrow;
+    pn.textContent = (s + 1).toString();
+    dots.innerHTML = slides.map((_, i) => `<div class="wrap-dot ${i === s ? 'active' : ''}"></div>`).join('');
+  }
+  document.getElementById('wrap-next').addEventListener('click', () => { s = (s + 1) % slides.length; render(); });
+  document.getElementById('wrap-prev').addEventListener('click', () => { s = (s - 1 + slides.length) % slides.length; render(); });
+  render();
+
+  // Chores tile interactions
+  document.querySelectorAll('.ch-tile').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.ch-tile').forEach(x => x.classList.remove('editing'));
+      if (!t.classList.contains('add')) t.classList.add('editing');
+    });
+  });
+  document.querySelectorAll('.icon-pick').forEach(i => {
+    i.addEventListener('click', () => {
+      document.querySelectorAll('.icon-pick').forEach(x => x.classList.remove('sel'));
+      i.classList.add('sel');
+    });
+  });
+</script>
+
+<!-- ============ FIREBASE: family code auth + cloud sync ============ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+  import { getFirestore, collection, doc, setDoc, getDoc, query, where, getDocs, serverTimestamp, arrayUnion, updateDoc } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDfOASLF02VHQ5rLpS_tYi_t3r4kvWDVbM",
+    authDomain: "mightybites-web.firebaseapp.com",
+    projectId: "mightybites-web",
+    storageBucket: "mightybites-web.firebasestorage.app",
+    messagingSenderId: "729370073582",
+    appId: "1:729370073582:web:5f32106286c7c4f76056ff"
+  };
+
+  const fb = initializeApp(firebaseConfig);
+  const db = getFirestore(fb);
+  const auth = getAuth(fb);
+
+  // Friendly family code generator: ADJ-NOUN-NN
+  const ADJS = ['MIGHTY','BRAVE','SUNNY','SWIFT','JOLLY','COZY','BOLD','SUPER','LUCKY','HAPPY','CLEVER','PROUD'];
+  const NOUNS = ['RIVER','OAK','STAR','MOON','SUN','PEAK','WAVE','BEAR','FOX','LION','CLOUD','LAKE'];
+  function genCode() {
+    const a = ADJS[Math.floor(Math.random() * ADJS.length)];
+    const n = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+    const num = Math.floor(Math.random() * 90) + 10;
+    return `${a}-${n}-${num}`;
+  }
+
+  async function findFamilyByCode(code) {
+    const q = query(collection(db, 'families'), where('code', '==', code.trim().toUpperCase()));
+    const snap = await getDocs(q);
+    if (snap.empty) return null;
+    const d = snap.docs[0];
+    return { id: d.id, ...d.data() };
+  }
+
+  async function createFamily(name) {
+    // Generate a unique code (retry on collision, very unlikely)
+    let code, exists, tries = 0;
+    do {
+      code = genCode();
+      exists = await findFamilyByCode(code);
+      tries++;
+    } while (exists && tries < 5);
+    if (exists) throw new Error("Couldn't generate a unique code, try again");
+    const ref = doc(collection(db, 'families'));
+    await setDoc(ref, {
+      code,
+      name: name || 'My Family',
+      createdAt: serverTimestamp(),
+      createdBy: auth.currentUser.uid,
+      members: [auth.currentUser.uid]
+    });
+    return { id: ref.id, code, name };
+  }
+
+  async function joinFamily(code) {
+    const fam = await findFamilyByCode(code);
+    if (!fam) throw new Error("No family found with that code");
+    if (!fam.members.includes(auth.currentUser.uid)) {
+      await updateDoc(doc(db, 'families', fam.id), {
+        members: arrayUnion(auth.currentUser.uid)
+      });
+    }
+    return fam;
+  }
+
+  function showApp(family) {
+    localStorage.setItem('mb_familyId', family.id);
+    localStorage.setItem('mb_familyCode', family.code);
+    localStorage.setItem('mb_familyName', family.name || '');
+    document.getElementById('mb-setup').style.display = 'none';
+    document.getElementById('mb-success').style.display = 'none';
+    document.getElementById('mb-app').style.display = '';
+    const hf = document.getElementById('header-family');
+    if (hf) {
+      hf.style.display = '';
+      document.getElementById('hf-code').textContent = family.code;
+    }
+  }
+
+  function showSetup() {
+    document.getElementById('mb-setup').style.display = '';
+    document.getElementById('mb-app').style.display = 'none';
+  }
+
+  function setStatus(msg, kind) {
+    const el = document.getElementById('setup-status');
+    el.textContent = msg || '';
+    el.className = 'setup-status' + (kind ? ' ' + kind : '');
+  }
+
+  // Mode toggle
+  document.querySelectorAll('.setup-mode').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.setup-mode').forEach(x => x.classList.remove('active'));
+      btn.classList.add('active');
+      const mode = btn.dataset.mode;
+      document.getElementById('setup-pane-create').style.display = mode === 'create' ? '' : 'none';
+      document.getElementById('setup-pane-join').style.display = mode === 'join' ? '' : 'none';
+      setStatus('');
+    });
+  });
+
+  // Create family flow
+  document.getElementById('setup-create-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('setup-create-btn');
+    const name = document.getElementById('setup-fname').value.trim();
+    btn.disabled = true;
+    setStatus('Creating your family…');
+    try {
+      const family = await createFamily(name);
+      // Show success modal with code
+      document.getElementById('mb-setup').style.display = 'none';
+      document.getElementById('mb-success').style.display = '';
+      document.getElementById('mb-code-display').textContent = family.code;
+      document.getElementById('mb-success-cta').onclick = () => showApp(family);
+      document.getElementById('mb-copy-btn').onclick = async () => {
+        try {
+          await navigator.clipboard.writeText(family.code);
+          const c = document.getElementById('mb-copy-btn');
+          c.textContent = '✓ Copied!';
+          c.classList.add('copied');
+          setTimeout(() => { c.textContent = '📋 Copy code'; c.classList.remove('copied'); }, 1600);
+        } catch {}
+      };
+    } catch (e) {
+      setStatus(e.message || 'Something went wrong', 'error');
+      btn.disabled = false;
+    }
+  });
+
+  // Join family flow
+  document.getElementById('setup-join-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('setup-join-btn');
+    const code = document.getElementById('setup-code').value.trim().toUpperCase();
+    if (!code) { setStatus('Enter a family code', 'error'); return; }
+    btn.disabled = true;
+    setStatus('Looking up family…');
+    try {
+      const family = await joinFamily(code);
+      setStatus('Joined! Loading…', 'success');
+      setTimeout(() => showApp(family), 600);
+    } catch (e) {
+      setStatus(e.message || 'No family found with that code', 'error');
+      btn.disabled = false;
+    }
+  });
+
+  // On auth ready: check if we already have a family stored locally
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    const familyId = localStorage.getItem('mb_familyId');
+    if (familyId) {
+      // Verify the family still exists
+      try {
+        const snap = await getDoc(doc(db, 'families', familyId));
+        if (snap.exists()) {
+          showApp({ id: snap.id, ...snap.data() });
+          return;
+        } else {
+          localStorage.removeItem('mb_familyId');
+          localStorage.removeItem('mb_familyCode');
+        }
+      } catch (e) {
+        console.error('Error loading family:', e);
+      }
+    }
+    showSetup();
+  });
+
+  // Sign in anonymously on page load
+  signInAnonymously(auth).catch(err => {
+    console.error('Auth error:', err);
+    setStatus('Connection failed. Check your network and reload.', 'error');
+    showSetup();
+  });
+</script>
+
+</body>
+</html>
