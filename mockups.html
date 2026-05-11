@@ -96,6 +96,15 @@
   }
   .setup-copy.copied { background: var(--leaf); color: white; border-color: var(--leaf); }
 
+  /* Add kid form */
+  .age-pick { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 8px; }
+  .age-pick-btn { padding: 10px 4px; border-radius: 10px; background: #FFF6E5; border: 2px solid transparent; color: var(--ink); font-size: 15px; font-weight: 800; cursor: pointer; }
+  .age-pick-btn.sel { background: var(--ink); color: white; border-color: var(--ink); }
+  .buddy-pick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .buddy-pick-btn { padding: 12px 8px; border-radius: 14px; background: #FFF6E5; border: 2px solid transparent; color: var(--ink); cursor: pointer; font-size: 36px; line-height: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .buddy-pick-btn span { font-size: 11px; font-weight: 800; opacity: 0.75; }
+  .buddy-pick-btn.sel { background: #FFE6EE; border-color: var(--berry); }
+
   /* Family code pill in header */
   .header-family {
     background: var(--paper); border: 1px solid var(--line);
@@ -1212,6 +1221,12 @@
     50%      { box-shadow: 0 0 0 6px rgba(180, 51, 32, 0); }
   }
 
+  /* Leaderboard empty state */
+  .lb-empty { background: var(--paper); border: 2px dashed var(--line); border-radius: 18px; padding: 32px 24px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+  .lb-empty-em { font-size: 48px; margin-bottom: 8px; }
+  .lb-empty-title { font-size: 18px; font-weight: 900; }
+  .lb-empty-msg { font-size: 13px; opacity: 0.65; font-weight: 600; margin-top: 4px; }
+
   /* Sluggish avatar treatment */
   .lb-ava.sluggish {
     filter: saturate(0.5) brightness(0.92);
@@ -1869,7 +1884,48 @@
     <p class="setup-sub">Share this code with anyone in your family. They'll enter it on their device to sync up.</p>
     <div class="setup-code-display" id="mb-code-display">MIGHTY-RIVER-42</div>
     <button class="setup-copy" id="mb-copy-btn">📋 Copy code</button>
-    <button class="setup-cta" id="mb-success-cta">Open MightyBites →</button>
+    <button class="setup-cta" id="mb-success-cta">Next: Add your first kid →</button>
+  </div>
+</div>
+
+<!-- Add first kid (after family setup, OR via Settings) -->
+<div id="mb-addkid" class="setup-overlay" style="display: none;">
+  <div class="setup-card" style="max-width: 540px;">
+    <div class="setup-logo">👤</div>
+    <h1 class="setup-title" id="addkid-title">Add your first kid</h1>
+    <p class="setup-sub" id="addkid-sub">Their buddy will grow as they eat and earn points. They can change it later.</p>
+    <label class="setup-label">Kid's name</label>
+    <input class="setup-input" id="addkid-name" placeholder="Emma" autocomplete="off" />
+    <label class="setup-label">Age</label>
+    <div class="age-pick" id="addkid-age">
+      <button class="age-pick-btn" data-age="3">3</button>
+      <button class="age-pick-btn" data-age="4">4</button>
+      <button class="age-pick-btn" data-age="5">5</button>
+      <button class="age-pick-btn sel" data-age="6">6</button>
+      <button class="age-pick-btn" data-age="7">7</button>
+      <button class="age-pick-btn" data-age="8">8</button>
+      <button class="age-pick-btn" data-age="9">9</button>
+      <button class="age-pick-btn" data-age="10">10</button>
+      <button class="age-pick-btn" data-age="11">11</button>
+      <button class="age-pick-btn" data-age="12">12</button>
+      <button class="age-pick-btn" data-age="13">13</button>
+      <button class="age-pick-btn" data-age="14">14+</button>
+    </div>
+    <label class="setup-label" style="margin-top: 16px;">Pick a buddy</label>
+    <div class="buddy-pick" id="addkid-buddy">
+      <button class="buddy-pick-btn sel" data-buddy="🦖">🦖<span>Dino</span></button>
+      <button class="buddy-pick-btn" data-buddy="🐉">🐉<span>Dragon</span></button>
+      <button class="buddy-pick-btn" data-buddy="🤖">🤖<span>Robo</span></button>
+      <button class="buddy-pick-btn" data-buddy="🐱">🐱<span>Kitty</span></button>
+      <button class="buddy-pick-btn" data-buddy="🐻">🐻<span>Bear</span></button>
+      <button class="buddy-pick-btn" data-buddy="🦊">🦊<span>Fox</span></button>
+      <button class="buddy-pick-btn" data-buddy="🦄">🦄<span>Unicorn</span></button>
+      <button class="buddy-pick-btn" data-buddy="🦈">🦈<span>Shark</span></button>
+      <button class="buddy-pick-btn" data-buddy="🐰">🐰<span>Bunny</span></button>
+    </div>
+    <button class="setup-cta" id="addkid-save-btn" style="margin-top: 20px;">Add kid →</button>
+    <button class="setup-copy" id="addkid-cancel" style="display: none;">Cancel</button>
+    <div class="setup-status" id="addkid-status"></div>
   </div>
 </div>
 
@@ -1949,11 +2005,11 @@
                 Feed me one and you'll earn a <b>+35 urgent bonus</b>. 🥦
               </div>
               <div class="ava-shell">
-                🦖
+                <span id="pf-buddy-emoji">🦖</span>
                 <div class="crown">👑</div>
                 <div class="sweat">💧</div>
               </div>
-              <div class="pf-stage-label">Tough Dino · Stage 4 of 6</div>
+              <div class="pf-stage-label" id="pf-stage-label">Tough Dino · Stage 4 of 6</div>
               <button class="pf-swap">✨ Switch buddy</button>
             </div>
             <div class="pf-stats">
@@ -2100,7 +2156,17 @@
             </div>
           </div>
 
-          <div class="lb-list">
+          <div class="lb-list" id="lb-list">
+            <div class="lb-empty">
+              <div class="lb-empty-em">👋</div>
+              <div class="lb-empty-title">No kids yet</div>
+              <div class="lb-empty-msg">Add your first kid to get started.</div>
+              <button class="setup-cta" style="max-width:240px; margin-top:14px;" onclick="window.mb.showAddKid()">+ Add a kid</button>
+            </div>
+          </div>
+
+          <!--LEGACY_LB_ROWS_REMOVED-->
+          <div style="display:none">
             <div class="lb-row gold">
               <div class="lb-rank">1</div>
               <div class="lb-ava">🦖</div>
@@ -3839,12 +3905,90 @@
       i.classList.add('sel');
     });
   });
+
+  // ============ Phase 2A: render real kids ============
+  function buddyStageName(buddy) {
+    const map = { '🦖': 'Dino', '🐉': 'Dragon', '🤖': 'Robo', '🐱': 'Kitty', '🐻': 'Bear', '🦊': 'Fox', '🦄': 'Unicorn', '🦈': 'Shark', '🐰': 'Bunny' };
+    return map[buddy] || 'Buddy';
+  }
+  function escapeHTML(x) {
+    return String(x).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+  }
+  function renderLeaderboard(kids) {
+    const list = document.getElementById('lb-list');
+    if (!list) return;
+    if (!kids || kids.length === 0) {
+      list.innerHTML = '<div class="lb-empty"><div class="lb-empty-em">👋</div><div class="lb-empty-title">No kids yet</div><div class="lb-empty-msg">Add your first kid to get started.</div><button class="setup-cta" style="max-width:240px; margin-top:14px;" onclick="window.mb.showAddKid()">+ Add a kid</button></div>';
+      return;
+    }
+    const sorted = [...kids].sort((a, b) => (b.currentWeekXP || 0) - (a.currentWeekXP || 0));
+    const rankClass = ['gold','silver','bronze'];
+    list.innerHTML = sorted.map((k, i) => {
+      const xp = k.currentWeekXP || 0;
+      const pct = Math.min(100, (xp / 700) * 100);
+      const rank = i < 3 ? rankClass[i] : '';
+      const species = buddyStageName(k.buddy);
+      return '<div class="lb-row ' + rank + '" data-kid-id="' + k.id + '">' +
+        '<div class="lb-rank">' + (i + 1) + '</div>' +
+        '<div class="lb-ava">' + (k.buddy || '🦖') + '</div>' +
+        '<div class="lb-info">' +
+          '<div class="lb-name">' + escapeHTML(k.name) + '</div>' +
+          '<div class="lb-meta">' + species + ' · age ' + k.age + '</div>' +
+          '<div class="lb-bar"><div class="lb-bar-fill" style="width: ' + pct + '%;"></div><div class="lb-bar-target"></div></div>' +
+          '<div class="lb-bar-lbl"><b>' + xp + '</b> / 700 weekly goal · all-time ' + (k.lifetimeXP || 0) + '</div>' +
+        '</div>' +
+        '<div class="lb-tap">' +
+          '<div class="lb-xp">' + xp + '<span>this week</span></div>' +
+          '<button class="lb-log-btn" onclick="window.mb._setKid(\'' + k.id + '\'); window.mb._goTo(\'meal\');">Log dinner →</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+  function renderProfile() {
+    const kid = (window.mb && window.mb.state.kids || []).find(k => k.id === window.mb.state.currentKidId);
+    if (!kid) return;
+    const bubbleLead = document.querySelector('#view-profile .pf-bubble .lead');
+    if (bubbleLead) bubbleLead.textContent = 'Hey, ' + kid.name + '!';
+    const emojiSpan = document.getElementById('pf-buddy-emoji');
+    if (emojiSpan) emojiSpan.textContent = kid.buddy || '🦖';
+    const stageLabel = document.getElementById('pf-stage-label');
+    if (stageLabel) stageLabel.textContent = buddyStageName(kid.buddy) + ' · age ' + kid.age;
+    const trust = document.querySelector('#view-profile .pf-trust');
+    if (trust) trust.innerHTML = '⭐ ' + escapeHTML(kid.name) + ' · age ' + kid.age;
+    const back = document.querySelector('#view-profile .pf-back span');
+    if (back) back.textContent = window.mb.state.kids.length > 1 ? 'Switch kid' : kid.name;
+  }
+  if (window.mb) {
+    window.mb._goTo = function(view) {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+      const tab = document.querySelector('[data-view="'+view+'"]');
+      const v = document.getElementById('view-'+view);
+      if (tab) tab.classList.add('active');
+      if (v) v.classList.add('active');
+    };
+    window.mb._setKid = function(kidId) {
+      window.mb.state.currentKidId = kidId;
+      try { localStorage.setItem('mb_currentKidId', kidId); } catch (e) {}
+      renderProfile();
+    };
+  }
+  window.addEventListener('mb-kids-changed', (e) => {
+    renderLeaderboard(e.detail || []);
+    renderProfile();
+  });
+  setTimeout(() => {
+    if (window.mb && window.mb.state) {
+      renderLeaderboard(window.mb.state.kids);
+      renderProfile();
+    }
+  }, 200);
 </script>
 
 <!-- ============ FIREBASE: family code auth + cloud sync ============ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-  import { getFirestore, collection, doc, setDoc, getDoc, query, where, getDocs, serverTimestamp, arrayUnion, updateDoc } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+  import { getFirestore, collection, doc, setDoc, getDoc, query, where, getDocs, serverTimestamp, arrayUnion, updateDoc, addDoc, deleteDoc, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
   import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
   const firebaseConfig = {
@@ -3909,24 +4053,139 @@
     return fam;
   }
 
+  // ===== Phase 2A: Kid CRUD + state =====
+  const state = {
+    family: null,
+    kids: [],
+    currentKidId: localStorage.getItem('mb_currentKidId') || null,
+    kidsUnsub: null
+  };
+  window.mb = { state, db, auth };
+
+  async function createKid(name, age, buddy) {
+    if (!state.family) throw new Error('No family loaded');
+    const kidsRef = collection(db, 'families', state.family.id, 'kids');
+    const ref = await addDoc(kidsRef, {
+      name: name.trim(),
+      age: parseInt(age, 10),
+      buddy: buddy || '🦖',
+      createdAt: serverTimestamp(),
+      createdBy: auth.currentUser?.uid || null,
+      lifetimeXP: 0,
+      currentWeekXP: 0,
+      trustPoints: 0,
+      streakDays: 0
+    });
+    return ref.id;
+  }
+
+  async function removeKid(kidId) {
+    if (!state.family) return;
+    await deleteDoc(doc(db, 'families', state.family.id, 'kids', kidId));
+  }
+
+  function subscribeKids(familyId) {
+    if (state.kidsUnsub) { state.kidsUnsub(); state.kidsUnsub = null; }
+    let firstLoad = true;
+    const kidsRef = collection(db, 'families', familyId, 'kids');
+    state.kidsUnsub = onSnapshot(kidsRef, (snap) => {
+      state.kids = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      state.kids.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+      const stillExists = state.kids.find(k => k.id === state.currentKidId);
+      if (!stillExists && state.kids.length) {
+        state.currentKidId = state.kids[0].id;
+        localStorage.setItem('mb_currentKidId', state.currentKidId);
+      }
+      window.dispatchEvent(new CustomEvent('mb-kids-changed', { detail: state.kids }));
+      if (firstLoad) {
+        firstLoad = false;
+        if (state.kids.length === 0 && state.family) {
+          showAddKid(state.family, true);
+        }
+      }
+    }, (err) => console.error('Kids subscription error:', err));
+  }
+
   function showApp(family) {
+    state.family = family;
     localStorage.setItem('mb_familyId', family.id);
     localStorage.setItem('mb_familyCode', family.code);
     localStorage.setItem('mb_familyName', family.name || '');
     document.getElementById('mb-setup').style.display = 'none';
     document.getElementById('mb-success').style.display = 'none';
+    document.getElementById('mb-addkid').style.display = 'none';
     document.getElementById('mb-app').style.display = '';
     const hf = document.getElementById('header-family');
     if (hf) {
       hf.style.display = '';
       document.getElementById('hf-code').textContent = family.code;
     }
+    subscribeKids(family.id);
+  }
+
+  function showAddKid(family, isFirstKid) {
+    state.family = family;
+    document.getElementById('mb-setup').style.display = 'none';
+    document.getElementById('mb-success').style.display = 'none';
+    document.getElementById('mb-app').style.display = 'none';
+    document.getElementById('mb-addkid').style.display = '';
+    document.getElementById('addkid-title').textContent = isFirstKid ? 'Add your first kid' : 'Add a kid';
+    document.getElementById('addkid-sub').textContent = isFirstKid
+      ? "Their buddy will grow as they eat and earn points. They can change it later."
+      : 'Adding another kid to your family.';
+    document.getElementById('addkid-cancel').style.display = isFirstKid ? 'none' : '';
+    document.getElementById('addkid-name').value = '';
+    document.getElementById('addkid-status').textContent = '';
   }
 
   function showSetup() {
     document.getElementById('mb-setup').style.display = '';
+    document.getElementById('mb-success').style.display = 'none';
+    document.getElementById('mb-addkid').style.display = 'none';
     document.getElementById('mb-app').style.display = 'none';
   }
+
+  window.mb.createKid = createKid;
+  window.mb.removeKid = removeKid;
+  window.mb.showAddKid = () => showAddKid(state.family, state.kids.length === 0);
+
+  document.querySelectorAll('#addkid-age .age-pick-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#addkid-age .age-pick-btn').forEach(x => x.classList.remove('sel'));
+      b.classList.add('sel');
+    });
+  });
+  document.querySelectorAll('#addkid-buddy .buddy-pick-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#addkid-buddy .buddy-pick-btn').forEach(x => x.classList.remove('sel'));
+      b.classList.add('sel');
+    });
+  });
+  document.getElementById('addkid-cancel').addEventListener('click', () => {
+    if (state.family) showApp(state.family);
+  });
+  document.getElementById('addkid-save-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('addkid-save-btn');
+    const status = document.getElementById('addkid-status');
+    const name = document.getElementById('addkid-name').value.trim();
+    if (!name) { status.textContent = 'Please give them a name'; status.className = 'setup-status error'; return; }
+    const ageBtn = document.querySelector('#addkid-age .age-pick-btn.sel');
+    const buddyBtn = document.querySelector('#addkid-buddy .buddy-pick-btn.sel');
+    const age = ageBtn ? parseInt(ageBtn.dataset.age, 10) : 6;
+    const buddy = buddyBtn ? buddyBtn.dataset.buddy : '🦖';
+    btn.disabled = true;
+    status.textContent = 'Saving…'; status.className = 'setup-status';
+    try {
+      const kidId = await createKid(name, age, buddy);
+      state.currentKidId = kidId;
+      localStorage.setItem('mb_currentKidId', kidId);
+      status.textContent = 'Added!'; status.className = 'setup-status success';
+      setTimeout(() => showApp(state.family), 500);
+    } catch (e) {
+      status.textContent = e.message || 'Could not save'; status.className = 'setup-status error';
+      btn.disabled = false;
+    }
+  });
 
   function setStatus(msg, kind) {
     const el = document.getElementById('setup-status');
@@ -3958,7 +4217,8 @@
       document.getElementById('mb-setup').style.display = 'none';
       document.getElementById('mb-success').style.display = '';
       document.getElementById('mb-code-display').textContent = family.code;
-      document.getElementById('mb-success-cta').onclick = () => showApp(family);
+      state.family = family;
+      document.getElementById('mb-success-cta').onclick = () => showAddKid(family, true);
       document.getElementById('mb-copy-btn').onclick = async () => {
         try {
           await navigator.clipboard.writeText(family.code);
