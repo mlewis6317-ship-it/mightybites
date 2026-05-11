@@ -2719,26 +2719,9 @@
           <section class="set-card">
             <div class="set-card-head">
               <h3 class="set-h3">👨‍👩‍👧‍👦 Family members</h3>
-              <button class="set-action">+ Add a kid</button>
+              <button class="set-action" onclick="window.mb.showAddKid()">+ Add a kid</button>
             </div>
-            <div class="member-row">
-              <div class="member-ava">🦖</div>
-              <div class="member-info">
-                <div class="member-name">Emma <span class="age">age 9</span></div>
-                <div class="member-meta">Buddy: Dino · Trust: <b>L3 Trusted Crew</b> · 340 lifetime pts</div>
-              </div>
-              <label class="set-toggle"><input type="checkbox" checked /> <span>Trust ON</span></label>
-              <button class="set-icon-btn">✎</button>
-            </div>
-            <div class="member-row">
-              <div class="member-ava" style="background:#A6E0FF;">🐱</div>
-              <div class="member-info">
-                <div class="member-name">Theo <span class="age">age 5</span></div>
-                <div class="member-meta">Buddy: Kitty · Trust: <b>L1 Helper</b> · 35 lifetime pts</div>
-              </div>
-              <label class="set-toggle"><input type="checkbox" checked /> <span>Trust ON</span></label>
-              <button class="set-icon-btn">✎</button>
-            </div>
+            <div id="settings-members"><!-- rendered dynamically --></div>
           </section>
 
           <!-- ============ Behavior bonuses ============ -->
@@ -3909,7 +3892,7 @@
       podium.innerHTML = ordered.map((k, idx) => {
         if (!k) {
           // Empty slot for missing kid
-          return '<div class="pod-bar ' + pos[idx] + '" style="opacity:0.35;"><div class="pod-ava-wrap"><div class="ava-shell" style="width:' + sizes[idx].w + 'px;height:' + sizes[idx].w + 'px;font-size:' + sizes[idx].f + 'px;background:#FFF6E5;color:#aaa;display:flex;align-items:center;justify-content:center;">+</div></div><div class="pod-name">—</div><div class="pod-tag">empty slot</div><div class="pod-xp">—</div><div class="pod-block ' + sizes[idx].block + '">' + sizes[idx].rank + '</div></div>';
+          return '<div class="pod-bar ' + pos[idx] + '" style="opacity:0.5; cursor:pointer;" onclick="window.mb.showAddKid()" title="Add a kid"><div class="pod-ava-wrap"><div class="ava-shell" style="width:' + sizes[idx].w + 'px;height:' + sizes[idx].w + 'px;font-size:' + sizes[idx].f + 'px;background:#FFF6E5;color:#aaa;display:flex;align-items:center;justify-content:center;">+</div></div><div class="pod-name">Add kid</div><div class="pod-tag">tap to add</div><div class="pod-xp">—</div><div class="pod-block ' + sizes[idx].block + '">' + sizes[idx].rank + '</div></div>';
         }
         const xp = k.currentWeekXP || 0;
         const strongClass = idx === 1 ? ' strong' : '';
@@ -3974,10 +3957,53 @@
     renderLeaderboard(e.detail || []);
     renderProfile();
   });
+  // ============ Phase 2A.2: Settings Family Members + delete kid ============
+  function renderSettingsMembers() {
+    const host = document.getElementById('settings-members');
+    if (!host) return;
+    const kids = (window.mb && window.mb.state.kids) || [];
+    if (kids.length === 0) {
+      host.innerHTML = '<div style="text-align:center; padding:20px; color:#888; font-weight:700; font-size:13px;">No kids yet. Tap "+ Add a kid" above.</div>';
+      return;
+    }
+    host.innerHTML = kids.map(k => {
+      const buddy = k.buddy || '🦖';
+      const species = buddyStageName(buddy);
+      return '<div class="member-row" data-kid-id="' + k.id + '">' +
+        '<div class="member-ava">' + buddy + '</div>' +
+        '<div class="member-info">' +
+          '<div class="member-name">' + escapeHTML(k.name) + ' <span class="age">age ' + k.age + '</span></div>' +
+          '<div class="member-meta">Buddy: ' + species + ' · Trust: <b>L1 Helper</b> · ' + (k.lifetimeXP || 0) + ' lifetime pts</div>' +
+        '</div>' +
+        '<button class="set-icon-btn" title="Remove kid" onclick="window.mb._removeKid(\'' + k.id + '\', \'' + escapeHTML(k.name).replace(/\\/g, "\\\\").replace(/\'/g, "\\\'") + '\')" style="color:#B43320;">×</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  if (window.mb) {
+    window.mb._removeKid = async function(kidId, kidName) {
+      if (!confirm('Remove ' + kidName + ' from this family?\nTheir progress, badges, and history will be deleted. This cannot be undone.')) return;
+      try {
+        await window.mb.removeKid(kidId);
+        // If the removed kid was the current kid, clear selection
+        if (window.mb.state.currentKidId === kidId) {
+          window.mb.state.currentKidId = null;
+          try { localStorage.removeItem('mb_currentKidId'); } catch(e) {}
+        }
+      } catch (e) {
+        alert('Could not remove kid: ' + (e.message || 'unknown error'));
+      }
+    };
+  }
+
+  // Re-render Settings members whenever kids change
+  window.addEventListener('mb-kids-changed', () => renderSettingsMembers());
+
   setTimeout(() => {
     if (window.mb && window.mb.state) {
       renderLeaderboard(window.mb.state.kids);
       renderProfile();
+      renderSettingsMembers();
     }
   }, 200);
 </script>
