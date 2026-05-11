@@ -2123,38 +2123,7 @@
             </div>
           </div>
 
-          <div class="podium">
-            <div class="pod-bar pod-2">
-              <div class="pod-ava-wrap">
-                <div class="ava-shell" style="width:90px;height:90px;font-size:54px;">🐉</div>
-                <div class="pod-medal">🥈</div>
-              </div>
-              <div class="pod-name">Jordan</div>
-              <div class="pod-tag">Tough Dragon · 12</div>
-              <div class="pod-xp">3,120 XP</div>
-              <div class="pod-block pod-block-2">2</div>
-            </div>
-            <div class="pod-bar pod-1">
-              <div class="pod-ava-wrap">
-                <div class="ava-shell strong" style="width:110px;height:110px;font-size:68px;">🦖<div class="crown">👑</div></div>
-                <div class="pod-medal">🥇</div>
-              </div>
-              <div class="pod-name">Emma</div>
-              <div class="pod-tag">Champion Dino · 9</div>
-              <div class="pod-xp">4,280 XP</div>
-              <div class="pod-block pod-block-1">1</div>
-            </div>
-            <div class="pod-bar pod-3">
-              <div class="pod-ava-wrap">
-                <div class="ava-shell" style="width:80px;height:80px;font-size:48px;">🐱</div>
-                <div class="pod-medal">🥉</div>
-              </div>
-              <div class="pod-name">Theo</div>
-              <div class="pod-tag">Tween Kitty · 5</div>
-              <div class="pod-xp">2,110 XP</div>
-              <div class="pod-block pod-block-3">3</div>
-            </div>
-          </div>
+<div class="podium" id="lb-podium"></div>
 
           <div class="lb-list" id="lb-list">
             <div class="lb-empty">
@@ -2220,13 +2189,13 @@
             </div>
           </div>
 
-          <div class="lb-callout">
+          <div class="lb-callout" id="lb-callout" style="display:none;">
             <div class="lb-cb-em">⚡</div>
             <div>
-              <div class="lb-cb-title">Theo's avatar is sluggish</div>
-              <div class="lb-cb-msg">No protein in 96 hours and no dinner today. Logging now earns +50 urgent bonus.</div>
+              <div class="lb-cb-title" id="lb-cb-title">—</div>
+              <div class="lb-cb-msg" id="lb-cb-msg">—</div>
             </div>
-            <button class="nudge-btn" style="margin-left: auto;">Cheer Theo →</button>
+            <button class="nudge-btn" style="margin-left: auto;">Cheer →</button>
           </div>
 
           <div class="lb-foot">👆 Tap your kid to log a meal · this screen lives on the kitchen iPad</div>
@@ -3916,33 +3885,61 @@
   }
   function renderLeaderboard(kids) {
     const list = document.getElementById('lb-list');
-    if (!list) return;
+    const podium = document.getElementById('lb-podium');
+    const callout = document.getElementById('lb-callout');
+    if (callout) callout.style.display = 'none';
     if (!kids || kids.length === 0) {
-      list.innerHTML = '<div class="lb-empty"><div class="lb-empty-em">👋</div><div class="lb-empty-title">No kids yet</div><div class="lb-empty-msg">Add your first kid to get started.</div><button class="setup-cta" style="max-width:240px; margin-top:14px;" onclick="window.mb.showAddKid()">+ Add a kid</button></div>';
+      if (list) {
+        list.innerHTML = '<div class="lb-empty"><div class="lb-empty-em">👋</div><div class="lb-empty-title">No kids yet</div><div class="lb-empty-msg">Add your first kid to get started.</div><button class="setup-cta" style="max-width:240px; margin-top:14px;" onclick="window.mb.showAddKid()">+ Add a kid</button></div>';
+      }
+      if (podium) podium.innerHTML = '';
       return;
     }
     const sorted = [...kids].sort((a, b) => (b.currentWeekXP || 0) - (a.currentWeekXP || 0));
-    const rankClass = ['gold','silver','bronze'];
-    list.innerHTML = sorted.map((k, i) => {
-      const xp = k.currentWeekXP || 0;
-      const pct = Math.min(100, (xp / 700) * 100);
-      const rank = i < 3 ? rankClass[i] : '';
-      const species = buddyStageName(k.buddy);
-      return '<div class="lb-row ' + rank + '" data-kid-id="' + k.id + '">' +
-        '<div class="lb-rank">' + (i + 1) + '</div>' +
-        '<div class="lb-ava">' + (k.buddy || '🦖') + '</div>' +
-        '<div class="lb-info">' +
-          '<div class="lb-name">' + escapeHTML(k.name) + '</div>' +
-          '<div class="lb-meta">' + species + ' · age ' + k.age + '</div>' +
-          '<div class="lb-bar"><div class="lb-bar-fill" style="width: ' + pct + '%;"></div><div class="lb-bar-target"></div></div>' +
-          '<div class="lb-bar-lbl"><b>' + xp + '</b> / 700 weekly goal · all-time ' + (k.lifetimeXP || 0) + '</div>' +
-        '</div>' +
-        '<div class="lb-tap">' +
-          '<div class="lb-xp">' + xp + '<span>this week</span></div>' +
-          '<button class="lb-log-btn" onclick="window.mb._setKid(\'' + k.id + '\'); window.mb._goTo(\'meal\');">Log dinner →</button>' +
-        '</div>' +
-      '</div>';
-    }).join('');
+    // Build podium with up to 3 kids. Order on display: silver/gold/bronze.
+    if (podium) {
+      const ordered = [sorted[1], sorted[0], sorted[2]]; // [2nd, 1st, 3rd] visually
+      const pos = ['pod-2', 'pod-1', 'pod-3'];
+      const medals = ['🥈', '🥇', '🥉'];
+      const sizes = [
+        {w: 90, f: 54, block: 'pod-block-2', rank: '2'},
+        {w: 110, f: 68, block: 'pod-block-1', rank: '1'},
+        {w: 80, f: 48, block: 'pod-block-3', rank: '3'}
+      ];
+      podium.innerHTML = ordered.map((k, idx) => {
+        if (!k) {
+          // Empty slot for missing kid
+          return '<div class="pod-bar ' + pos[idx] + '" style="opacity:0.35;"><div class="pod-ava-wrap"><div class="ava-shell" style="width:' + sizes[idx].w + 'px;height:' + sizes[idx].w + 'px;font-size:' + sizes[idx].f + 'px;background:#FFF6E5;color:#aaa;display:flex;align-items:center;justify-content:center;">+</div></div><div class="pod-name">—</div><div class="pod-tag">empty slot</div><div class="pod-xp">—</div><div class="pod-block ' + sizes[idx].block + '">' + sizes[idx].rank + '</div></div>';
+        }
+        const xp = k.currentWeekXP || 0;
+        const strongClass = idx === 1 ? ' strong' : '';
+        const crown = idx === 1 ? '<div class="crown">👑</div>' : '';
+        return '<div class="pod-bar ' + pos[idx] + '"><div class="pod-ava-wrap"><div class="ava-shell' + strongClass + '" style="width:' + sizes[idx].w + 'px;height:' + sizes[idx].w + 'px;font-size:' + sizes[idx].f + 'px;">' + (k.buddy || '🦖') + crown + '</div><div class="pod-medal">' + medals[idx] + '</div></div><div class="pod-name">' + escapeHTML(k.name) + '</div><div class="pod-tag">' + buddyStageName(k.buddy) + ' · ' + k.age + '</div><div class="pod-xp">' + xp + ' XP</div><div class="pod-block ' + sizes[idx].block + '">' + sizes[idx].rank + '</div></div>';
+      }).join('');
+    }
+    // Build full list
+    if (list) {
+      const rankClass = ['gold','silver','bronze'];
+      list.innerHTML = sorted.map((k, i) => {
+        const xp = k.currentWeekXP || 0;
+        const pct = Math.min(100, (xp / 700) * 100);
+        const rank = i < 3 ? rankClass[i] : '';
+        return '<div class="lb-row ' + rank + '" data-kid-id="' + k.id + '">' +
+          '<div class="lb-rank">' + (i + 1) + '</div>' +
+          '<div class="lb-ava">' + (k.buddy || '🦖') + '</div>' +
+          '<div class="lb-info">' +
+            '<div class="lb-name">' + escapeHTML(k.name) + '</div>' +
+            '<div class="lb-meta">' + buddyStageName(k.buddy) + ' · age ' + k.age + '</div>' +
+            '<div class="lb-bar"><div class="lb-bar-fill" style="width: ' + pct + '%;"></div><div class="lb-bar-target"></div></div>' +
+            '<div class="lb-bar-lbl"><b>' + xp + '</b> / 700 weekly goal · all-time ' + (k.lifetimeXP || 0) + '</div>' +
+          '</div>' +
+          '<div class="lb-tap">' +
+            '<div class="lb-xp">' + xp + '<span>this week</span></div>' +
+            '<button class="lb-log-btn" onclick="window.mb._setKid(\'' + k.id + '\'); window.mb._goTo(\'meal\');">Log dinner →</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
   }
   function renderProfile() {
     const kid = (window.mb && window.mb.state.kids || []).find(k => k.id === window.mb.state.currentKidId);
