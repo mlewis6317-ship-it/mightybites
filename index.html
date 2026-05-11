@@ -4159,6 +4159,16 @@
     document.getElementById('addkid-cancel').style.display = isFirstKid ? 'none' : '';
     document.getElementById('addkid-name').value = '';
     document.getElementById('addkid-status').textContent = '';
+    document.getElementById('addkid-status').className = 'setup-status';
+    // Re-enable save button (might be left disabled from a previous successful add)
+    const savBtn = document.getElementById('addkid-save-btn');
+    if (savBtn) savBtn.disabled = false;
+    // Reset age to default 6
+    document.querySelectorAll('#addkid-age .age-pick-btn').forEach(b => b.classList.toggle('sel', b.dataset.age === '6'));
+    // Reset buddy to default Dino
+    document.querySelectorAll('#addkid-buddy .buddy-pick-btn').forEach(b => b.classList.toggle('sel', b.dataset.buddy === '🦖'));
+    // Autofocus name input
+    setTimeout(() => document.getElementById('addkid-name').focus(), 50);
   }
 
   function showSetup() {
