@@ -1986,9 +1986,9 @@
           <div class="weekly-goal">
             <div class="wg-left">
               <div class="wg-title">This week's goal</div>
-              <div class="wg-big">540 <span>/ 700 pts</span></div>
-              <div class="wg-meta">5 of 7 dinners done · 2 to go for the goal!</div>
-              <div class="wg-bar"><div class="wg-bar-fill" style="width: 77%;"></div><div class="wg-bar-target"></div></div>
+              <div class="wg-big" id="pf-wg-big">540 <span>/ 700 pts</span></div>
+              <div class="wg-meta" id="pf-wg-meta">5 of 7 dinners done · 2 to go for the goal!</div>
+              <div class="wg-bar"><div class="wg-bar-fill" id="pf-wg-bar-fill" style="width: 0%;"></div><div class="wg-bar-target"></div></div>
               <div class="wg-axis">
                 <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
               </div>
@@ -2013,11 +2013,7 @@
 
           <div class="pf-stage">
             <div class="pf-avatar-col">
-              <div class="pf-bubble urgent">
-                <span class="urgent-flag">🚨 72 HOURS</span>
-                <span class="lead">I haven't had veggies since Sunday!</span><br/>
-                Feed me one and you'll earn a <b>+35 urgent bonus</b>. 🥦
-              </div>
+<div class="pf-bubble" id="pf-bubble"><span class="lead">Loading…</span></div>
               <div class="ava-shell">
                 <span id="pf-buddy-emoji">🦖</span>
                 <div class="crown">👑</div>
@@ -3977,8 +3973,10 @@
     if (!window.mb || !window.mb.state) return;
     window.mb.state.currentKidId = kidId;
     try { localStorage.setItem('mb_currentKidId', kidId); } catch (e) {}
+    if (window.mb.subscribeMealsForCurrentKid) window.mb.subscribeMealsForCurrentKid();
     renderProfile();
     renderMealLog();
+    if (typeof renderProfileStats === 'function') renderProfileStats();
   }
   // Backwards-compat aliases on window.mb if available
   function attachMbAliases() {
@@ -4088,12 +4086,159 @@
 
   window.addEventListener('mb-kids-changed', () => { renderSettingsMembers(); renderMealLog(); });
 
+  // ============ Phase 2C: Profile reflects real data ============
+  function dailyTargets(age) {
+    if (age <= 5) return { dairy: 2, protein: 2, grains: 3, fruit: 1, veggies: 1, treats: 2 };
+    if (age <= 9) return { dairy: 3, protein: 2, grains: 5, fruit: 2, veggies: 2, treats: 2 };
+    return { dairy: 3, protein: 3, grains: 6, fruit: 2, veggies: 3, treats: 2 };
+  }
+  function startOfWeekISO() {
+    const d = new Date();
+    const day = d.getDay() || 7; // Sun=0 → 7
+    d.setDate(d.getDate() - (day - 1));
+    return d.toISOString().slice(0, 10);
+  }
+  function hoursSince(ts) {
+    if (!ts || !ts.seconds) return Infinity;
+    const ms = Date.now() - (ts.seconds * 1000);
+    return ms / (1000 * 60 * 60);
+  }
+  const GROUP_NAMES = { dairy:'dairy', protein:'protein', grains:'grains', fruit:'fruit', veggies:'veggies', treats:'treats' };
+  const GROUP_LABELS = { dairy:'Dairy', protein:'Protein', grains:'Grains', fruit:'Fruit', veggies:'Veggies', treats:'Treats' };
+  const GROUP_EMOJI = { dairy:'🥛', protein:'🍗', grains:'🍞', fruit:'🍎', veggies:'🥦', treats:'🍩' };
+  const GROUP_ORDER = ['dairy','protein','grains','fruit','veggies','treats'];
+
+  function renderProfileStats() {
+    const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    if (!kid) return;
+    const meals = (window.mb && window.mb.state.meals) || [];
+    const today = window.mb.today();
+    const weekStart = startOfWeekISO();
+
+    // Today's group counts (non-skipped only)
+    const counts = { dairy:0, protein:0, grains:0, fruit:0, veggies:0, treats:0 };
+    meals.forEach(m => {
+      if (m.day === today && m.amount && m.amount !== 'skipped' && counts.hasOwnProperty(m.group)) {
+        counts[m.group] += 1;
+      }
+    });
+
+    // Targets by age
+    const targets = dailyTargets(kid.age);
+
+    // Update rings (6 in order)
+    const ringCells = document.querySelectorAll('#view-profile .ring-cell');
+    GROUP_ORDER.forEach((g, idx) => {
+      const cell = ringCells[idx];
+      if (!cell) return;
+      const cur = counts[g];
+      const tgt = targets[g];
+      const pct = tgt > 0 ? Math.min(1, cur / tgt) : 0;
+      const dashLen = Math.round(pct * 138);
+      const fg = cell.querySelector('.ring-fg');
+      if (fg) fg.setAttribute('stroke-dasharray', dashLen + ' 138');
+      const pr = cell.querySelector('.pr');
+      if (pr) pr.textContent = cur + '/' + tgt;
+      cell.classList.remove('alert');
+      // Veggies / fruit / protein / dairy / grains: alert if behind
+      if (g !== 'treats' && cur === 0) cell.classList.add('alert');
+    });
+
+    // Weekly goal
+    const wXP = kid.currentWeekXP || 0;
+    const wgBig = document.getElementById('pf-wg-big');
+    if (wgBig) wgBig.innerHTML = wXP + ' <span>/ 700 pts</span>';
+    const wgFill = document.getElementById('pf-wg-bar-fill');
+    if (wgFill) wgFill.style.width = Math.min(100, (wXP / 700) * 100) + '%';
+    const wgMeta = document.getElementById('pf-wg-meta');
+    // Count distinct days where a dinner was logged this week
+    const dinnerDays = new Set();
+    meals.forEach(m => {
+      if (m.meal === 'dinner' && m.amount && m.amount !== 'skipped' && m.day >= weekStart) {
+        dinnerDays.add(m.day);
+      }
+    });
+    if (wgMeta) {
+      const dc = dinnerDays.size;
+      const remaining = Math.max(0, 7 - dc);
+      wgMeta.textContent = remaining > 0
+        ? dc + ' of 7 dinners done · ' + remaining + ' to go!'
+        : 'Every dinner this week — incredible!';
+    }
+
+    // Stage label: simple lifetime-XP-based tiers
+    const lifeXP = kid.lifetimeXP || 0;
+    const stageLabel = document.getElementById('pf-stage-label');
+    if (stageLabel) {
+      let stageName = 'Sprout';
+      if (lifeXP >= 15000) stageName = 'Legend';
+      else if (lifeXP >= 5000) stageName = 'Champion';
+      else if (lifeXP >= 2000) stageName = 'Tough';
+      else if (lifeXP >= 500) stageName = 'Tween';
+      else if (lifeXP >= 100) stageName = 'Baby';
+      const species = buddyStageName(kid.buddy);
+      stageLabel.textContent = stageName + ' ' + species + ' · age ' + kid.age;
+    }
+
+    // Speech bubble — find urgent group (hours since last log > 48)
+    const lastByGroup = {};
+    meals.forEach(m => {
+      if (!m.timestamp) return;
+      const sec = m.timestamp.seconds || 0;
+      if (!lastByGroup[m.group] || sec > lastByGroup[m.group]) {
+        lastByGroup[m.group] = sec;
+      }
+    });
+    const bubble = document.getElementById('pf-bubble');
+    if (bubble) {
+      let urgentGroup = null;
+      let urgentHours = 0;
+      GROUP_ORDER.forEach(g => {
+        if (g === 'treats') return;
+        const lastSec = lastByGroup[g];
+        const hrs = lastSec ? (Date.now() / 1000 - lastSec) / 3600 : Infinity;
+        if (hrs >= 48 && hrs > urgentHours) {
+          urgentGroup = g; urgentHours = hrs;
+        }
+      });
+      bubble.classList.remove('urgent');
+      if (urgentGroup) {
+        const bonus = urgentHours >= 96 ? 50 : urgentHours >= 72 ? 35 : 25;
+        const hrsLabel = isFinite(urgentHours) ? Math.floor(urgentHours) + ' HOURS' : 'NEVER';
+        bubble.classList.add('urgent');
+        bubble.innerHTML = '<span class="urgent-flag">🚨 ' + hrsLabel + '</span>' +
+          '<span class="lead">I need some ' + GROUP_LABELS[urgentGroup].toLowerCase() + '!</span><br/>' +
+          'Feed me and you\'ll earn a <b>+' + bonus + ' urgent bonus</b>. ' + GROUP_EMOJI[urgentGroup];
+      } else {
+        // Pick a group below target today
+        let deficitGroup = null, deficitGap = 0;
+        GROUP_ORDER.forEach(g => {
+          if (g === 'treats') return;
+          const gap = (targets[g] || 0) - (counts[g] || 0);
+          if (gap > deficitGap) { deficitGroup = g; deficitGap = gap; }
+        });
+        if (deficitGroup) {
+          bubble.innerHTML = '<span class="lead">Hey, ' + escapeHTML(kid.name) + '!</span><br/>' +
+            'I need more <b>' + GROUP_LABELS[deficitGroup].toLowerCase() + '</b> today. ' + GROUP_EMOJI[deficitGroup];
+        } else {
+          bubble.innerHTML = '<span class="lead">Hey, ' + escapeHTML(kid.name) + '!</span><br/>' +
+            'You\'re crushing it today 💪';
+        }
+      }
+    }
+  }
+
+  window.addEventListener('mb-meals-changed', () => renderProfileStats());
+  // Also re-render stats when kids list changes (currentKid name/age may have updated)
+  window.addEventListener('mb-kids-changed', () => renderProfileStats());
+
   setTimeout(() => {
     if (window.mb && window.mb.state) {
       renderLeaderboard(window.mb.state.kids);
       renderProfile();
       renderSettingsMembers();
       renderMealLog();
+      renderProfileStats();
     }
   }, 200);
 </script>
@@ -4171,7 +4316,9 @@
     family: null,
     kids: [],
     currentKidId: localStorage.getItem('mb_currentKidId') || null,
-    kidsUnsub: null
+    kidsUnsub: null,
+    meals: [],
+    mealsUnsub: null
   };
   window.mb = { state, db, auth };
 
@@ -4214,10 +4361,24 @@
         firstLoad = false;
         if (state.kids.length === 0 && state.family) {
           showAddKid(state.family, true);
+        } else if (state.currentKidId && !state.mealsUnsub) {
+          subscribeMealsForCurrentKid();
         }
       }
     }, (err) => console.error('Kids subscription error:', err));
   }
+
+  function subscribeMealsForCurrentKid() {
+    if (state.mealsUnsub) { state.mealsUnsub(); state.mealsUnsub = null; }
+    state.meals = [];
+    if (!state.family || !state.currentKidId) return;
+    const ref = collection(db, 'families', state.family.id, 'kids', state.currentKidId, 'meals');
+    state.mealsUnsub = onSnapshot(ref, (snap) => {
+      state.meals = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      window.dispatchEvent(new CustomEvent('mb-meals-changed', { detail: state.meals }));
+    }, (err) => console.error('Meals subscription error:', err));
+  }
+  window.mb && (window.mb.subscribeMealsForCurrentKid = subscribeMealsForCurrentKid);
 
   function showApp(family) {
     state.family = family;
@@ -4290,6 +4451,7 @@
     });
   }
   window.mb.logMeal = logMeal;
+  window.mb.subscribeMealsForCurrentKid = subscribeMealsForCurrentKid;
   // Helper for today's date as YYYY-MM-DD
   window.mb.today = () => {
     const d = new Date();
