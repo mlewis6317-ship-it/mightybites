@@ -3964,22 +3964,32 @@
     const back = document.querySelector('#view-profile .pf-back span');
     if (back) back.textContent = window.mb.state.kids.length > 1 ? 'Switch kid' : kid.name;
   }
-  if (window.mb) {
-    window.mb._goTo = function(view) {
-      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-      document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
-      const tab = document.querySelector('[data-view="'+view+'"]');
-      const v = document.getElementById('view-'+view);
-      if (tab) tab.classList.add('active');
-      if (v) v.classList.add('active');
-    };
-    window.mb._setKid = function(kidId) {
-      window.mb.state.currentKidId = kidId;
-      try { localStorage.setItem('mb_currentKidId', kidId); } catch (e) {}
-      renderProfile();
-      renderMealLog();
-    };
+  // Top-level helpers (defined regardless of whether window.mb exists yet)
+  function mbGoTo(view) {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+    const tab = document.querySelector('[data-view="'+view+'"]');
+    const v = document.getElementById('view-'+view);
+    if (tab) tab.classList.add('active');
+    if (v) v.classList.add('active');
   }
+  function mbSetKid(kidId) {
+    if (!window.mb || !window.mb.state) return;
+    window.mb.state.currentKidId = kidId;
+    try { localStorage.setItem('mb_currentKidId', kidId); } catch (e) {}
+    renderProfile();
+    renderMealLog();
+  }
+  // Backwards-compat aliases on window.mb if available
+  function attachMbAliases() {
+    if (window.mb) {
+      window.mb._goTo = mbGoTo;
+      window.mb._setKid = mbSetKid;
+    } else {
+      setTimeout(attachMbAliases, 50);
+    }
+  }
+  attachMbAliases();
   window.addEventListener('mb-kids-changed', (e) => {
     renderLeaderboard(e.detail || []);
     renderProfile();
@@ -4038,9 +4048,9 @@
       if (btn) {
         const row = btn.closest('.lb-row');
         const kidId = row && row.dataset.kidId;
-        if (kidId && window.mb && window.mb._setKid && window.mb._goTo) {
-          window.mb._setKid(kidId);
-          window.mb._goTo('meal');
+        if (kidId) {
+          mbSetKid(kidId);
+          mbGoTo('meal');
         }
         e.stopPropagation();
       }
