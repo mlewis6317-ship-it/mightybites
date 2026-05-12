@@ -18,8 +18,12 @@
   .setup-overlay {
     position: fixed; inset: 0; z-index: 9999;
     background: linear-gradient(180deg, #FFF1D6 0%, #FFD8B4 50%, #FFB897 100%);
-    display: flex; align-items: center; justify-content: center;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
     padding: 20px;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  }
+  @media (min-height: 700px) {
+    .setup-overlay { justify-content: center; }
   }
   .setup-card {
     background: white; border-radius: 24px;
@@ -1221,6 +1225,14 @@
     50%      { box-shadow: 0 0 0 6px rgba(180, 51, 32, 0); }
   }
 
+  .lb-add-tile {
+    background: transparent; border: 2px dashed var(--ink);
+    color: var(--ink); padding: 14px; border-radius: 14px;
+    font-size: 14px; font-weight: 800; cursor: pointer;
+    opacity: 0.55; transition: opacity 0.15s;
+  }
+  .lb-add-tile:hover { opacity: 0.85; }
+
   /* Leaderboard empty state */
   .lb-empty { background: var(--paper); border: 2px dashed var(--line); border-radius: 18px; padding: 32px 24px; text-align: center; display: flex; flex-direction: column; align-items: center; }
   .lb-empty-em { font-size: 48px; margin-bottom: 8px; }
@@ -2189,6 +2201,7 @@
             </div>
           </div>
 
+          <button class="lb-add-tile" onclick="window.mb.showAddKid()" style="display:none;" id="lb-add-tile">+ Add another kid</button>
           <div class="lb-callout" id="lb-callout" style="display:none;">
             <div class="lb-cb-em">⚡</div>
             <div>
@@ -3880,6 +3893,8 @@
     const podium = document.getElementById('lb-podium');
     const callout = document.getElementById('lb-callout');
     if (callout) callout.style.display = 'none';
+    const addTile = document.getElementById('lb-add-tile');
+    if (addTile) addTile.style.display = (kids && kids.length > 0) ? '' : 'none';
     if (!kids || kids.length === 0) {
       if (list) {
         list.innerHTML = '<div class="lb-empty"><div class="lb-empty-em">👋</div><div class="lb-empty-title">No kids yet</div><div class="lb-empty-msg">Add your first kid to get started.</div><button class="setup-cta" style="max-width:240px; margin-top:14px;" onclick="window.mb.showAddKid()">+ Add a kid</button></div>';
@@ -3927,7 +3942,7 @@
           '</div>' +
           '<div class="lb-tap">' +
             '<div class="lb-xp">' + xp + '<span>this week</span></div>' +
-            '<button class="lb-log-btn" onclick="window.mb._setKid(\'' + k.id + '\'); window.mb._goTo(\'meal\');">Log dinner →</button>' +
+            '<button class="lb-log-btn">Log dinner →</button>' +
           '</div>' +
         '</div>';
       }).join('');
@@ -4012,6 +4027,34 @@
     const nameSpan = document.getElementById('mlog-kid-name');
     if (nameSpan) nameSpan.textContent = kid ? kid.name : 'kid';
   }
+  // Event delegation on the leaderboard list (works for dynamically rendered rows)
+  (function() {
+    const list = document.getElementById('lb-list');
+    if (!list) return;
+    list.addEventListener('click', (e) => {
+      const btn = e.target.closest('.lb-log-btn');
+      if (btn) {
+        const row = btn.closest('.lb-row');
+        const kidId = row && row.dataset.kidId;
+        if (kidId && window.mb && window.mb._setKid && window.mb._goTo) {
+          window.mb._setKid(kidId);
+          window.mb._goTo('meal');
+        }
+        e.stopPropagation();
+      }
+    });
+  })();
+  // Event delegation on the podium for empty-slot taps
+  (function() {
+    const pod = document.getElementById('lb-podium');
+    if (!pod) return;
+    pod.addEventListener('click', (e) => {
+      const bar = e.target.closest('.pod-bar');
+      if (bar && bar.style.cursor === 'pointer' && window.mb && window.mb.showAddKid) {
+        window.mb.showAddKid();
+      }
+    });
+  })();
   window.addEventListener('mb-kids-changed', () => { renderSettingsMembers(); renderMealLog(); });
 
   setTimeout(() => {
