@@ -4098,7 +4098,7 @@
     d.setDate(d.getDate() - (day - 1));
     return d.toISOString().slice(0, 10);
   }
-  function hoursSince(ts) {
+  function hoursSinceTs(ts) {
     if (!ts || !ts.seconds) return Infinity;
     const ms = Date.now() - (ts.seconds * 1000);
     return ms / (1000 * 60 * 60);
