@@ -2250,8 +2250,8 @@
           <div class="mlog-left">
             <div class="mlog-head">
               <div>
-                <h2 class="mlog-title">What did you eat, Emma?</h2>
-                <div class="mlog-sub">Tap a food group to log it</div>
+                <h2 class="mlog-title" id="mlog-title">What did you eat, <span id="mlog-kid-name">Emma</span>?</h2>
+                <div class="mlog-sub" id="mlog-sub">Tap a food group to log it</div>
               </div>
             </div>
 
@@ -3328,6 +3328,15 @@
     btn.innerHTML = `<span class="em">💪</span> Fed! ${xpStr}`;
     setTimeout(() => btn.innerHTML = orig, 1400);
 
+    // Phase 2B: persist this meal to Firestore for the current kid (fire-and-forget)
+    if (window.mb && window.mb.state.currentKidId && window.mb.logMeal) {
+      const kid = window.mb.state.kids.find(k => k.id === window.mb.state.currentKidId);
+      if (kid) {
+        window.mb.logMeal(kid.id, window.mb.today(), currentMeal, currentGroup, currentAmt, xp)
+          .catch(err => console.error('Save meal failed:', err));
+      }
+    }
+
     // If this feed clears the daily goal AND we haven't celebrated yet today, fire the dance
     if (isUrgent(currentGroup) && currentAmt === 'finished' && currentGroup !== 'treats' && !goalCelebratedToday) {
       goalCelebratedToday = true;
@@ -3951,6 +3960,7 @@
       window.mb.state.currentKidId = kidId;
       try { localStorage.setItem('mb_currentKidId', kidId); } catch (e) {}
       renderProfile();
+      renderMealLog();
     };
   }
   window.addEventListener('mb-kids-changed', (e) => {
@@ -3997,13 +4007,19 @@
   }
 
   // Re-render Settings members whenever kids change
-  window.addEventListener('mb-kids-changed', () => renderSettingsMembers());
+  function renderMealLog() {
+    const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    const nameSpan = document.getElementById('mlog-kid-name');
+    if (nameSpan) nameSpan.textContent = kid ? kid.name : 'kid';
+  }
+  window.addEventListener('mb-kids-changed', () => { renderSettingsMembers(); renderMealLog(); });
 
   setTimeout(() => {
     if (window.mb && window.mb.state) {
       renderLeaderboard(window.mb.state.kids);
       renderProfile();
       renderSettingsMembers();
+      renderMealLog();
     }
   }, 200);
 </script>
@@ -4011,7 +4027,7 @@
 <!-- ============ FIREBASE: family code auth + cloud sync ============ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-  import { getFirestore, collection, doc, setDoc, getDoc, query, where, getDocs, serverTimestamp, arrayUnion, updateDoc, addDoc, deleteDoc, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+  import { getFirestore, collection, doc, setDoc, getDoc, query, where, getDocs, serverTimestamp, arrayUnion, updateDoc, addDoc, deleteDoc, onSnapshot, orderBy, increment } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
   import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
   const firebaseConfig = {
@@ -4181,6 +4197,30 @@
   window.mb.createKid = createKid;
   window.mb.removeKid = removeKid;
   window.mb.showAddKid = () => showAddKid(state.family, state.kids.length === 0);
+
+  // Phase 2B: log a meal entry and increment kid XP
+  async function logMeal(kidId, day, meal, group, amount, xp) {
+    if (!state.family) throw new Error('No family loaded');
+    const familyId = state.family.id;
+    const mealsRef = collection(db, 'families', familyId, 'kids', kidId, 'meals');
+    await addDoc(mealsRef, {
+      day, meal, group, amount, xpEarned: xp,
+      timestamp: serverTimestamp(),
+      loggedBy: auth.currentUser?.uid || null
+    });
+    const kidRef = doc(db, 'families', familyId, 'kids', kidId);
+    await updateDoc(kidRef, {
+      currentWeekXP: increment(xp),
+      lifetimeXP: increment(Math.max(0, xp)),
+      lastMealAt: serverTimestamp()
+    });
+  }
+  window.mb.logMeal = logMeal;
+  // Helper for today's date as YYYY-MM-DD
+  window.mb.today = () => {
+    const d = new Date();
+    return d.toISOString().slice(0, 10);
+  };
 
   document.querySelectorAll('#addkid-age .age-pick-btn').forEach(b => {
     b.addEventListener('click', () => {
