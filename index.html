@@ -3643,32 +3643,87 @@
   if (seatedTile) {
     seatedTile.addEventListener('click', () => {
       const state = seatedTile.dataset.state;
+      const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+      if (!kid) return;
+      const kidName = kid.name.split(' ')[0];
       if (state === 'met') {
-        if (!confirm("Mark as VIOLATED? Emma got up during dinner.\n−10 trust will be deducted and locked for today.")) return;
+        if (!confirm("Mark as VIOLATED? " + kidName + " got up during dinner.\n−10 trust will be deducted and locked for today.")) return;
         seatedTile.dataset.state = 'lost';
         seatedTile.querySelector('.bb-nm').textContent = 'Got up from table';
         seatedTile.querySelector('.bb-meta').textContent = '−10 deducted · locked until tomorrow';
         seatedTile.querySelector('.bb-xp').textContent = '−10';
         spawnPointPop(seatedTile, '−10', true);
         pulseTile(seatedTile);
+        // Persist
+        if (window.mb && window.mb.logBehavior) {
+          window.mb.logBehavior(kid.id, window.mb.today(), 'seated', 'lost', -10)
+            .catch(err => console.error('logBehavior seated failed:', err));
+        }
       }
     });
   }
 
   // Generic bonus tiles: tap to claim → +X popup, locked after claim
+  const BONUS_KEYS = { 'bb-no-whining': 'noWhining', 'bb-cleanup': 'cleanup', 'bb-new-food': 'newFood' };
   document.querySelectorAll('.bb-tile.bonus').forEach(tile => {
     tile.addEventListener('click', () => {
       const state = tile.dataset.state;
       const pts = parseInt(tile.dataset.pts || '0', 10);
       if (state === 'unclaimed') {
+        const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+        if (!kid) return;
         tile.dataset.state = 'claimed';
         tile.querySelector('.bb-nm').textContent = '✓ Claimed today!';
-        tile.querySelector('.bb-meta').textContent = `+${pts} added to your dino`;
+        tile.querySelector('.bb-meta').textContent = '+' + pts + ' added to your dino';
         spawnPointPop(tile, '+' + pts, false);
         pulseTile(tile);
+        const key = BONUS_KEYS[tile.id];
+        if (key && window.mb && window.mb.logBehavior) {
+          window.mb.logBehavior(kid.id, window.mb.today(), key, 'claimed', pts)
+            .catch(err => console.error('logBehavior bonus failed:', err));
+        }
       }
     });
   });
+
+  // Render behavior tile state from Firestore subscription
+  function renderBehaviorTiles() {
+    const today = (window.mb && window.mb.state && window.mb.state.today) || {};
+    // Stayed seated
+    const seated = document.getElementById('bb-seated');
+    if (seated) {
+      const st = today.seated === 'lost' ? 'lost' : 'met';
+      seated.dataset.state = st;
+      if (st === 'lost') {
+        seated.querySelector('.bb-nm').textContent = 'Got up from table';
+        seated.querySelector('.bb-meta').textContent = '−10 deducted · locked until tomorrow';
+        seated.querySelector('.bb-xp').textContent = '−10';
+      } else {
+        seated.querySelector('.bb-nm').textContent = 'Stayed seated';
+        seated.querySelector('.bb-meta').textContent = 'EXPECTATION · −10 if you got up';
+        seated.querySelector('.bb-xp').textContent = 'expected';
+      }
+    }
+    // Bonuses
+    const map = { 'bb-no-whining': { key: 'noWhining', label: 'No whining', pts: 5, meta: 'Calm dinner pays off · tap to claim' },
+                  'bb-cleanup':    { key: 'cleanup',    label: 'Helped clean up', pts: 10, meta: 'Cleared plates, wiped table' },
+                  'bb-new-food':   { key: 'newFood',    label: 'Tried something new', pts: 10, meta: 'Brave bites · auto-tracked when you log a new food' } };
+    Object.keys(map).forEach(id => {
+      const t = document.getElementById(id);
+      if (!t) return;
+      const info = map[id];
+      const claimed = today[info.key] === 'claimed';
+      t.dataset.state = claimed ? 'claimed' : 'unclaimed';
+      if (claimed) {
+        t.querySelector('.bb-nm').textContent = '✓ Claimed today!';
+        t.querySelector('.bb-meta').textContent = '+' + info.pts + ' added to your dino';
+      } else {
+        t.querySelector('.bb-nm').textContent = info.label;
+        t.querySelector('.bb-meta').textContent = info.meta;
+      }
+    });
+  }
+  window.addEventListener('mb-day-changed', () => renderBehaviorTiles());
 
   // Parent-editor tabs (Chore / Daily-Weekly lists / Rewards)
   document.querySelectorAll('.ed-tab').forEach(tab => {
@@ -3974,9 +4029,11 @@
     window.mb.state.currentKidId = kidId;
     try { localStorage.setItem('mb_currentKidId', kidId); } catch (e) {}
     if (window.mb.subscribeMealsForCurrentKid) window.mb.subscribeMealsForCurrentKid();
+    if (window.mb.subscribeDayForCurrentKid) window.mb.subscribeDayForCurrentKid();
     renderProfile();
     renderMealLog();
     if (typeof renderProfileStats === 'function') renderProfileStats();
+    if (typeof renderBehaviorTiles === 'function') renderBehaviorTiles();
   }
   // Backwards-compat aliases on window.mb if available
   function attachMbAliases() {
@@ -4239,6 +4296,7 @@
       renderSettingsMembers();
       renderMealLog();
       renderProfileStats();
+      renderBehaviorTiles();
     }
   }, 200);
 </script>
@@ -4318,7 +4376,9 @@
     currentKidId: localStorage.getItem('mb_currentKidId') || null,
     kidsUnsub: null,
     meals: [],
-    mealsUnsub: null
+    mealsUnsub: null,
+    today: {},
+    dayUnsub: null
   };
   window.mb = { state, db, auth };
 
@@ -4363,6 +4423,7 @@
           showAddKid(state.family, true);
         } else if (state.currentKidId && !state.mealsUnsub) {
           subscribeMealsForCurrentKid();
+          subscribeDayForCurrentKid();
         }
       }
     }, (err) => console.error('Kids subscription error:', err));
@@ -4452,6 +4513,36 @@
   }
   window.mb.logMeal = logMeal;
   window.mb.subscribeMealsForCurrentKid = subscribeMealsForCurrentKid;
+
+  // Phase 2D: behavior bonuses persistence
+  async function logBehavior(kidId, day, behaviorKey, newState, xpDelta) {
+    if (!state.family) return;
+    const dayRef = doc(db, 'families', state.family.id, 'kids', kidId, 'days', day);
+    const update = { day };
+    update[behaviorKey] = newState;
+    await setDoc(dayRef, update, { merge: true });
+    if (xpDelta !== 0) {
+      const kidRef = doc(db, 'families', state.family.id, 'kids', kidId);
+      await updateDoc(kidRef, {
+        currentWeekXP: increment(xpDelta),
+        lifetimeXP: increment(Math.max(0, xpDelta))
+      });
+    }
+  }
+  window.mb.logBehavior = logBehavior;
+
+  function subscribeDayForCurrentKid() {
+    if (state.dayUnsub) { state.dayUnsub(); state.dayUnsub = null; }
+    state.today = {};
+    if (!state.family || !state.currentKidId) return;
+    const today = window.mb.today();
+    const dayRef = doc(db, 'families', state.family.id, 'kids', state.currentKidId, 'days', today);
+    state.dayUnsub = onSnapshot(dayRef, (snap) => {
+      state.today = snap.exists() ? snap.data() : { day: today };
+      window.dispatchEvent(new CustomEvent('mb-day-changed', { detail: state.today }));
+    }, (err) => console.error('Day subscription error:', err));
+  }
+  window.mb.subscribeDayForCurrentKid = subscribeDayForCurrentKid;
   // Helper for today's date as YYYY-MM-DD
   window.mb.today = () => {
     const d = new Date();
