@@ -4299,6 +4299,17 @@
       renderBehaviorTiles();
     }
   }, 200);
+  // Belt-and-suspenders: also try a couple more times in case subscription is slow
+  setTimeout(() => {
+    if (window.mb && window.mb.state && window.mb.state.currentKidId) {
+      if (!window.mb.state.dayUnsub && window.mb.subscribeDayForCurrentKid) {
+        window.mb.subscribeDayForCurrentKid();
+      }
+      if (!window.mb.state.mealsUnsub && window.mb.subscribeMealsForCurrentKid) {
+        window.mb.subscribeMealsForCurrentKid();
+      }
+    }
+  }, 1500);
 </script>
 
 <!-- ============ FIREBASE: family code auth + cloud sync ============ -->
@@ -4417,13 +4428,15 @@
         localStorage.setItem('mb_currentKidId', state.currentKidId);
       }
       window.dispatchEvent(new CustomEvent('mb-kids-changed', { detail: state.kids }));
+      // Ensure subscriptions for current kid are always active (not just first load)
+      if (state.currentKidId) {
+        if (!state.mealsUnsub) subscribeMealsForCurrentKid();
+        if (!state.dayUnsub) subscribeDayForCurrentKid();
+      }
       if (firstLoad) {
         firstLoad = false;
         if (state.kids.length === 0 && state.family) {
           showAddKid(state.family, true);
-        } else if (state.currentKidId && !state.mealsUnsub) {
-          subscribeMealsForCurrentKid();
-          subscribeDayForCurrentKid();
         }
       }
     }, (err) => console.error('Kids subscription error:', err));
