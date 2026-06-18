@@ -3000,25 +3000,25 @@
             <div class="trust-card">
               <div class="trust-head">
                 <div>
-                  <div class="trust-eyebrow">Emma's Trust Level</div>
-                  <h3 class="trust-name">Trusted Crew</h3>
-                  <div class="trust-stars">⭐⭐⭐☆☆ <span>Level 3 of 5</span></div>
+                  <div class="trust-eyebrow" id="trust-eyebrow">Trust Level</div>
+                  <h3 class="trust-name" id="trust-name">Helper</h3>
+                  <div class="trust-stars" id="trust-stars">⭐☆☆☆☆ <span>Level 1 of 5</span></div>
                 </div>
                 <div class="trust-points">
-                  <div class="tp-num">340</div>
+                  <div class="tp-num" id="tp-num">0</div>
                   <div class="tp-lbl">lifetime<br/>trust pts</div>
                 </div>
               </div>
-              <div class="trust-bar">
+              <div class="trust-bar" id="trust-bar">
                 <div class="trust-tier" style="left: 0%;"><span>L1</span></div>
-                <div class="trust-tier achieved" style="left: 12%;"><span>L2</span></div>
-                <div class="trust-tier achieved" style="left: 30%;"><span>L3</span></div>
+                <div class="trust-tier" style="left: 12%;"><span>L2</span></div>
+                <div class="trust-tier" style="left: 30%;"><span>L3</span></div>
                 <div class="trust-tier" style="left: 60%;"><span>L4</span></div>
                 <div class="trust-tier" style="left: 100%;"><span>L5</span></div>
-                <div class="trust-fill" style="width: 34%;"></div>
-                <div class="trust-marker" style="left: 34%;">YOU</div>
+                <div class="trust-fill" id="trust-fill" style="width: 0%;"></div>
+                <div class="trust-marker" id="trust-marker" style="left: 0%;">YOU</div>
               </div>
-              <div class="trust-next"><b>160 pts to Family MVP</b> (Level 4) · about <b>6 weeks</b> at her current pace</div>
+              <div class="trust-next" id="trust-next">Tap a chore to start earning trust!</div>
               <div class="trust-pace">⏳ Trust builds slowly — by design. Levels reflect months of consistent responsibility, not days.</div>
             </div>
 
@@ -3038,7 +3038,7 @@
             </div>
 
             <div class="ch-section-lbl">📅 Daily chores · tap to log</div>
-            <div class="ch-grid">
+            <div class="ch-grid" data-period="daily">
               <div class="ch-tile"><div class="ico">🛏️</div><div class="nm">Make bed</div><div class="xp trust">+2 trust</div></div>
               <div class="ch-tile"><div class="ico">🦷</div><div class="nm">Brush teeth · AM</div><div class="xp trust">+1 trust</div></div>
               <div class="ch-tile"><div class="ico">🦷</div><div class="nm">Brush teeth · PM</div><div class="xp trust">+1 trust</div></div>
@@ -3048,7 +3048,7 @@
             </div>
 
             <div class="ch-section-lbl">🗓️ Weekly chores · tap to log</div>
-            <div class="ch-grid">
+            <div class="ch-grid" data-period="weekly">
               <div class="ch-tile"><div class="ico">🧹</div><div class="nm">Tidy room</div><div class="xp trust">+8 trust</div></div>
               <div class="ch-tile editing"><div class="ico">🪴</div><div class="nm">Water plants</div><div class="xp trust">+5 trust</div></div>
               <div class="ch-tile"><div class="ico">🧺</div><div class="nm">Laundry</div><div class="xp trust">+10 trust</div></div>
@@ -4030,6 +4030,7 @@
     try { localStorage.setItem('mb_currentKidId', kidId); } catch (e) {}
     if (window.mb.subscribeMealsForCurrentKid) window.mb.subscribeMealsForCurrentKid();
     if (window.mb.subscribeDayForCurrentKid) window.mb.subscribeDayForCurrentKid();
+    if (window.mb.subscribeWeekForCurrentKid) window.mb.subscribeWeekForCurrentKid();
     renderProfile();
     renderMealLog();
     if (typeof renderProfileStats === 'function') renderProfileStats();
@@ -4289,6 +4290,135 @@
   // Also re-render stats when kids list changes (currentKid name/age may have updated)
   window.addEventListener('mb-kids-changed', () => renderProfileStats());
 
+  // ============ Phase 2E: Trust + Chores ============
+  const TRUST_LEVELS = [
+    { min: 0, name: 'Helper Apprentice', short: 'Helper', stars: 1 },
+    { min: 100, name: 'Reliable Helper', short: 'Reliable', stars: 2 },
+    { min: 300, name: 'Trusted Crew', short: 'Crew', stars: 3 },
+    { min: 700, name: 'Family MVP', short: 'MVP', stars: 4 },
+    { min: 1500, name: 'Independent', short: 'Indep.', stars: 5 }
+  ];
+
+  function trustLevelFor(pts) {
+    let lvl = 0;
+    for (let i = 0; i < TRUST_LEVELS.length; i++) {
+      if (pts >= TRUST_LEVELS[i].min) lvl = i;
+    }
+    return lvl;
+  }
+
+  function choreKeyFrom(name) {
+    return 'chore_' + name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+  }
+
+  function parseTrustPts(text) {
+    const m = text && text.match(/\+(\d+)/);
+    return m ? parseInt(m[1], 10) : 0;
+  }
+
+  function renderResponsibility() {
+    const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    if (!kid) return;
+    const pts = kid.trustPoints || 0;
+    const lvlIdx = trustLevelFor(pts);
+    const lvl = TRUST_LEVELS[lvlIdx];
+    const nextLvl = TRUST_LEVELS[lvlIdx + 1];
+
+    // Update trust card
+    const eyebrow = document.getElementById('trust-eyebrow');
+    if (eyebrow) eyebrow.textContent = (kid.name.split(' ')[0]) + "'s Trust Level";
+    const nameEl = document.getElementById('trust-name');
+    if (nameEl) nameEl.textContent = lvl.name;
+    const starsEl = document.getElementById('trust-stars');
+    if (starsEl) {
+      const filled = '⭐'.repeat(lvl.stars);
+      const empty = '☆'.repeat(5 - lvl.stars);
+      starsEl.innerHTML = filled + empty + ' <span>Level ' + (lvlIdx + 1) + ' of 5</span>';
+    }
+    const tpNum = document.getElementById('tp-num');
+    if (tpNum) tpNum.textContent = pts;
+    // Bar fill: scale from 0 to 1500 (L5 threshold) as 0% to 100%
+    const fillPct = Math.min(100, (pts / 1500) * 100);
+    const fillEl = document.getElementById('trust-fill');
+    if (fillEl) fillEl.style.width = fillPct + '%';
+    const markerEl = document.getElementById('trust-marker');
+    if (markerEl) markerEl.style.left = fillPct + '%';
+    // Achieved tier markers
+    const tierEls = document.querySelectorAll('#trust-bar .trust-tier');
+    tierEls.forEach((el, i) => {
+      el.classList.toggle('achieved', i <= lvlIdx);
+    });
+    // Next-level message
+    const nextEl = document.getElementById('trust-next');
+    if (nextEl) {
+      if (nextLvl) {
+        const remaining = nextLvl.min - pts;
+        nextEl.innerHTML = '<b>' + remaining + ' pts to ' + nextLvl.name + '</b> (Level ' + (lvlIdx + 2) + ')';
+      } else {
+        nextEl.innerHTML = '<b>Max level reached!</b> You are Independent. ✨';
+      }
+    }
+
+    // Mark chore tiles as claimed
+    const today = (window.mb.state.today) || {};
+    const week = (window.mb.state.week) || {};
+    document.querySelectorAll('.ch-grid[data-period] .ch-tile').forEach(tile => {
+      if (tile.classList.contains('add')) return;
+      const nameEl = tile.querySelector('.nm');
+      if (!nameEl) return;
+      const grid = tile.closest('.ch-grid');
+      const period = grid && grid.dataset.period;
+      if (!period) return;
+      const key = choreKeyFrom(nameEl.textContent);
+      const map = period === 'daily' ? today : week;
+      const done = map[key] === 'done';
+      tile.classList.toggle('done', done);
+      // Show a checkmark + dim when done
+      if (done) {
+        tile.style.opacity = '0.55';
+        tile.style.background = '#EFFBEC';
+        // Replace +X trust with ✓ done
+        const xp = tile.querySelector('.xp');
+        if (xp && !xp.dataset.orig) xp.dataset.orig = xp.textContent;
+        if (xp) xp.textContent = '✓ done';
+      } else {
+        tile.style.opacity = '';
+        tile.style.background = '';
+        const xp = tile.querySelector('.xp');
+        if (xp && xp.dataset.orig) xp.textContent = xp.dataset.orig;
+      }
+    });
+  }
+
+  // Click handler for chore tiles
+  document.querySelectorAll('#view-chores .ch-grid[data-period] .ch-tile').forEach(tile => {
+    if (tile.classList.contains('add')) return;
+    tile.addEventListener('click', async () => {
+      const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+      if (!kid) return;
+      const grid = tile.closest('.ch-grid');
+      const period = grid && grid.dataset.period;
+      if (!period) return;
+      const name = tile.querySelector('.nm')?.textContent || '';
+      const key = choreKeyFrom(name);
+      const map = period === 'daily' ? (window.mb.state.today || {}) : (window.mb.state.week || {});
+      if (map[key] === 'done') return; // already claimed
+      const pts = parseTrustPts(tile.querySelector('.xp')?.textContent);
+      // Visual feedback immediately
+      pulseTile(tile);
+      spawnPointPop(tile, '+' + pts, false);
+      // Persist
+      if (window.mb && window.mb.logChore) {
+        window.mb.logChore(kid.id, period, key, pts)
+          .catch(err => console.error('logChore failed:', err));
+      }
+    });
+  });
+
+  window.addEventListener('mb-day-changed', () => renderResponsibility());
+  window.addEventListener('mb-week-changed', () => renderResponsibility());
+  window.addEventListener('mb-kids-changed', () => renderResponsibility());
+
   setTimeout(() => {
     if (window.mb && window.mb.state) {
       renderLeaderboard(window.mb.state.kids);
@@ -4297,6 +4427,7 @@
       renderMealLog();
       renderProfileStats();
       renderBehaviorTiles();
+      renderResponsibility();
     }
   }, 200);
   // Belt-and-suspenders: also try a couple more times in case subscription is slow
@@ -4307,6 +4438,9 @@
       }
       if (!window.mb.state.mealsUnsub && window.mb.subscribeMealsForCurrentKid) {
         window.mb.subscribeMealsForCurrentKid();
+      }
+      if (!window.mb.state.weekUnsub && window.mb.subscribeWeekForCurrentKid) {
+        window.mb.subscribeWeekForCurrentKid();
       }
     }
   }, 1500);
@@ -4389,7 +4523,9 @@
     meals: [],
     mealsUnsub: null,
     today: {},
-    dayUnsub: null
+    dayUnsub: null,
+    week: {},
+    weekUnsub: null
   };
   window.mb = { state, db, auth };
 
@@ -4432,6 +4568,7 @@
       if (state.currentKidId) {
         if (!state.mealsUnsub) subscribeMealsForCurrentKid();
         if (!state.dayUnsub) subscribeDayForCurrentKid();
+        if (!state.weekUnsub) subscribeWeekForCurrentKid();
       }
       if (firstLoad) {
         firstLoad = false;
@@ -4543,6 +4680,46 @@
     }
   }
   window.mb.logBehavior = logBehavior;
+
+  // Phase 2E: chore logging + weekly subscription
+  function isoWeekString() {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
+    const week1 = new Date(d.getFullYear(), 0, 4);
+    const w = 1 + Math.round(((d - week1) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
+    return d.getFullYear() + '-W' + String(w).padStart(2, '0');
+  }
+  window.mb.isoWeek = isoWeekString;
+
+  async function logChore(kidId, period, choreKey, trustPts) {
+    if (!state.family) return;
+    const dayOrWeek = period === 'daily' ? window.mb.today() : isoWeekString();
+    const path = period === 'daily'
+      ? doc(db, 'families', state.family.id, 'kids', kidId, 'days', dayOrWeek)
+      : doc(db, 'families', state.family.id, 'kids', kidId, 'weeks', dayOrWeek);
+    const update = period === 'daily' ? { day: dayOrWeek } : { week: dayOrWeek };
+    update[choreKey] = 'done';
+    await setDoc(path, update, { merge: true });
+    const kidRef = doc(db, 'families', state.family.id, 'kids', kidId);
+    await updateDoc(kidRef, {
+      trustPoints: increment(trustPts)
+    });
+  }
+  window.mb.logChore = logChore;
+
+  function subscribeWeekForCurrentKid() {
+    if (state.weekUnsub) { state.weekUnsub(); state.weekUnsub = null; }
+    state.week = {};
+    if (!state.family || !state.currentKidId) return;
+    const w = isoWeekString();
+    const ref = doc(db, 'families', state.family.id, 'kids', state.currentKidId, 'weeks', w);
+    state.weekUnsub = onSnapshot(ref, (snap) => {
+      state.week = snap.exists() ? snap.data() : { week: w };
+      window.dispatchEvent(new CustomEvent('mb-week-changed', { detail: state.week }));
+    }, (err) => console.error('Week subscription error:', err));
+  }
+  window.mb.subscribeWeekForCurrentKid = subscribeWeekForCurrentKid;
 
   function subscribeDayForCurrentKid() {
     if (state.dayUnsub) { state.dayUnsub(); state.dayUnsub = null; }
