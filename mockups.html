@@ -992,6 +992,27 @@
 
   /* Bonus rows */
   .bonus-list { display: flex; flex-direction: column; gap: 6px; }
+  .custom-bonus-form { background:#fbf6ee; border: 1px solid #f2e1be; border-radius: 14px; padding: 14px; margin: 8px 0 12px; }
+  .cbf-grid { display: grid; grid-template-columns: 1fr 1fr 100px; gap: 12px; align-items: start; }
+  .cbf-field { display: flex; flex-direction: column; gap: 4px; }
+  .cbf-narrow { width: 100%; }
+  .cbf-lbl { font-size: 11px; font-weight: 800; opacity: .65; letter-spacing: .3px; text-transform: uppercase; }
+  .cbf-emoji-picker { display: flex; flex-wrap: wrap; gap: 4px; max-height: 110px; overflow-y: auto; padding: 4px; background: #fff; border-radius: 10px; border: 1px solid #e8ddc4; }
+  .cbf-em-tile { font-size: 18px; padding: 4px; border-radius: 6px; cursor: pointer; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+  .cbf-em-tile.active { background: #d9477b; color: #fff; transform: scale(1.1); }
+  .cbf-em-tile:hover { background: #f3eedb; }
+  .cbf-em-tile.active:hover { background: #d9477b; }
+  #cbf-name, #cbf-points { padding: 8px 10px; border-radius: 8px; border: 1px solid #d8c8a6; font-size: 14px; font-weight: 700; }
+  .cbf-kid-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cbf-kid-chip { padding: 6px 12px; border-radius: 999px; border: 1.5px solid #d8c8a6; background:#fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .cbf-kid-chip.active { background: #d9477b; border-color: #d9477b; color: #fff; }
+  .cbf-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+  .bn-applies-edit { font-size: 10px; opacity:.7; cursor: pointer; text-decoration: underline; }
+  .bn-delete { background: none; border: none; color: #c85050; font-size: 18px; cursor: pointer; padding: 0 4px; }
+  .bn-kid-picker { grid-column: 1/-1; padding-top: 6px; display:flex; gap:6px; flex-wrap:wrap; }
+  @media (max-width: 700px) {
+    .cbf-grid { grid-template-columns: 1fr; }
+  }
   .bonus-row {
     display: grid; grid-template-columns: 32px 1fr 80px auto; gap: 10px;
     align-items: center; padding: 8px 12px;
@@ -2627,7 +2648,31 @@
           <section class="set-card">
             <div class="set-card-head">
               <h3 class="set-h3">🍽️ Dinner expectations &amp; bonuses</h3>
-              <button class="set-action">+ Custom bonus</button>
+              <button class="set-action" id="cbf-toggle-btn">+ Custom bonus</button>
+            </div>
+            <div class="custom-bonus-form" id="custom-bonus-form" style="display:none;">
+              <div class="cbf-grid">
+                <div class="cbf-field">
+                  <label class="cbf-lbl">Icon</label>
+                  <div class="cbf-emoji-picker" id="cbf-emoji-picker"></div>
+                </div>
+                <div class="cbf-field">
+                  <label class="cbf-lbl">Name</label>
+                  <input id="cbf-name" placeholder="e.g. Practiced piano" maxlength="40" />
+                </div>
+                <div class="cbf-field cbf-narrow">
+                  <label class="cbf-lbl">Points</label>
+                  <input id="cbf-points" type="number" value="5" />
+                </div>
+              </div>
+              <div class="cbf-field">
+                <label class="cbf-lbl">Applies to</label>
+                <div class="cbf-kid-chips" id="cbf-kid-chips"></div>
+              </div>
+              <div class="cbf-actions">
+                <button class="btn-secondary" id="cbf-cancel">Cancel</button>
+                <button class="btn-primary" id="cbf-save" style="background: var(--berry); flex: 0; padding: 8px 16px;">Add bonus</button>
+              </div>
             </div>
             <p class="set-note">Toggle which apply to your family. Expectations cost points if not met. Bonuses earn points when claimed.</p>
             <div class="bonus-list" id="bonus-list-dynamic"></div>
@@ -3557,34 +3602,62 @@
 
   // ============ Family bonus configuration (Phase 2H) ============
   const DEFAULT_BONUSES = {
-    seated:    { enabled: true,  points: -10, em: '🪑', label: 'Stayed seated',         meta: 'EXPECTATION · subtracted if violated', expectation: true },
-    noWhining: { enabled: true,  points: 5,   em: '😊', label: 'No whining',            meta: 'Calm dinner pays off' },
-    cleanup:   { enabled: true,  points: 10,  em: '🧹', label: 'Helped clean up',       meta: 'Cleared plates / wiped table' },
-    newFood:   { enabled: true,  points: 10,  em: '🌟', label: 'Tried something new',   meta: 'Brave bites · auto-tracked' },
-    thanked:   { enabled: false, points: 5,   em: '🙏', label: 'Thanked the cook',      meta: 'Politeness counts' }
+    seated:    { enabled: true,  points: -10, em: '🪑', label: 'Stayed seated',         meta: 'EXPECTATION · subtracted if violated', expectation: true, appliesTo: 'all' },
+    noWhining: { enabled: true,  points: 5,   em: '😊', label: 'No whining',            meta: 'Calm dinner pays off', appliesTo: 'all' },
+    cleanup:   { enabled: true,  points: 10,  em: '🧹', label: 'Helped clean up',       meta: 'Cleared plates / wiped table', appliesTo: 'all' },
+    newFood:   { enabled: true,  points: 10,  em: '🌟', label: 'Tried something new',   meta: 'Brave bites · auto-tracked', appliesTo: 'all' },
+    thanked:   { enabled: false, points: 5,   em: '🙏', label: 'Thanked the cook',      meta: 'Politeness counts', appliesTo: 'all' }
   };
+  const BUILTIN_BONUS_KEYS = ['seated','noWhining','cleanup','newFood','thanked'];
+  const PICKER_EMOJIS = ['🪑','😊','🧹','🌟','🙏','🎵','📚','🛏️','🦷','🚿','🐕','🐱','💧','🌱','🛁','🥦','👕','🪥','🥄','🍽️','🚗','🎒','✏️','📝','💪','🧘','🏃','❤️','✨','🌈','🎁','⭐','🎨','🎯','🧩','📖','🍎','🥕','🥛','🧦','🧸','🛒','📞','💌','🏡','🏆','🎪','🎤'];
+
   function getBonusConfig() {
-    const cfg = (window.mb && window.mb.state.family && window.mb.state.family.settings && window.mb.state.family.settings.bonuses) || {};
+    const stored = (window.mb && window.mb.state.family && window.mb.state.family.settings && window.mb.state.family.settings.bonuses) || {};
     const merged = {};
-    Object.keys(DEFAULT_BONUSES).forEach(k => {
-      merged[k] = Object.assign({}, DEFAULT_BONUSES[k], cfg[k] || {});
+    BUILTIN_BONUS_KEYS.forEach(k => {
+      merged[k] = Object.assign({}, DEFAULT_BONUSES[k], stored[k] || {});
+    });
+    Object.keys(stored).forEach(k => {
+      if (BUILTIN_BONUS_KEYS.indexOf(k) < 0) {
+        merged[k] = Object.assign({ custom: true, appliesTo: 'all' }, stored[k]);
+      }
     });
     return merged;
+  }
+
+  function bonusAppliesToKid(b, kidId) {
+    if (!b.appliesTo || b.appliesTo === 'all') return true;
+    if (Array.isArray(b.appliesTo)) return b.appliesTo.indexOf(kidId) >= 0;
+    return true;
+  }
+
+  function appliesLabel(b, kids) {
+    if (!b.appliesTo || b.appliesTo === 'all') return 'all kids';
+    if (!Array.isArray(b.appliesTo) || !b.appliesTo.length) return 'no one';
+    const names = b.appliesTo.map(id => {
+      const k = kids.find(x => x.id === id);
+      return k ? k.name : '?';
+    });
+    return 'for ' + names.join(', ');
   }
 
   function renderBonusSettings() {
     const host = document.getElementById('bonus-list-dynamic');
     if (!host) return;
     const cfg = getBonusConfig();
+    const kids = (window.mb && window.mb.state.kids) || [];
     host.innerHTML = Object.keys(cfg).map(key => {
       const b = cfg[key];
       const offCls = b.enabled ? '' : ' off';
       const expCls = b.expectation ? ' expectation' : '';
+      const delBtn = b.custom ? '<button class="bn-delete" data-bkey="' + key + '" title="Delete custom bonus">×</button>' : '';
+      const meta = b.meta + ' · <span class="bn-applies-edit" data-bkey="' + key + '">' + appliesLabel(b, kids) + '</span>';
       return '<div class="bonus-row' + expCls + offCls + '" data-bkey="' + key + '">' +
         '<span class="bem">' + b.em + '</span>' +
-        '<div class="binfo"><div class="bnm">' + b.label + '</div><div class="bmeta">' + b.meta + '</div></div>' +
+        '<div class="binfo"><div class="bnm">' + b.label + '</div><div class="bmeta">' + meta + '</div></div>' +
         '<input type="number" class="b-pts" data-bkey="' + key + '" data-field="points" value="' + b.points + '" />' +
         '<label class="set-toggle"><input type="checkbox" data-bkey="' + key + '" data-field="enabled" ' + (b.enabled ? 'checked' : '') + ' /> <span>' + (b.enabled ? 'On' : 'Off') + '</span></label>' +
+        delBtn +
       '</div>';
     }).join('');
   }
@@ -3597,10 +3670,10 @@
     el._t = setTimeout(() => { el.textContent = ''; }, 1500);
   }
 
-  // Persist bonus changes via Firestore writer in window.mb
   document.addEventListener('change', (e) => {
     const t = e.target;
     if (!t.dataset || !t.dataset.bkey) return;
+    if (t.id && t.id.indexOf('cbf-') === 0) return;
     const key = t.dataset.bkey;
     const field = t.dataset.field;
     if (!field) return;
@@ -3613,9 +3686,167 @@
     }
   });
 
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.bn-delete');
+    if (!btn) return;
+    if (!confirm('Delete this custom bonus?')) return;
+    const key = btn.dataset.bkey;
+    if (window.mb && window.mb.deleteFamilyBonus) {
+      flashBonusStatus('Deleting…');
+      window.mb.deleteFamilyBonus(key)
+        .then(() => flashBonusStatus('✓ Deleted'))
+        .catch(err => { console.error('deleteFamilyBonus failed:', err); flashBonusStatus('Delete failed'); });
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('.bn-applies-edit');
+    if (!link) return;
+    const key = link.dataset.bkey;
+    const row = link.closest('.bonus-row');
+    if (!row) return;
+    let picker = row.querySelector('.bn-kid-picker');
+    if (picker) { picker.remove(); return; }
+    const cfg = getBonusConfig();
+    const b = cfg[key];
+    const kids = (window.mb && window.mb.state.kids) || [];
+    const applies = b.appliesTo;
+    const isAll = !applies || applies === 'all';
+    picker = document.createElement('div');
+    picker.className = 'bn-kid-picker';
+    const allChip = document.createElement('div');
+    allChip.className = 'cbf-kid-chip' + (isAll ? ' active' : '');
+    allChip.textContent = 'All kids';
+    allChip.addEventListener('click', () => {
+      window.mb.updateFamilyBonus(key, 'appliesTo', 'all').then(() => flashBonusStatus('✓ Saved'));
+    });
+    picker.appendChild(allChip);
+    kids.forEach(kid => {
+      const chip = document.createElement('div');
+      const checked = !isAll && Array.isArray(applies) && applies.indexOf(kid.id) >= 0;
+      chip.className = 'cbf-kid-chip' + (checked ? ' active' : '');
+      chip.textContent = (kid.buddy || '🦖') + ' ' + kid.name;
+      chip.addEventListener('click', () => {
+        let cur = (Array.isArray(applies) && !isAll) ? applies.slice() : [];
+        if (isAll) {
+          cur = kids.map(k => k.id).filter(id => id !== kid.id);
+        } else if (cur.indexOf(kid.id) >= 0) {
+          cur = cur.filter(id => id !== kid.id);
+        } else {
+          cur = cur.concat([kid.id]);
+        }
+        if (cur.length === kids.length) cur = 'all';
+        window.mb.updateFamilyBonus(key, 'appliesTo', cur).then(() => flashBonusStatus('✓ Saved'));
+      });
+      picker.appendChild(chip);
+    });
+    row.appendChild(picker);
+  });
+
+  // ============ Custom bonus form ============
+  const cbfState = { emoji: '🎵', kids: 'all' };
+  function renderEmojiPicker() {
+    const host = document.getElementById('cbf-emoji-picker');
+    if (!host) return;
+    host.innerHTML = PICKER_EMOJIS.map(em =>
+      '<div class="cbf-em-tile' + (em === cbfState.emoji ? ' active' : '') + '" data-em="' + em + '">' + em + '</div>'
+    ).join('');
+    host.querySelectorAll('.cbf-em-tile').forEach(el => {
+      el.addEventListener('click', () => {
+        cbfState.emoji = el.dataset.em;
+        renderEmojiPicker();
+      });
+    });
+  }
+  function renderCbfKidChips() {
+    const host = document.getElementById('cbf-kid-chips');
+    if (!host) return;
+    const kids = (window.mb && window.mb.state.kids) || [];
+    const isAll = cbfState.kids === 'all';
+    host.innerHTML = '';
+    const allChip = document.createElement('div');
+    allChip.className = 'cbf-kid-chip' + (isAll ? ' active' : '');
+    allChip.textContent = 'All kids';
+    allChip.addEventListener('click', () => { cbfState.kids = 'all'; renderCbfKidChips(); });
+    host.appendChild(allChip);
+    kids.forEach(k => {
+      const chip = document.createElement('div');
+      const checked = !isAll && Array.isArray(cbfState.kids) && cbfState.kids.indexOf(k.id) >= 0;
+      chip.className = 'cbf-kid-chip' + (checked ? ' active' : '');
+      chip.textContent = (k.buddy || '🦖') + ' ' + k.name;
+      chip.addEventListener('click', () => {
+        let cur = (Array.isArray(cbfState.kids) && !isAll) ? cbfState.kids.slice() : [];
+        if (isAll) { cur = kids.map(x => x.id).filter(id => id !== k.id); }
+        else if (cur.indexOf(k.id) >= 0) { cur = cur.filter(id => id !== k.id); }
+        else { cur = cur.concat([k.id]); }
+        if (cur.length === kids.length) cur = 'all';
+        cbfState.kids = cur;
+        renderCbfKidChips();
+      });
+      host.appendChild(chip);
+    });
+  }
+  const cbfToggleBtn = document.getElementById('cbf-toggle-btn');
+  if (cbfToggleBtn) cbfToggleBtn.addEventListener('click', () => {
+    const form = document.getElementById('custom-bonus-form');
+    if (!form) return;
+    const isOpen = form.style.display !== 'none';
+    form.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen) {
+      cbfState.emoji = '🎵';
+      cbfState.kids = 'all';
+      const nm = document.getElementById('cbf-name');
+      const pts = document.getElementById('cbf-points');
+      if (nm) nm.value = '';
+      if (pts) pts.value = '5';
+      renderEmojiPicker();
+      renderCbfKidChips();
+    }
+  });
+  const cbfCancel = document.getElementById('cbf-cancel');
+  if (cbfCancel) cbfCancel.addEventListener('click', () => {
+    document.getElementById('custom-bonus-form').style.display = 'none';
+  });
+  const cbfSave = document.getElementById('cbf-save');
+  if (cbfSave) cbfSave.addEventListener('click', async () => {
+    const name = (document.getElementById('cbf-name').value || '').trim();
+    const pts = parseInt(document.getElementById('cbf-points').value, 10) || 0;
+    if (!name) { document.getElementById('cbf-name').focus(); return; }
+    cbfSave.disabled = true;
+    cbfSave.textContent = 'Saving…';
+    try {
+      const key = 'custom_' + Date.now();
+      const bonus = {
+        enabled: true,
+        points: pts,
+        em: cbfState.emoji,
+        label: name,
+        meta: 'Custom bonus',
+        appliesTo: cbfState.kids,
+        custom: true
+      };
+      if (window.mb && window.mb.addFamilyBonus) {
+        await window.mb.addFamilyBonus(key, bonus);
+      }
+      document.getElementById('custom-bonus-form').style.display = 'none';
+      flashBonusStatus('✓ Added "' + name + '"');
+    } catch (e) {
+      console.error('Add custom bonus failed:', e);
+      flashBonusStatus('Save failed');
+    } finally {
+      cbfSave.disabled = false;
+      cbfSave.textContent = 'Add bonus';
+    }
+  });
+
   window.addEventListener('mb-family-changed', () => {
     renderBonusSettings();
     renderBehaviorTilesConfig();
+    renderCbfKidChips();
+  });
+  window.addEventListener('mb-kids-changed', () => {
+    renderBonusSettings();
+    renderCbfKidChips();
   });
   document.querySelectorAll('.bb-tile.bonus').forEach(tile => {
     tile.addEventListener('click', () => {
@@ -3680,6 +3911,7 @@
     });
   }
   window.addEventListener('mb-day-changed', () => renderBehaviorTiles());
+  window.addEventListener('mb-kid-changed', () => renderBehaviorTilesConfig());
 
   // Rebuild the behavior tiles list on Meal Log from current bonus config
   // - Hides disabled bonuses
@@ -3691,9 +3923,11 @@
     if (!host) return;
     const cfg = getBonusConfig();
     const html = [];
+    const currentKidId = window.mb && window.mb.state && window.mb.state.currentKidId;
     Object.keys(cfg).forEach(key => {
       const b = cfg[key];
       if (!b.enabled) return;
+      if (currentKidId && !bonusAppliesToKid(b, currentKidId)) return;
       const id = BONUS_ID_BY_KEY[key] || ('bb-' + key);
       if (b.expectation) {
         html.push(
@@ -4851,7 +5085,7 @@
 <!-- ============ FIREBASE: family code auth + cloud sync ============ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-  import { getFirestore, collection, doc, setDoc, getDoc, query, where, getDocs, serverTimestamp, arrayUnion, updateDoc, addDoc, deleteDoc, onSnapshot, orderBy, increment } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+  import { getFirestore, collection, doc, setDoc, getDoc, query, where, getDocs, serverTimestamp, arrayUnion, updateDoc, addDoc, deleteDoc, onSnapshot, orderBy, increment, deleteField } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
   import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
   const firebaseConfig = {
@@ -5155,6 +5389,24 @@
     await updateDoc(famRef, update);
   }
   window.mb.updateFamilyBonus = updateFamilyBonus;
+
+  async function addFamilyBonus(bonusKey, bonus) {
+    if (!state.family) return;
+    const famRef = doc(db, 'families', state.family.id);
+    const update = {};
+    update['settings.bonuses.' + bonusKey] = bonus;
+    await updateDoc(famRef, update);
+  }
+  window.mb.addFamilyBonus = addFamilyBonus;
+
+  async function deleteFamilyBonus(bonusKey) {
+    if (!state.family) return;
+    const famRef = doc(db, 'families', state.family.id);
+    const update = {};
+    update['settings.bonuses.' + bonusKey] = deleteField();
+    await updateDoc(famRef, update);
+  }
+  window.mb.deleteFamilyBonus = deleteFamilyBonus;
 
   function subscribeWeekForCurrentKid() {
     if (state.weekUnsub) { state.weekUnsub(); state.weekUnsub = null; }
