@@ -1104,7 +1104,22 @@
   .ed-list-add span { font-size: 16px; font-weight: 900; }
 
   /* 3D head-turn rotator + cosmetic depth */
-  .dress-stage-wrap { perspective: 700px; perspective-origin: 50% 40%; }
+  .new-unlocks { background: linear-gradient(135deg, #fff7e6, #ffe4f0); border: 2px solid #ffd66b; border-radius: 18px; padding: 16px 18px; box-shadow: 0 6px 14px rgba(255,200,80,.18); }
+  .new-unlocks-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+  .new-unlocks-title { font-size: 18px; font-weight: 900; color: #7a4b00; display:flex; align-items:center; gap:6px; }
+  .new-unlocks-list { display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; }
+  .nu-card { flex: 0 0 auto; min-width: 150px; max-width: 200px; background:#fff; border-radius:14px; padding:12px; display:flex; flex-direction:column; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(0,0,0,.06); border:1px solid #ffe6a8; }
+  .nu-card-em { font-size: 36px; line-height: 1; }
+  .nu-card-nm { font-weight: 800; font-size: 13px; text-align:center; color:#3a2900; }
+  .nu-card-rarity { font-size: 10px; font-weight:700; letter-spacing: .5px; }
+  .nu-card-rarity.rare { color:#a05a00; }
+  .nu-card-rarity.legendary { color:#a01070; }
+  .nu-card-meta { font-size: 11px; color:#7a5a2a; text-align:center; line-height:1.3; }
+  .new-unlocks-cta { background: var(--berry, #d9477b); color:#fff; border:none; padding:8px 14px; border-radius:999px; font-weight:800; font-size:13px; cursor:pointer; }
+  .new-unlocks-cta:disabled { opacity:.5; }
+  .cos-tile-meta { font-size: 10px; color:#666; text-align:center; margin-top:4px; line-height:1.25; }
+  .cos-tile.locked .cos-tile-meta { color:#999; }
+    .dress-stage-wrap { perspective: 700px; perspective-origin: 50% 40%; }
   #dress-avatar { transform-style: preserve-3d; }
   .ava-3d-rotator {
     transform-style: preserve-3d;
@@ -2439,31 +2454,8 @@
             </div>
           </div>
 
-          <!-- Latest unlock celebration card -->
-          <div class="unlock-card">
-            <div class="unlock-shimmer"></div>
-            <div class="unlock-left">
-              <div class="unlock-eyebrow">🎉 Just unlocked! 4-week streak reward</div>
-              <h2 class="unlock-name">Champion Crown</h2>
-              <div class="rarity legendary"><span class="dot"></span>LEGENDARY</div>
-              <p class="unlock-desc">You hit the weekly goal 4 weeks in a row. Your <span class="buddy-name-lc">dino</span> now wears the Champion Crown — and walks 1.2× faster on the leaderboard 🏃‍♀️.</p>
-              <div class="unlock-actions">
-                <button class="btn-primary" style="background: var(--berry);" id="unlock-equip-btn">Equip now</button>
-                <button class="btn-secondary" id="unlock-save-btn">Save for later</button>
-              </div>
-            </div>
-            <div class="unlock-right">
-              <div class="unlock-stage">
-                <div class="ava-shell strong" style="width:160px;height:160px;font-size:100px;">
-                  <span class="tro-buddy">🦖</span><div class="crown" style="font-size:62px; top:-22px; right:6px;">👑</div>
-                </div>
-                <div class="unlock-sparkle s1">✨</div>
-                <div class="unlock-sparkle s2">✨</div>
-                <div class="unlock-sparkle s3">⭐</div>
-                <div class="unlock-sparkle s4">✨</div>
-              </div>
-            </div>
-          </div>
+          <!-- New unlocks since last visit (dynamic, hidden when none) -->
+          <div id="new-unlocks-strip" style="display:none;"></div>
 
           <!-- Dressing Room -->
           <div class="dress">
@@ -3463,36 +3455,46 @@
   // unlock: how it's earned (string for display, also used as locked state when !owned)
   const cosmetics = [
     // HEAD
-    { id: 'crown',    slot: 'head',   em: '👑',  nm: 'Champion Crown',  rarity: 'legendary', owned: true,  unlock: '4-week streak' },
-    { id: 'tophat',   slot: 'head',   em: '🎩',  nm: 'Top Hat',         rarity: 'rare',      owned: true,  unlock: 'Family #1 ×2' },
-    { id: 'cowboy',   slot: 'head',   em: '🤠',  nm: 'Cowboy Hat',      rarity: 'common',    owned: true,  unlock: 'Bandana week' },
-    { id: 'mane',     slot: 'head',   em: '🦁',  nm: 'Lion Mane',       rarity: 'rare',      owned: false, unlock: 'Goal Hit ×10' },
-    { id: 'gradcap',  slot: 'head',   em: '🎓',  nm: 'Grad Cap',        rarity: 'legendary', owned: false, unlock: 'Win 10 weeks total' },
-    { id: 'beanie',   slot: 'head',   em: '🧢',  nm: 'Backwards Cap',   rarity: 'common',    owned: true,  unlock: 'Comeback Kid' },
+    { id: 'beanie',   slot: 'head',   em: '🧢',  nm: 'Backwards Cap',   rarity: 'common',    unlockXP: 0,    unlock: 'Starter — yours from day one' },
+    { id: 'cowboy',   slot: 'head',   em: '🤠',  nm: 'Cowboy Hat',      rarity: 'common',    unlockXP: 150,  unlock: 'Reach 150 lifetime XP' },
+    { id: 'tophat',   slot: 'head',   em: '🎩',  nm: 'Top Hat',         rarity: 'rare',      unlockXP: 1200, unlock: 'Reach 1,200 lifetime XP' },
+    { id: 'mane',     slot: 'head',   em: '🦁',  nm: 'Lion Mane',       rarity: 'rare',      unlockXP: 2500, unlock: 'Reach 2,500 lifetime XP' },
+    { id: 'crown',    slot: 'head',   em: '👑',  nm: 'Champion Crown',  rarity: 'legendary', unlockXP: 5000, unlock: 'Reach Champion stage — 5,000 lifetime XP' },
+    { id: 'gradcap',  slot: 'head',   em: '🎓',  nm: 'Grad Cap',        rarity: 'legendary', unlockXP: 8000, unlock: 'Reach 8,000 lifetime XP' },
 
     // EYES
-    { id: 'shades',   slot: 'eyes',   em: '🕶',  nm: 'Cool Shades',     rarity: 'rare',      owned: true,  unlock: 'Family #1 once' },
-    { id: 'specs',    slot: 'eyes',   em: '👓',  nm: 'Smart Specs',     rarity: 'common',    owned: false, unlock: 'Brave Bites ×5' },
-    { id: 'goggles',  slot: 'eyes',   em: '🥽',  nm: 'Goggles',         rarity: 'rare',      owned: false, unlock: 'No Junk ×3' },
+    { id: 'shades',   slot: 'eyes',   em: '🕶',  nm: 'Cool Shades',     rarity: 'rare',      unlockXP: 700,  unlock: 'Hit a weekly goal (700 XP)' },
+    { id: 'specs',    slot: 'eyes',   em: '👓',  nm: 'Smart Specs',     rarity: 'common',    unlockXP: 300,  unlock: 'Reach 300 lifetime XP' },
+    { id: 'goggles',  slot: 'eyes',   em: '🥽',  nm: 'Goggles',         rarity: 'rare',      unlockXP: 1800, unlock: 'Reach 1,800 lifetime XP' },
 
     // CAPE
-    { id: 'cape',     slot: 'cape',   em: '⚡',   nm: 'Lightning Cape',  rarity: 'legendary', owned: true,  unlock: '4-week streak' },
-    { id: 'wings',    slot: 'cape',   em: '🦋',  nm: 'Butterfly Wings', rarity: 'legendary', owned: false, unlock: 'Perfect Week' },
-    { id: 'scarf',    slot: 'cape',   em: '🧣',  nm: 'Cozy Scarf',      rarity: 'common',    owned: true,  unlock: 'Goal Hit ×3' },
+    { id: 'scarf',    slot: 'cape',   em: '🧣',  nm: 'Cozy Scarf',      rarity: 'common',    unlockXP: 0,    unlock: 'Starter — yours from day one' },
+    { id: 'cape',     slot: 'cape',   em: '⚡',   nm: 'Lightning Cape',  rarity: 'legendary', unlockXP: 3500, unlock: 'Reach 3,500 lifetime XP' },
+    { id: 'wings',    slot: 'cape',   em: '🦋',  nm: 'Butterfly Wings', rarity: 'legendary', unlockXP: 6500, unlock: 'Reach 6,500 lifetime XP' },
 
     // EFFECTS
-    { id: 'sparkle',  slot: 'effect', em: '✨',  nm: 'Sparkle Aura',    rarity: 'rare',      owned: true,  unlock: 'Family #1' },
-    { id: 'fire',     slot: 'effect', em: '🔥',  nm: 'Fire Trail',      rarity: 'legendary', owned: false, unlock: '8 streak weeks' },
-    { id: 'stars',    slot: 'effect', em: '💫',  nm: 'Star Spin',       rarity: 'legendary', owned: false, unlock: 'Family #1 ×10' },
-    { id: 'rainbow',  slot: 'effect', em: '🌈',  nm: 'Rainbow Glow',    rarity: 'rare',      owned: true,  unlock: 'All 5 groups, 7 days' },
+    { id: 'sparkle',  slot: 'effect', em: '✨',  nm: 'Sparkle Aura',    rarity: 'rare',      unlockXP: 500,  unlock: 'Reach 500 lifetime XP' },
+    { id: 'rainbow',  slot: 'effect', em: '🌈',  nm: 'Rainbow Glow',    rarity: 'rare',      unlockXP: 1500, unlock: 'Reach 1,500 lifetime XP' },
+    { id: 'fire',     slot: 'effect', em: '🔥',  nm: 'Fire Trail',      rarity: 'legendary', unlockXP: 4500, unlock: 'Reach 4,500 lifetime XP' },
+    { id: 'stars',    slot: 'effect', em: '💫',  nm: 'Star Spin',       rarity: 'legendary', unlockXP: 7000, unlock: 'Reach 7,000 lifetime XP' },
 
     // ACCESSORIES
-    { id: 'bowtie',   slot: 'acc',    em: '🎀',  nm: 'Bow Tie',         rarity: 'common',    owned: true,  unlock: 'Goal Hit ×2' },
-    { id: 'star',     slot: 'acc',    em: '⭐',  nm: 'Star Badge',      rarity: 'common',    owned: true,  unlock: 'Goal Hit ×5' },
-    { id: 'shield',   slot: 'acc',    em: '🛡️', nm: 'Shield',          rarity: 'rare',      owned: false, unlock: 'Perfect Week ×3' },
-    { id: 'medal',    slot: 'acc',    em: '🏅',  nm: 'Gold Medal',      rarity: 'rare',      owned: true,  unlock: 'Month Master' },
-    { id: 'pet',      slot: 'acc',    em: '🐾',  nm: 'Pet Sidekick',    rarity: 'legendary', owned: false, unlock: 'Sibling Cheer ×10' }
+    { id: 'bowtie',   slot: 'acc',    em: '🎀',  nm: 'Bow Tie',         rarity: 'common',    unlockXP: 100,  unlock: 'Reach 100 lifetime XP' },
+    { id: 'star',     slot: 'acc',    em: '⭐',  nm: 'Star Badge',      rarity: 'common',    unlockXP: 400,  unlock: 'Reach 400 lifetime XP' },
+    { id: 'medal',    slot: 'acc',    em: '🏅',  nm: 'Gold Medal',      rarity: 'rare',      unlockXP: 2000, unlock: 'Reach Tough stage — 2,000 lifetime XP' },
+    { id: 'shield',   slot: 'acc',    em: '🛡️', nm: 'Shield',          rarity: 'rare',      unlockXP: 3000, unlock: 'Reach 3,000 lifetime XP' },
+    { id: 'pet',      slot: 'acc',    em: '🐾',  nm: 'Pet Sidekick',    rarity: 'legendary', unlockXP: 10000, unlock: 'Reach Legend stage — 10,000 lifetime XP' }
   ];
+
+  function isCosmeticUnlocked(c, kid) {
+    if (!kid) return c.unlockXP === 0;
+    return (kid.lifetimeXP || 0) >= c.unlockXP;
+  }
+  function getNewUnlocks(kid) {
+    if (!kid) return [];
+    const seen = new Set(kid.seenCosmetics || []);
+    return cosmetics.filter(c => isCosmeticUnlocked(c, kid) && c.unlockXP > 0 && !seen.has(c.id));
+  }
 
   // Equipped is now read from the current kid's Firestore data. Falls back to defaults
   // if the kid hasn't customized yet.
@@ -3509,16 +3511,20 @@
   function renderCosGrid() {
     const grid = document.getElementById('cos-grid');
     if (!grid) return;
+    const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
     const items = cosmetics.filter(c => activeSlotFilter === 'all' || c.slot === activeSlotFilter);
     grid.innerHTML = items.map(c => {
-      const isEquipped = equipped[c.slot] === c.id;
+      const owned = isCosmeticUnlocked(c, kid);
+      const isEquipped = owned && equipped[c.slot] === c.id;
       const cls = ['cos-tile'];
-      if (!c.owned) cls.push('locked');
+      if (!owned) cls.push('locked');
       if (isEquipped) cls.push('equipped');
       const rarityTag = c.rarity !== 'common' ? `<div class="cos-tile-rarity ${c.rarity}">${c.rarity.toUpperCase()}</div>` : '';
-      const meta = c.owned ? rarityTag : `<div class="cos-tile-meta">${c.unlock}</div>`;
+      // Always show how this cosmetic is earned; for owned items mark with ✓
+      const metaTxt = owned ? ('✓ ' + c.unlock) : c.unlock;
+      const meta = `${rarityTag}<div class="cos-tile-meta">${metaTxt}</div>`;
       return `
-        <div class="${cls.join(' ')}" data-id="${c.id}" data-slot="${c.slot}" data-owned="${c.owned}">
+        <div class="${cls.join(' ')}" data-id="${c.id}" data-slot="${c.slot}" data-owned="${owned}">
           <div class="cos-tile-em">${c.em}</div>
           <div class="cos-tile-nm">${c.nm}</div>
           ${meta}
@@ -4525,50 +4531,49 @@
     if (count) count.innerHTML = '<b>' + earnedCount + ' earned</b> this week · ' + (BADGES.length - earnedCount) + ' to chase';
   }
 
-  window.addEventListener('mb-kids-changed', () => renderTrophies());
-  window.addEventListener('mb-meals-changed', () => renderTrophies());
-
-  // Wire the Champion Crown unlock card's "Equip now" + "Save for later" buttons
-  document.addEventListener('DOMContentLoaded', () => {
-    const equipBtn = document.getElementById('unlock-equip-btn');
-    const saveBtn = document.getElementById('unlock-save-btn');
-    if (equipBtn) {
-      equipBtn.addEventListener('click', async () => {
-        const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
-        if (!kid) return;
-        equipBtn.disabled = true;
-        const orig = equipBtn.textContent;
-        equipBtn.textContent = 'Equipping…';
+  function renderNewUnlocks() {
+    const strip = document.getElementById('new-unlocks-strip');
+    if (!strip) return;
+    const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    if (!kid) { strip.style.display = 'none'; return; }
+    const fresh = getNewUnlocks(kid);
+    if (!fresh.length) { strip.style.display = 'none'; return; }
+    strip.style.display = 'block';
+    strip.className = 'new-unlocks';
+    strip.innerHTML =
+      '<div class="new-unlocks-head">' +
+        '<div class="new-unlocks-title">✨ New since your last visit!</div>' +
+        '<button class="new-unlocks-cta" id="nu-gotit-btn">Got it — show in dressing room</button>' +
+      '</div>' +
+      '<div class="new-unlocks-list">' +
+        fresh.map(c => (
+          '<div class="nu-card">' +
+            '<div class="nu-card-em">' + c.em + '</div>' +
+            '<div class="nu-card-nm">' + c.nm + '</div>' +
+            (c.rarity !== 'common' ? '<div class="nu-card-rarity ' + c.rarity + '">' + c.rarity.toUpperCase() + '</div>' : '') +
+            '<div class="nu-card-meta">' + c.unlock + '</div>' +
+          '</div>'
+        )).join('') +
+      '</div>';
+    const btn = document.getElementById('nu-gotit-btn');
+    if (btn) {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.textContent = 'Saving…';
         try {
-          await window.mb.updateKidEquipped(kid.id, 'head', 'crown');
-          equipBtn.textContent = '✓ Equipped!';
-          setTimeout(() => {
-            equipBtn.textContent = orig;
-            equipBtn.disabled = false;
-            // Jump to dressing room to show the kid wearing it
-            mbGoTo('trophies');
-            const dress = document.querySelector('.dress-stage-wrap');
-            if (dress) dress.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 1200);
-        } catch (e) {
-          console.error('Equip crown failed:', e);
-          equipBtn.textContent = 'Failed — try again';
-          equipBtn.disabled = false;
-        }
+          const newSeen = Array.from(new Set([...(kid.seenCosmetics || []), ...fresh.map(c => c.id)]));
+          if (window.mb && window.mb.updateKidSeenCosmetics) {
+            await window.mb.updateKidSeenCosmetics(kid.id, newSeen);
+          }
+        } catch (e) { console.error('Mark cosmetics seen failed', e); }
       });
     }
-    if (saveBtn) {
-      saveBtn.addEventListener('click', () => {
-        saveBtn.textContent = '✓ Saved';
-        setTimeout(() => saveBtn.textContent = 'Save for later', 1200);
-      });
-    }
-  });
-  // Also wire immediately in case DOMContentLoaded already fired
-  if (document.readyState !== 'loading') {
-    const ev = new Event('DOMContentLoaded');
-    document.dispatchEvent(ev);
   }
+
+  window.addEventListener('mb-kids-changed', () => { renderTrophies(); renderNewUnlocks(); renderCosGrid(); });
+  window.addEventListener('mb-meals-changed', () => { renderTrophies(); renderNewUnlocks(); renderCosGrid(); });
+
+
 
   // ============ Phase 2E: Trust + Chores ============
   const TRUST_LEVELS = [
@@ -4761,6 +4766,8 @@
       renderBehaviorTiles();
       renderResponsibility();
       renderTrophies();
+      renderNewUnlocks();
+      renderCosGrid();
     }
   }, 200);
   // Belt-and-suspenders: also try a couple more times in case subscription is slow
@@ -5057,6 +5064,13 @@
     await updateDoc(kidRef, update);
   }
   window.mb.updateKidEquipped = updateKidEquipped;
+
+  async function updateKidSeenCosmetics(kidId, seenIds) {
+    if (!state.family) return;
+    const kidRef = doc(db, 'families', state.family.id, 'kids', kidId);
+    await updateDoc(kidRef, { seenCosmetics: seenIds });
+  }
+  window.mb.updateKidSeenCosmetics = updateKidSeenCosmetics;
 
   function subscribeWeekForCurrentKid() {
     if (state.weekUnsub) { state.weekUnsub(); state.weekUnsub = null; }
