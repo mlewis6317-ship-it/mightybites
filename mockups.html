@@ -2455,7 +2455,7 @@
             <div class="unlock-right">
               <div class="unlock-stage">
                 <div class="ava-shell strong" style="width:160px;height:160px;font-size:100px;">
-                  🦖<div class="crown" style="font-size:62px; top:-22px; right:6px;">👑</div>
+                  <span class="tro-buddy">🦖</span><div class="crown" style="font-size:62px; top:-22px; right:6px;">👑</div>
                 </div>
                 <div class="unlock-sparkle s1">✨</div>
                 <div class="unlock-sparkle s2">✨</div>
@@ -2516,7 +2516,7 @@
 
           <!-- Champions Wall -->
           <div class="wall-head">
-            <h2 class="wall-title">🏛️ Emma's Champions Wall</h2>
+            <h2 class="wall-title" id="wall-title">🏛️ Champions Wall</h2>
             <div class="wall-toggle">
               <div class="lb-chip active">All</div>
               <div class="lb-chip">Goal hits</div>
@@ -2528,7 +2528,7 @@
               <div class="wall-week">Week 18 · Apr 28–May 4</div>
               <div class="wall-status">In progress</div>
               <div class="wall-ava">
-                <div class="ava-shell" style="width:88px;height:88px;font-size:54px;">🦖<div class="crown" style="font-size:30px; top:-10px; right:0;">👑</div></div>
+                <div class="ava-shell" style="width:88px;height:88px;font-size:54px;"><span class="tro-buddy">🦖</span><div class="crown" style="font-size:30px; top:-10px; right:0;">👑</div></div>
               </div>
               <div class="wall-bar"><div class="wall-bar-fill" style="width: 77%;"></div></div>
               <div class="wall-score"><b>540</b> / 700 so far</div>
@@ -2538,7 +2538,7 @@
               <div class="wall-week">Week 17 · Apr 21–27</div>
               <div class="wall-status hit">✓ Goal hit · 4-week streak</div>
               <div class="wall-ava">
-                <div class="ava-shell strong" style="width:88px;height:88px;font-size:54px;">🦖<div class="crown" style="font-size:30px; top:-10px; right:0;">👑</div></div>
+                <div class="ava-shell strong" style="width:88px;height:88px;font-size:54px;"><span class="tro-buddy">🦖</span><div class="crown" style="font-size:30px; top:-10px; right:0;">👑</div></div>
                 <div class="wall-acc">⚡</div>
               </div>
               <div class="wall-bar"><div class="wall-bar-fill" style="width: 100%;"></div></div>
@@ -2556,7 +2556,7 @@
               <div class="wall-week">Week 16 · Apr 14–20</div>
               <div class="wall-status hit">✓ Goal hit</div>
               <div class="wall-ava">
-                <div class="ava-shell" style="width:88px;height:88px;font-size:54px;">🦖<div class="crown" style="font-size:30px; top:-10px; right:0;">👑</div></div>
+                <div class="ava-shell" style="width:88px;height:88px;font-size:54px;"><span class="tro-buddy">🦖</span><div class="crown" style="font-size:30px; top:-10px; right:0;">👑</div></div>
                 <div class="wall-acc">🕶</div>
               </div>
               <div class="wall-bar"><div class="wall-bar-fill" style="width: 100%;"></div></div>
@@ -2572,7 +2572,7 @@
               <div class="wall-week">Week 15 · Apr 7–13</div>
               <div class="wall-status miss">Missed goal</div>
               <div class="wall-ava">
-                <div class="ava-shell weak" style="width:88px;height:88px;font-size:54px;">🦖</div>
+                <div class="ava-shell weak" style="width:88px;height:88px;font-size:54px;"><span class="tro-buddy">🦖</span></div>
               </div>
               <div class="wall-bar"><div class="wall-bar-fill weak" style="width: 68%;"></div></div>
               <div class="wall-score"><b>480</b> / 700 · streak broken 💔</div>
@@ -2613,7 +2613,7 @@
               <div class="wall-week">Week 12 · Mar 17–23</div>
               <div class="wall-status miss">Missed goal</div>
               <div class="wall-ava">
-                <div class="ava-shell weak" style="width:88px;height:88px;font-size:54px;">🦖</div>
+                <div class="ava-shell weak" style="width:88px;height:88px;font-size:54px;"><span class="tro-buddy">🦖</span></div>
               </div>
               <div class="wall-bar"><div class="wall-bar-fill weak" style="width: 52%;"></div></div>
               <div class="wall-score"><b>365</b> / 700</div>
@@ -2623,7 +2623,7 @@
               <div class="wall-week">Week 11 · Mar 10–16</div>
               <div class="wall-status hit">✓ Goal hit</div>
               <div class="wall-ava">
-                <div class="ava-shell" style="width:88px;height:88px;font-size:54px;">🐉</div>
+                <div class="ava-shell" style="width:88px;height:88px;font-size:54px;"><span class="tro-buddy">🐉</span></div>
                 <div class="wall-acc">⭐</div>
               </div>
               <div class="wall-bar"><div class="wall-bar-fill" style="width: 100%;"></div></div>
@@ -4199,6 +4199,13 @@
     // Trophies: dressing room avatar emoji
     const dressEmoji = document.querySelector('#dress-avatar .ava-emoji');
     if (dressEmoji) dressEmoji.textContent = buddy;
+    // Trophies: all .tro-buddy spans (unlock card + champions wall cards)
+    document.querySelectorAll('.tro-buddy').forEach(el => { el.textContent = buddy; });
+    // Trophies: Champions Wall title with kid name
+    const wallTitle = document.getElementById('wall-title');
+    if (wallTitle) {
+      wallTitle.innerHTML = '🏛️ ' + (kid ? (kid.name + "'s") : '') + ' Champions Wall';
+    }
   }
   // Event delegation on the leaderboard list (works for dynamically rendered rows)
   (function() {
