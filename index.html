@@ -2033,7 +2033,7 @@
               </div>
 
               <div class="growth-strip">
-                <h4>This week's growth <span>watch your dino get bigger</span></h4>
+                <h4>This week's growth <span>watch your <span class="buddy-name-lc">dino</span> get bigger</span></h4>
                 <div class="growth-days">
                   <div class="growth-day"><div class="gd-ava" style="width:24px;height:24px;font-size:14px;">🥚</div><div class="gd-lbl">Mon</div></div>
                   <div class="growth-day now"><div class="gd-ava" style="width:38px;height:38px;font-size:24px;border:2px solid var(--berry);">🦖</div><div class="gd-lbl">Tue NOW</div></div>
@@ -2272,7 +2272,7 @@
                 <div class="ava-shell" id="ml-needs-buddy" style="width:64px;height:64px;font-size:42px;">🦖</div>
               </div>
               <div class="ml-needs-body">
-                <div class="ml-needs-eyebrow">Dino is asking for…</div>
+                <div class="ml-needs-eyebrow"><span class="buddy-name">Dino</span> is asking for…</div>
                 <div class="ml-needs-list">
                   <div class="needs-tag urgent"><span class="em">🥦</span> Veggies <b>+35 urgent</b></div>
                   <div class="needs-tag deficit"><span class="em">🍗</span> Protein <b>+8 deficit</b></div>
@@ -2346,7 +2346,7 @@
                 <div class="grp-info">
                   <h4 class="grp-name">Veggies <span class="urgent-pill">+35 URGENT</span></h4>
                   <div class="grp-progress"><div class="grp-progress-fill low" style="width: 0%;"></div></div>
-                  <div class="grp-meta">Last logged 72hrs ago · dino is begging!</div>
+                  <div class="grp-meta">Last logged 72hrs ago · <span class="buddy-name-lc">dino</span> is begging!</div>
                 </div>
               </div>
               <div class="grp-tile junk" data-grp="treats"><div class="grp-icon">🍩</div><div class="grp-info"><h4 class="grp-name">Treats</h4><div class="grp-progress"><div class="grp-progress-fill junk" style="width: 50%;"></div></div><div class="grp-meta">1 of 2 OK · keep it balanced</div></div></div>
@@ -2366,7 +2366,7 @@
               <div class="ml-amount sel bonus" data-amt="finished"><span class="em">🏆</span><span class="nm">Finished!</span><span class="xp-tag">+60</span></div>
             </div>
 
-            <button class="feed-btn" id="feed-btn"><span class="em">🍽️</span> Feed your dino · <span id="feed-xp">+60 XP</span></button>
+            <button class="feed-btn" id="feed-btn"><span class="em">🍽️</span> Feed your <span class="buddy-name-lc">dino</span> · <span id="feed-xp">+60 XP</span></button>
 
             <div class="feed-host" id="feed-host">
               <div class="ava-shell" id="feed-avatar" style="width:120px;height:120px;font-size:74px;">🦖<div class="sweat">💧</div></div>
@@ -2381,7 +2381,7 @@
             </div>
 
             <div>
-              <div class="editor-label" style="margin-bottom: 4px;">See how dino reacts</div>
+              <div class="editor-label" style="margin-bottom: 4px;">See how <span class="buddy-name-lc">dino</span> reacts</div>
               <div class="demo-states" id="demo-states">
                 <div class="demo-state sel" data-mood="strong"><span class="dot healthy"></span>Strong</div>
                 <div class="demo-state" data-mood="weak"><span class="dot weak"></span>Weak</div>
@@ -2421,7 +2421,7 @@
             <div class="tro-stat">
               <div class="tro-stat-em">⭐</div>
               <div>
-                <div class="tro-stat-v">Tough Dino</div>
+                <div class="tro-stat-v">Tough <span class="buddy-name">Dino</span></div>
                 <div class="tro-stat-l">Lifetime stage · 4,820 XP</div>
               </div>
             </div>
@@ -2446,7 +2446,7 @@
               <div class="unlock-eyebrow">🎉 Just unlocked! 4-week streak reward</div>
               <h2 class="unlock-name">Champion Crown</h2>
               <div class="rarity legendary"><span class="dot"></span>LEGENDARY</div>
-              <p class="unlock-desc">You hit the weekly goal 4 weeks in a row. Your Dino now wears the Champion Crown — and walks 1.2× faster on the leaderboard 🏃‍♀️.</p>
+              <p class="unlock-desc">You hit the weekly goal 4 weeks in a row. Your <span class="buddy-name-lc">dino</span> now wears the Champion Crown — and walks 1.2× faster on the leaderboard 🏃‍♀️.</p>
               <div class="unlock-actions">
                 <button class="btn-primary" style="background: var(--berry);">Equip now</button>
                 <button class="btn-secondary">Save for later</button>
@@ -2469,7 +2469,7 @@
           <div class="dress">
             <div class="dress-head">
               <div>
-                <h2 class="dress-title">👗 Dress your dino</h2>
+                <h2 class="dress-title">👗 Dress your <span class="buddy-name-lc">dino</span></h2>
                 <p class="dress-sub">Tap any earned item to wear or remove it. Locked items unlock from badges &amp; streaks.</p>
               </div>
               <div class="dress-actions">
@@ -3023,19 +3023,8 @@
               <div class="trust-pace">⏳ Trust builds slowly — by design. Levels reflect months of consistent responsibility, not days.</div>
             </div>
 
-            <div class="priv-grid">
-              <div class="priv-col">
-                <div class="priv-lbl earned">✓ Unlocked</div>
-                <div class="priv-tile earned"><span class="em">🎮</span> 30 min screen time daily</div>
-                <div class="priv-tile earned"><span class="em">🍦</span> Pick the family dessert Friday</div>
-                <div class="priv-tile earned"><span class="em">📚</span> Choose your bedtime story</div>
-              </div>
-              <div class="priv-col">
-                <div class="priv-lbl locked">🔒 Next at Level 4 (80 pts)</div>
-                <div class="priv-tile locked"><span class="em">🌙</span> Stay up 30 min later</div>
-                <div class="priv-tile locked"><span class="em">💵</span> $5/week allowance</div>
-                <div class="priv-tile locked"><span class="em">🎬</span> Pick the family movie</div>
-              </div>
+            <div class="priv-grid" id="priv-grid">
+              <!-- Rendered dynamically by JS based on kid's trust level -->
             </div>
 
             <div class="ch-section-lbl">📅 Daily chores · tap to log</div>
@@ -3440,7 +3429,7 @@
     if (activeView) {
       const banner = document.createElement('div');
       banner.className = 'goal-banner';
-      banner.textContent = '🎉 DAILY GOAL HIT! Dino is doing the floss! 🕺';
+      banner.textContent = '🎉 DAILY GOAL HIT! ' + getBuddyName(true) + ' is doing the floss! 🕺';
       activeView.querySelector(':scope > div')?.appendChild(banner);
       const screenContainer = activeView.querySelector(':scope > div');
       if (screenContainer && getComputedStyle(screenContainer).position === 'static') {
@@ -3611,7 +3600,7 @@
       .map(([slot, id]) => cosmetics.find(c => c.id === id))
       .filter(Boolean);
     if (equippedItems.length === 0) {
-      list.innerHTML = '<span style="font-size: 12px; opacity: 0.5; font-weight: 700;">Nothing equipped — naked dino!</span>';
+      list.innerHTML = '<span style="font-size: 12px; opacity: 0.5; font-weight: 700;">Nothing equipped — naked ' + getBuddyName(false) + '!</span>';
     } else {
       list.innerHTML = equippedItems.map(c =>
         `<span class="dress-eq-item" data-id="${c.id}" data-slot="${c.slot}">${c.em} ${c.nm} <span class="x">×</span></span>`
@@ -3752,7 +3741,7 @@
         if (!kid) return;
         tile.dataset.state = 'claimed';
         tile.querySelector('.bb-nm').textContent = '✓ Claimed today!';
-        tile.querySelector('.bb-meta').textContent = '+' + pts + ' added to your dino';
+        tile.querySelector('.bb-meta').textContent = '+' + pts + ' added to your ' + getBuddyName(false);
         spawnPointPop(tile, '+' + pts, false);
         pulseTile(tile);
         const key = BONUS_KEYS[tile.id];
@@ -3794,7 +3783,7 @@
       t.dataset.state = claimed ? 'claimed' : 'unclaimed';
       if (claimed) {
         t.querySelector('.bb-nm').textContent = '✓ Claimed today!';
-        t.querySelector('.bb-meta').textContent = '+' + info.pts + ' added to your dino';
+        t.querySelector('.bb-meta').textContent = '+' + info.pts + ' added to your ' + getBuddyName(false);
       } else {
         t.querySelector('.bb-nm').textContent = info.label;
         t.querySelector('.bb-meta').textContent = info.meta;
@@ -3940,7 +3929,7 @@
       <div style="text-align: center;">
         <div class="avatar-bubble big" style="margin: 0 auto 16px;">🦖</div>
         <h1 class="wrap-card-title" style="text-align:center;">Hey Emma!</h1>
-        <p class="wrap-card-sub" style="margin: 0 auto; text-align:center;">Your week was epic. Let's see what your dino did.</p>
+        <p class="wrap-card-sub" style="margin: 0 auto; text-align:center;">Your week was epic. Let's see what your <span class="buddy-name-lc">dino</span> did.</p>
       </div>` },
     { eyebrow: "Strength gained", html: `
       <div style="text-align: center;">
@@ -3984,7 +3973,7 @@
       </div>` },
     { eyebrow: "Final score", html: `
       <div style="text-align: center;">
-        <h1 class="wrap-card-title" style="text-align:center;">You're a<br/>Champion Dino. 👑</h1>
+        <h1 class="wrap-card-title" style="text-align:center;">You're a<br/>Champion <span class="buddy-name">Dino</span>. 👑</h1>
         <p class="wrap-card-sub" style="margin: 0 auto 12px; text-align: center;">2 levels up · #1 in the family this week</p>
         <div class="avatar-bubble big" style="margin: 12px auto;">🦖</div>
         <button class="wrap-btn" style="margin-top: 8px;">Share with family 📤</button>
@@ -4176,6 +4165,19 @@
   }
 
   // Re-render Settings members whenever kids change
+  function getBuddyName(capitalized) {
+    const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    const species = buddyStageName(kid && kid.buddy);
+    return capitalized ? species : species.toLowerCase();
+  }
+
+  function renderBuddyTextEverywhere() {
+    const cap = getBuddyName(true);
+    const lc = getBuddyName(false);
+    document.querySelectorAll('.buddy-name').forEach(el => el.textContent = cap);
+    document.querySelectorAll('.buddy-name-lc').forEach(el => el.textContent = lc);
+  }
+
   function renderMealLog() {
     const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
     const nameSpan = document.getElementById('mlog-kid-name');
@@ -4206,6 +4208,8 @@
     if (wallTitle) {
       wallTitle.innerHTML = '🏛️ ' + (kid ? (kid.name + "'s") : '') + ' Champions Wall';
     }
+    // Sync all .buddy-name / .buddy-name-lc text
+    renderBuddyTextEverywhere();
   }
   // Event delegation on the leaderboard list (works for dynamically rendered rows)
   (function() {
@@ -4428,6 +4432,32 @@
     return m ? parseInt(m[1], 10) : 0;
   }
 
+  // Default privilege catalog by trust level (parents will be able to customize in Settings)
+  const PRIVS = {
+    0: ['🌟 Sticker chart star · daily', '🤗 Pick the bedtime hug song'],
+    1: ['🍪 Pick a snack', '🎵 Pick the dinner song'],
+    2: ['🎮 30 min screen time daily', '🍦 Pick the family dessert Friday', '📚 Choose your bedtime story'],
+    3: ['🌙 Stay up 30 min later', '💵 $5/week allowance', '🎬 Pick the family movie'],
+    4: ['🏠 Sleepover any Friday', '📱 Phone time Sat/Sun', '🛒 $10 spend at Target']
+  };
+  function renderPrivileges(lvlIdx, nextLvl) {
+    const grid = document.getElementById('priv-grid');
+    if (!grid) return;
+    const earned = PRIVS[lvlIdx] || [];
+    const next = PRIVS[lvlIdx + 1] || null;
+    let html = '<div class="priv-col">' +
+      '<div class="priv-lbl earned">✓ Unlocked</div>' +
+      earned.map(p => '<div class="priv-tile earned">' + p + '</div>').join('') +
+      '</div>';
+    if (next) {
+      html += '<div class="priv-col">' +
+        '<div class="priv-lbl locked">🔒 Next at Level ' + (lvlIdx + 2) + ' (' + nextLvl.min + ' pts)</div>' +
+        next.map(p => '<div class="priv-tile locked">' + p + '</div>').join('') +
+        '</div>';
+    }
+    grid.innerHTML = html;
+  }
+
   function renderResponsibility() {
     const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
     if (!kid) return;
@@ -4435,6 +4465,7 @@
     const lvlIdx = trustLevelFor(pts);
     const lvl = TRUST_LEVELS[lvlIdx];
     const nextLvl = TRUST_LEVELS[lvlIdx + 1];
+    renderPrivileges(lvlIdx, nextLvl);
 
     // Update trust card
     const eyebrow = document.getElementById('trust-eyebrow');
