@@ -2630,53 +2630,8 @@
               <button class="set-action">+ Custom bonus</button>
             </div>
             <p class="set-note">Toggle which apply to your family. Expectations cost points if not met. Bonuses earn points when claimed.</p>
-            <div class="bonus-list">
-              <div class="bonus-row expectation">
-                <span class="bem">🪑</span>
-                <div class="binfo">
-                  <div class="bnm">Stayed seated</div>
-                  <div class="bmeta">EXPECTATION · −10 if violated</div>
-                </div>
-                <input type="number" class="b-pts" value="-10" />
-                <label class="set-toggle"><input type="checkbox" checked /> <span>On</span></label>
-              </div>
-              <div class="bonus-row">
-                <span class="bem">😊</span>
-                <div class="binfo">
-                  <div class="bnm">No whining</div>
-                  <div class="bmeta">Bonus · calm dinner pays off</div>
-                </div>
-                <input type="number" class="b-pts" value="5" />
-                <label class="set-toggle"><input type="checkbox" checked /> <span>On</span></label>
-              </div>
-              <div class="bonus-row">
-                <span class="bem">🧹</span>
-                <div class="binfo">
-                  <div class="bnm">Helped clean up</div>
-                  <div class="bmeta">Bonus · cleared plates / wiped table</div>
-                </div>
-                <input type="number" class="b-pts" value="10" />
-                <label class="set-toggle"><input type="checkbox" checked /> <span>On</span></label>
-              </div>
-              <div class="bonus-row">
-                <span class="bem">🌟</span>
-                <div class="binfo">
-                  <div class="bnm">Tried something new</div>
-                  <div class="bmeta">Bonus · brave bites · auto-tracked</div>
-                </div>
-                <input type="number" class="b-pts" value="10" />
-                <label class="set-toggle"><input type="checkbox" checked /> <span>On</span></label>
-              </div>
-              <div class="bonus-row off">
-                <span class="bem">🙏</span>
-                <div class="binfo">
-                  <div class="bnm">Thanked the cook</div>
-                  <div class="bmeta">Bonus · politeness counts</div>
-                </div>
-                <input type="number" class="b-pts" value="5" />
-                <label class="set-toggle"><input type="checkbox" /> <span>Off</span></label>
-              </div>
-            </div>
+            <div class="bonus-list" id="bonus-list-dynamic"></div>
+            <div class="set-note" id="bonus-save-status" style="text-align:right; font-size:11px; opacity:.65; min-height:14px; margin-top:4px;"></div>
           </section>
 
           <!-- ============ Responsibility setup (per kid) ============ -->
@@ -3599,6 +3554,69 @@
 
   // Generic bonus tiles: tap to claim → +X popup, locked after claim
   const BONUS_KEYS = { 'bb-no-whining': 'noWhining', 'bb-cleanup': 'cleanup', 'bb-new-food': 'newFood' };
+
+  // ============ Family bonus configuration (Phase 2H) ============
+  const DEFAULT_BONUSES = {
+    seated:    { enabled: true,  points: -10, em: '🪑', label: 'Stayed seated',         meta: 'EXPECTATION · subtracted if violated', expectation: true },
+    noWhining: { enabled: true,  points: 5,   em: '😊', label: 'No whining',            meta: 'Calm dinner pays off' },
+    cleanup:   { enabled: true,  points: 10,  em: '🧹', label: 'Helped clean up',       meta: 'Cleared plates / wiped table' },
+    newFood:   { enabled: true,  points: 10,  em: '🌟', label: 'Tried something new',   meta: 'Brave bites · auto-tracked' },
+    thanked:   { enabled: false, points: 5,   em: '🙏', label: 'Thanked the cook',      meta: 'Politeness counts' }
+  };
+  function getBonusConfig() {
+    const cfg = (window.mb && window.mb.state.family && window.mb.state.family.settings && window.mb.state.family.settings.bonuses) || {};
+    const merged = {};
+    Object.keys(DEFAULT_BONUSES).forEach(k => {
+      merged[k] = Object.assign({}, DEFAULT_BONUSES[k], cfg[k] || {});
+    });
+    return merged;
+  }
+
+  function renderBonusSettings() {
+    const host = document.getElementById('bonus-list-dynamic');
+    if (!host) return;
+    const cfg = getBonusConfig();
+    host.innerHTML = Object.keys(cfg).map(key => {
+      const b = cfg[key];
+      const offCls = b.enabled ? '' : ' off';
+      const expCls = b.expectation ? ' expectation' : '';
+      return '<div class="bonus-row' + expCls + offCls + '" data-bkey="' + key + '">' +
+        '<span class="bem">' + b.em + '</span>' +
+        '<div class="binfo"><div class="bnm">' + b.label + '</div><div class="bmeta">' + b.meta + '</div></div>' +
+        '<input type="number" class="b-pts" data-bkey="' + key + '" data-field="points" value="' + b.points + '" />' +
+        '<label class="set-toggle"><input type="checkbox" data-bkey="' + key + '" data-field="enabled" ' + (b.enabled ? 'checked' : '') + ' /> <span>' + (b.enabled ? 'On' : 'Off') + '</span></label>' +
+      '</div>';
+    }).join('');
+  }
+
+  function flashBonusStatus(txt) {
+    const el = document.getElementById('bonus-save-status');
+    if (!el) return;
+    el.textContent = txt;
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.textContent = ''; }, 1500);
+  }
+
+  // Persist bonus changes via Firestore writer in window.mb
+  document.addEventListener('change', (e) => {
+    const t = e.target;
+    if (!t.dataset || !t.dataset.bkey) return;
+    const key = t.dataset.bkey;
+    const field = t.dataset.field;
+    if (!field) return;
+    const value = (field === 'enabled') ? !!t.checked : parseInt(t.value, 10);
+    if (window.mb && window.mb.updateFamilyBonus) {
+      flashBonusStatus('Saving…');
+      window.mb.updateFamilyBonus(key, field, value)
+        .then(() => flashBonusStatus('✓ Saved'))
+        .catch(err => { console.error('updateFamilyBonus failed:', err); flashBonusStatus('Save failed'); });
+    }
+  });
+
+  window.addEventListener('mb-family-changed', () => {
+    renderBonusSettings();
+    renderBehaviorTilesConfig();
+  });
   document.querySelectorAll('.bb-tile.bonus').forEach(tile => {
     tile.addEventListener('click', () => {
       const state = tile.dataset.state;
@@ -3638,26 +3656,122 @@
         seated.querySelector('.bb-xp').textContent = 'expected';
       }
     }
-    // Bonuses
-    const map = { 'bb-no-whining': { key: 'noWhining', label: 'No whining', pts: 5, meta: 'Calm dinner pays off · tap to claim' },
-                  'bb-cleanup':    { key: 'cleanup',    label: 'Helped clean up', pts: 10, meta: 'Cleared plates, wiped table' },
-                  'bb-new-food':   { key: 'newFood',    label: 'Tried something new', pts: 10, meta: 'Brave bites · auto-tracked when you log a new food' } };
-    Object.keys(map).forEach(id => {
+    // Bonuses — read from live family bonus config
+    const cfg = getBonusConfig();
+    Object.keys(cfg).forEach(k => {
+      if (k === 'seated') return;
+      if (!cfg[k].enabled) return;
+      const id = (typeof BONUS_ID_BY_KEY !== 'undefined' && BONUS_ID_BY_KEY[k]) || ('bb-' + k);
       const t = document.getElementById(id);
       if (!t) return;
-      const info = map[id];
-      const claimed = today[info.key] === 'claimed';
+      const info = cfg[k];
+      const claimed = today[k] === 'claimed';
       t.dataset.state = claimed ? 'claimed' : 'unclaimed';
+      t.dataset.pts = info.points;
       if (claimed) {
         t.querySelector('.bb-nm').textContent = '✓ Claimed today!';
-        t.querySelector('.bb-meta').textContent = '+' + info.pts + ' added to your ' + getBuddyName(false);
+        t.querySelector('.bb-meta').textContent = '+' + info.points + ' added to your ' + getBuddyName(false);
       } else {
         t.querySelector('.bb-nm').textContent = info.label;
-        t.querySelector('.bb-meta').textContent = info.meta;
+        t.querySelector('.bb-meta').textContent = info.meta + ' · tap to claim';
       }
+      const xpEl = t.querySelector('.bb-xp');
+      if (xpEl) xpEl.textContent = (info.points > 0 ? '+' : '') + info.points;
     });
   }
   window.addEventListener('mb-day-changed', () => renderBehaviorTiles());
+
+  // Rebuild the behavior tiles list on Meal Log from current bonus config
+  // - Hides disabled bonuses
+  // - Picks up custom point values
+  // - Adds the 'thanked' tile when enabled
+  const BONUS_ID_BY_KEY = { seated: 'bb-seated', noWhining: 'bb-no-whining', cleanup: 'bb-cleanup', newFood: 'bb-new-food', thanked: 'bb-thanked' };
+  function renderBehaviorTilesConfig() {
+    const host = document.querySelector('.behavior-bonuses');
+    if (!host) return;
+    const cfg = getBonusConfig();
+    const html = [];
+    Object.keys(cfg).forEach(key => {
+      const b = cfg[key];
+      if (!b.enabled) return;
+      const id = BONUS_ID_BY_KEY[key] || ('bb-' + key);
+      if (b.expectation) {
+        html.push(
+          '<div class="bb-tile expectation" id="' + id + '" data-state="met" data-bkey="' + key + '">' +
+            '<span class="bb-em">' + b.em + '</span>' +
+            '<div class="bb-info">' +
+              '<div class="bb-nm" id="' + id + '-nm">' + b.label + '</div>' +
+              '<div class="bb-meta" id="' + id + '-meta">EXPECTATION · ' + b.points + ' if you got up</div>' +
+            '</div>' +
+            '<div class="bb-xp neutral">expected</div>' +
+            '<div class="bb-check"></div>' +
+          '</div>'
+        );
+      } else {
+        html.push(
+          '<div class="bb-tile bonus" id="' + id + '" data-state="unclaimed" data-pts="' + b.points + '" data-bkey="' + key + '">' +
+            '<span class="bb-em">' + b.em + '</span>' +
+            '<div class="bb-info">' +
+              '<div class="bb-nm">' + b.label + '</div>' +
+              '<div class="bb-meta">' + b.meta + ' · tap to claim</div>' +
+            '</div>' +
+            '<div class="bb-xp">+' + b.points + '</div>' +
+            '<div class="bb-check"></div>' +
+          '</div>'
+        );
+      }
+    });
+    host.innerHTML = html.join('');
+
+    // Re-attach the seated handler if seated tile is present
+    const seatedTile = document.getElementById('bb-seated');
+    if (seatedTile && !seatedTile._wired) {
+      seatedTile._wired = true;
+      seatedTile.addEventListener('click', () => {
+        const st = seatedTile.dataset.state;
+        if (st === 'met') {
+          const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+          if (!kid) return;
+          const pts = parseInt(getBonusConfig().seated.points, 10) || -10;
+          seatedTile.dataset.state = 'lost';
+          seatedTile.querySelector('.bb-nm').textContent = 'Got up from table';
+          seatedTile.querySelector('.bb-meta').textContent = pts + ' deducted · locked until tomorrow';
+          seatedTile.querySelector('.bb-xp').textContent = pts;
+          spawnPointPop(seatedTile, pts.toString(), true);
+          pulseTile(seatedTile);
+          if (window.mb && window.mb.logBehavior) {
+            window.mb.logBehavior(kid.id, window.mb.today(), 'seated', 'lost', pts).catch(err => console.error('logBehavior seated failed:', err));
+          }
+        }
+      });
+    }
+    // Re-attach bonus claim handlers for any unwired tiles (including thanked)
+    document.querySelectorAll('.bb-tile.bonus').forEach(tile => {
+      if (tile._wired) return;
+      tile._wired = true;
+      tile.addEventListener('click', () => {
+        const state = tile.dataset.state;
+        const pts = parseInt(tile.dataset.pts || '0', 10);
+        if (state === 'unclaimed') {
+          const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+          if (!kid) return;
+          tile.dataset.state = 'claimed';
+          tile.querySelector('.bb-nm').textContent = '✓ Claimed today!';
+          tile.querySelector('.bb-meta').textContent = '+' + pts + ' added to your ' + getBuddyName(false);
+          spawnPointPop(tile, '+' + pts, false);
+          pulseTile(tile);
+          const key = tile.dataset.bkey || (BONUS_KEYS[tile.id] || null);
+          if (key && window.mb && window.mb.logBehavior) {
+            window.mb.logBehavior(kid.id, window.mb.today(), key, 'claimed', pts).catch(err => console.error('logBehavior bonus failed:', err));
+          }
+        }
+      });
+    });
+
+    // Reapply current day state to whatever tiles exist
+    renderBehaviorTiles();
+  }
+
 
   // Parent-editor tabs (Chore / Daily-Weekly lists / Rewards)
   document.querySelectorAll('.ed-tab').forEach(tab => {
@@ -4714,6 +4828,8 @@
       renderNewUnlocks();
       renderCosGrid();
       renderChampionsWall();
+      renderBonusSettings();
+      renderBehaviorTilesConfig();
     }
   }, 200);
   // Belt-and-suspenders: also try a couple more times in case subscription is slow
@@ -4892,6 +5008,7 @@
       document.getElementById('hf-code').textContent = family.code;
     }
     subscribeKids(family.id);
+    subscribeFamily(family.id);
   }
 
   function showAddKid(family, isFirstKid) {
@@ -5017,6 +5134,27 @@
     await updateDoc(kidRef, { seenCosmetics: seenIds });
   }
   window.mb.updateKidSeenCosmetics = updateKidSeenCosmetics;
+
+  // Phase 2H: Subscribe to family doc so settings changes propagate live across devices
+  function subscribeFamily(familyId) {
+    if (state.familyUnsub) { state.familyUnsub(); state.familyUnsub = null; }
+    const famRef = doc(db, 'families', familyId);
+    state.familyUnsub = onSnapshot(famRef, (snap) => {
+      if (!snap.exists()) return;
+      state.family = Object.assign({}, state.family || {}, { id: snap.id, ...snap.data() });
+      window.dispatchEvent(new CustomEvent('mb-family-changed', { detail: state.family }));
+    }, (err) => console.error('Family subscription error:', err));
+  }
+  window.mb.subscribeFamily = subscribeFamily;
+
+  async function updateFamilyBonus(bonusKey, field, value) {
+    if (!state.family) return;
+    const famRef = doc(db, 'families', state.family.id);
+    const update = {};
+    update['settings.bonuses.' + bonusKey + '.' + field] = value;
+    await updateDoc(famRef, update);
+  }
+  window.mb.updateFamilyBonus = updateFamilyBonus;
 
   function subscribeWeekForCurrentKid() {
     if (state.weekUnsub) { state.weekUnsub(); state.weekUnsub = null; }
