@@ -2269,7 +2269,7 @@
 
             <div class="ml-needs">
               <div class="ml-needs-ava">
-                <div class="ava-shell" style="width:64px;height:64px;font-size:42px;">🦖</div>
+                <div class="ava-shell" id="ml-needs-buddy" style="width:64px;height:64px;font-size:42px;">🦖</div>
               </div>
               <div class="ml-needs-body">
                 <div class="ml-needs-eyebrow">Dino is asking for…</div>
@@ -4180,6 +4180,25 @@
     const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
     const nameSpan = document.getElementById('mlog-kid-name');
     if (nameSpan) nameSpan.textContent = kid ? kid.name : 'kid';
+    // Sync buddy emoji to every place it shows up
+    const buddy = (kid && kid.buddy) || '🦖';
+    // Meal Log: Dino-is-asking mini
+    const needsBuddy = document.getElementById('ml-needs-buddy');
+    if (needsBuddy) needsBuddy.firstChild ? (needsBuddy.textContent = buddy) : (needsBuddy.textContent = buddy);
+    // Meal Log: feed-host avatar
+    const feedAva = document.getElementById('feed-avatar');
+    if (feedAva) {
+      // The element has both text emoji and a .sweat child — preserve sweat
+      const sweat = feedAva.querySelector('.sweat');
+      feedAva.textContent = buddy;
+      if (sweat) feedAva.appendChild(sweat);
+    }
+    // Meal Log: av-mini in reaction area
+    const avMini = document.getElementById('av-mini');
+    if (avMini) avMini.textContent = buddy;
+    // Trophies: dressing room avatar emoji
+    const dressEmoji = document.querySelector('#dress-avatar .ava-emoji');
+    if (dressEmoji) dressEmoji.textContent = buddy;
   }
   // Event delegation on the leaderboard list (works for dynamically rendered rows)
   (function() {
