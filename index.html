@@ -2020,7 +2020,7 @@
                 <div class="sweat">💧</div>
               </div>
               <div class="pf-stage-label" id="pf-stage-label">Tough Dino · Stage 4 of 6</div>
-              <button class="pf-swap">✨ Switch buddy</button>
+              <button class="pf-swap" id="pf-swap-btn">✨ Switch buddy</button>
             </div>
             <div class="pf-stats">
               <div class="pf-strength pf-trust-card">
@@ -2250,7 +2250,8 @@
                 <div class="stage-pip"><div class="b">⭐</div><div class="l">LEGEND</div></div>
               </div>
             </div>
-            <button class="pick-cta">Pick this buddy ✨</button>
+            <button class="pick-cta" id="pick-cta">Pick this buddy ✨</button>
+            <div class="setup-status" id="pick-cta-status" style="margin-top: 8px;"></div>
           </div>
         </div>
       </div>
@@ -3095,18 +3096,76 @@
     bunny:   { face: '🐰', nm: 'Bunny',   blurb: "Veggie-powered hops. Bunnies that veg out grow champion ears.", stages: ['🥚','🐾','🐰','🐰','👑','⭐'] }
   };
   const stageLabels = ['SPROUT','BABY','TWEEN','TOUGH','CHAMP','LEGEND'];
+  function buddyKeyFromEmoji(emoji) {
+    for (const k in characters) {
+      if (characters[k].face === emoji) return k;
+    }
+    return null;
+  }
+
+  function selectCharTile(key) {
+    document.querySelectorAll('.char-tile').forEach(x => {
+      x.classList.toggle('sel', x.dataset.key === key);
+    });
+    const c = characters[key];
+    if (!c) return;
+    document.getElementById('char-preview').textContent = c.face;
+    document.getElementById('char-name').textContent = c.nm;
+    document.getElementById('char-blurb').textContent = c.blurb;
+    const strip = document.getElementById('stages-strip');
+    strip.innerHTML = c.stages.map((s,i) => `<div class="stage-pip ${i===3?'now':''}"><div class="b">${s}</div><div class="l">${stageLabels[i]}</div></div>`).join('');
+  }
+
   document.querySelectorAll('.char-tile').forEach(tile => {
     tile.addEventListener('click', () => {
-      document.querySelectorAll('.char-tile').forEach(x => x.classList.remove('sel'));
-      tile.classList.add('sel');
-      const k = tile.dataset.key;
-      const c = characters[k];
-      document.getElementById('char-preview').textContent = c.face;
-      document.getElementById('char-name').textContent = c.nm;
-      document.getElementById('char-blurb').textContent = c.blurb;
-      const strip = document.getElementById('stages-strip');
-      strip.innerHTML = c.stages.map((s,i) => `<div class="stage-pip ${i===3?'now':''}"><div class="b">${s}</div><div class="l">${stageLabels[i]}</div></div>`).join('');
+      selectCharTile(tile.dataset.key);
     });
+  });
+
+  // Pick this buddy → persist on the current kid
+  document.getElementById('pick-cta').addEventListener('click', async () => {
+    const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    if (!kid) { return; }
+    const selTile = document.querySelector('.char-tile.sel');
+    const status = document.getElementById('pick-cta-status');
+    if (!selTile) { if (status) status.textContent = 'Pick a buddy first'; return; }
+    const newEmoji = characters[selTile.dataset.key].face;
+    if (newEmoji === kid.buddy) {
+      if (status) { status.textContent = 'Already your buddy 😊'; status.className = 'setup-status'; }
+      return;
+    }
+    if (status) { status.textContent = 'Saving…'; status.className = 'setup-status'; }
+    try {
+      await window.mb.updateKidBuddy(kid.id, newEmoji);
+      if (status) { status.textContent = '✓ ' + kid.name + " is now a " + characters[selTile.dataset.key].nm + '!'; status.className = 'setup-status success'; }
+      // Bounce back to Profile after a short delay
+      setTimeout(() => { mbGoTo('profile'); }, 800);
+    } catch (e) {
+      console.error('updateKidBuddy failed:', e);
+      if (status) { status.textContent = 'Save failed: ' + (e.message || 'unknown'); status.className = 'setup-status error'; }
+    }
+  });
+
+  // Switch buddy button on Profile → navigate to Choose Buddy + pre-select current
+  const swapBtn = document.getElementById('pf-swap-btn');
+  if (swapBtn) {
+    swapBtn.addEventListener('click', () => {
+      const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+      if (kid) {
+        const key = buddyKeyFromEmoji(kid.buddy) || 'dino';
+        selectCharTile(key);
+      }
+      mbGoTo('characters');
+    });
+  }
+
+  // Whenever kids change, refresh the Choose Buddy selection to match current kid
+  window.addEventListener('mb-kids-changed', () => {
+    const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    if (kid) {
+      const key = buddyKeyFromEmoji(kid.buddy);
+      if (key) selectCharTile(key);
+    }
   });
 
   // ============ Meal log: per-group food pickers ============
@@ -3447,14 +3506,15 @@
     { id: 'pet',      slot: 'acc',    em: '🐾',  nm: 'Pet Sidekick',    rarity: 'legendary', owned: false, unlock: 'Sibling Cheer ×10' }
   ];
 
-  // Currently equipped per slot — defaults match what's shown on the preview
-  const equipped = {
-    head: 'crown',
-    eyes: 'shades',
-    cape: 'cape',
-    effect: 'sparkle',
-    acc: 'bowtie'
-  };
+  // Equipped is now read from the current kid's Firestore data. Falls back to defaults
+  // if the kid hasn't customized yet.
+  const DEFAULT_EQUIPPED = { head: null, eyes: null, cape: null, effect: null, acc: null };
+  function getEquipped() {
+    const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    if (!kid || !kid.equipped) return Object.assign({}, DEFAULT_EQUIPPED);
+    return Object.assign({}, DEFAULT_EQUIPPED, kid.equipped);
+  }
+  let equipped = getEquipped();
 
   let activeSlotFilter = 'all';
 
@@ -3491,10 +3551,16 @@
         const id = t.dataset.id;
         const slot = t.dataset.slot;
         // Toggle: if already equipped, unequip; else equip (replaces same slot)
-        if (equipped[slot] === id) equipped[slot] = null;
-        else equipped[slot] = id;
+        const newVal = equipped[slot] === id ? null : id;
+        equipped[slot] = newVal;
         renderCosGrid();
         renderEquipped();
+        // Persist to Firestore
+        const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+        if (kid && window.mb && window.mb.updateKidEquipped) {
+          window.mb.updateKidEquipped(kid.id, slot, newVal)
+            .catch(err => console.error('updateKidEquipped failed:', err));
+        }
       });
     });
   }
@@ -3553,9 +3619,15 @@
       list.querySelectorAll('.dress-eq-item .x').forEach(x => {
         x.addEventListener('click', (e) => {
           const item = e.target.closest('.dress-eq-item');
-          equipped[item.dataset.slot] = null;
+          const slot = item.dataset.slot;
+          equipped[slot] = null;
           renderCosGrid();
           renderEquipped();
+          const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+          if (kid && window.mb && window.mb.updateKidEquipped) {
+            window.mb.updateKidEquipped(kid.id, slot, null)
+              .catch(err => console.error('updateKidEquipped failed:', err));
+          }
         });
       });
     }
@@ -3577,6 +3649,12 @@
     Object.keys(equipped).forEach(k => equipped[k] = null);
     renderCosGrid();
     renderEquipped();
+    const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    if (kid && window.mb && window.mb.updateKidEquipped) {
+      ['head','eyes','cape','effect','acc'].forEach(slot => {
+        window.mb.updateKidEquipped(kid.id, slot, null).catch(() => {});
+      });
+    }
   });
   const saveBtn = document.getElementById('dress-save');
   if (saveBtn) saveBtn.addEventListener('click', () => {
@@ -3795,7 +3873,15 @@
     });
   }
 
+  // Refresh equipped state when current kid or kids change
+  window.addEventListener('mb-kids-changed', () => {
+    equipped = getEquipped();
+    renderCosGrid();
+    renderEquipped();
+  });
+
   // Initial render
+  equipped = getEquipped();
   renderCosGrid();
   renderEquipped();
   initCosDrag();
@@ -4707,6 +4793,23 @@
     });
   }
   window.mb.logChore = logChore;
+
+  // Phase 2F: Buddy + cosmetics persistence
+  async function updateKidBuddy(kidId, buddy) {
+    if (!state.family) return;
+    const kidRef = doc(db, 'families', state.family.id, 'kids', kidId);
+    await updateDoc(kidRef, { buddy });
+  }
+  window.mb.updateKidBuddy = updateKidBuddy;
+
+  async function updateKidEquipped(kidId, slot, cosmeticId) {
+    if (!state.family) return;
+    const kidRef = doc(db, 'families', state.family.id, 'kids', kidId);
+    const update = {};
+    update['equipped.' + slot] = cosmeticId; // dot notation, sets nested field
+    await updateDoc(kidRef, update);
+  }
+  window.mb.updateKidEquipped = updateKidEquipped;
 
   function subscribeWeekForCurrentKid() {
     if (state.weekUnsub) { state.weekUnsub(); state.weekUnsub = null; }
