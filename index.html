@@ -2448,8 +2448,8 @@
               <div class="rarity legendary"><span class="dot"></span>LEGENDARY</div>
               <p class="unlock-desc">You hit the weekly goal 4 weeks in a row. Your <span class="buddy-name-lc">dino</span> now wears the Champion Crown — and walks 1.2× faster on the leaderboard 🏃‍♀️.</p>
               <div class="unlock-actions">
-                <button class="btn-primary" style="background: var(--berry);">Equip now</button>
-                <button class="btn-secondary">Save for later</button>
+                <button class="btn-primary" style="background: var(--berry);" id="unlock-equip-btn">Equip now</button>
+                <button class="btn-secondary" id="unlock-save-btn">Save for later</button>
               </div>
             </div>
             <div class="unlock-right">
@@ -4527,6 +4527,48 @@
 
   window.addEventListener('mb-kids-changed', () => renderTrophies());
   window.addEventListener('mb-meals-changed', () => renderTrophies());
+
+  // Wire the Champion Crown unlock card's "Equip now" + "Save for later" buttons
+  document.addEventListener('DOMContentLoaded', () => {
+    const equipBtn = document.getElementById('unlock-equip-btn');
+    const saveBtn = document.getElementById('unlock-save-btn');
+    if (equipBtn) {
+      equipBtn.addEventListener('click', async () => {
+        const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+        if (!kid) return;
+        equipBtn.disabled = true;
+        const orig = equipBtn.textContent;
+        equipBtn.textContent = 'Equipping…';
+        try {
+          await window.mb.updateKidEquipped(kid.id, 'head', 'crown');
+          equipBtn.textContent = '✓ Equipped!';
+          setTimeout(() => {
+            equipBtn.textContent = orig;
+            equipBtn.disabled = false;
+            // Jump to dressing room to show the kid wearing it
+            mbGoTo('trophies');
+            const dress = document.querySelector('.dress-stage-wrap');
+            if (dress) dress.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 1200);
+        } catch (e) {
+          console.error('Equip crown failed:', e);
+          equipBtn.textContent = 'Failed — try again';
+          equipBtn.disabled = false;
+        }
+      });
+    }
+    if (saveBtn) {
+      saveBtn.addEventListener('click', () => {
+        saveBtn.textContent = '✓ Saved';
+        setTimeout(() => saveBtn.textContent = 'Save for later', 1200);
+      });
+    }
+  });
+  // Also wire immediately in case DOMContentLoaded already fired
+  if (document.readyState !== 'loading') {
+    const ev = new Event('DOMContentLoaded');
+    document.dispatchEvent(ev);
+  }
 
   // ============ Phase 2E: Trust + Chores ============
   const TRUST_LEVELS = [
