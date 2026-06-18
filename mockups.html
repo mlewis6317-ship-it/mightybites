@@ -2442,7 +2442,7 @@
             </div>
             <div class="tro-stat">
               <div class="tro-stat-em">🏆</div>
-              <div><div class="tro-stat-v" id="tro-weeks-won">0</div><div class="tro-stat-l">Weeks won</div></div>
+              <div><div class="tro-stat-v" id="tro-weeks-won">0</div><div class="tro-stat-l">Badges earned</div></div>
             </div>
             <div class="tro-stat">
               <div class="tro-stat-em">🔥</div>
@@ -2450,7 +2450,7 @@
             </div>
             <div class="tro-stat">
               <div class="tro-stat-em">🎀</div>
-              <div><div class="tro-stat-v" id="tro-cos">0</div><div class="tro-stat-l">Cosmetics equipped</div></div>
+              <div><div class="tro-stat-v" id="tro-cos">0</div><div class="tro-stat-l">Cosmetics earned</div></div>
             </div>
           </div>
 
@@ -2464,10 +2464,7 @@
                 <h2 class="dress-title">👗 Dress your <span class="buddy-name-lc">dino</span></h2>
                 <p class="dress-sub">Tap any earned item to wear or remove it. Locked items unlock from badges &amp; streaks.</p>
               </div>
-              <div class="dress-actions">
-                <button class="btn-secondary" id="dress-reset">Reset</button>
-                <button class="btn-primary" style="background: var(--berry); flex: 0; padding: 10px 18px;" id="dress-save">Save outfit</button>
-              </div>
+              <div class="dress-actions" style="display:none;"></div>
             </div>
 
             <div class="dress-stage">
@@ -2484,7 +2481,7 @@
                       <span class="cos cos-acc" data-slot="acc">🎀</span>
                     </div>
                   </div>
-                  <div class="drag-hint">✋ Drag items · 💾 Save outfit pins their position</div>
+                  <div class="drag-hint">✋ Tap any earned item below — your outfit saves automatically</div>
                 </div>
                 <div class="dress-equipped">
                   <div class="dress-eq-lbl">Wearing</div>
@@ -3535,39 +3532,6 @@
     });
   });
 
-  // Reset / Save
-  const resetBtn = document.getElementById('dress-reset');
-  if (resetBtn) resetBtn.addEventListener('click', () => {
-    Object.keys(equipped).forEach(k => equipped[k] = null);
-    renderCosGrid();
-    renderEquipped();
-    const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
-    if (kid && window.mb && window.mb.updateKidEquipped) {
-      ['head','eyes','cape','effect','acc'].forEach(slot => {
-        window.mb.updateKidEquipped(kid.id, slot, null).catch(() => {});
-      });
-    }
-  });
-  const saveBtn = document.getElementById('dress-save');
-  if (saveBtn) saveBtn.addEventListener('click', () => {
-    // Snapshot current cosmetic positions as "pinned" — already inside .ava-shell so they bob with avatar
-    saveBtn.textContent = '📌 Pinned!';
-    saveBtn.style.background = 'var(--leaf)';
-    // Briefly flash the avatar to confirm the pin
-    const ava = document.getElementById('dress-avatar');
-    if (ava) {
-      ava.animate([
-        { transform: 'scale(1)' },
-        { transform: 'scale(1.06)' },
-        { transform: 'scale(1)' }
-      ], { duration: 450, easing: 'ease-out' });
-    }
-    setTimeout(() => {
-      saveBtn.textContent = 'Save outfit';
-      saveBtn.style.background = '';
-    }, 1500);
-  });
-
   // PIN lock: any 4 digits unlocks for the mockup (works for any pin-lock instance)
   document.querySelectorAll('.pin-lock').forEach(lock => {
     const digits = lock.querySelectorAll('.pin-digit');
@@ -4388,16 +4352,14 @@
     if (stageEl) stageEl.textContent = lifetimeStageName(lifeXP);
     const lifeXPEl = document.getElementById('tro-life-xp');
     if (lifeXPEl) lifeXPEl.textContent = lifeXP.toLocaleString();
-    const weeksWonEl = document.getElementById('tro-weeks-won');
-    if (weeksWonEl) weeksWonEl.textContent = (kid.badges && kid.badges.family_first) || 0;
-    const streakEl = document.getElementById('tro-streak');
-    if (streakEl) streakEl.textContent = kid.streakWeeks || 0;
+    // Cosmetics earned: how many unlocked vs total catalog
     const cosEl = document.getElementById('tro-cos');
     if (cosEl) {
-      const equipped = kid.equipped || {};
-      const count = Object.values(equipped).filter(Boolean).length;
-      cosEl.textContent = count;
+      const earnedCos = cosmetics.filter(c => isCosmeticUnlocked(c, kid)).length;
+      cosEl.textContent = earnedCos + '/' + cosmetics.length;
     }
+    const streakEl = document.getElementById('tro-streak');
+    if (streakEl) streakEl.textContent = kid.streakWeeks || 0;
 
     // 2. Badges
     const meals = (window.mb && window.mb.state.meals) || [];
@@ -4427,6 +4389,9 @@
     if (grid) grid.innerHTML = cards.join('');
     const count = document.getElementById('bc-count');
     if (count) count.innerHTML = '<b>' + earnedCount + ' earned</b> this week · ' + (BADGES.length - earnedCount) + ' to chase';
+    // Reflect in the lifetime stat card "Badges earned" as X/Y
+    const weeksWonEl = document.getElementById('tro-weeks-won');
+    if (weeksWonEl) weeksWonEl.textContent = earnedCount + '/' + BADGES.length;
   }
 
   // Compute ISO week label, e.g. "Week 24 · Jun 8–14"
