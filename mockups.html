@@ -2993,9 +2993,8 @@
                 <p class="ch-sub">Separate from food strength — fair across ages. Earns privileges, not leaderboard XP.</p>
               </div>
             </div>
-            <div class="ch-kidpicker">
-              <div class="ch-kidchip active"><div class="av">🦖</div>Emma · 9</div>
-              <div class="ch-kidchip"><div class="av" style="background:#A6E0FF;">🐱</div>Theo · 5</div>
+            <div class="ch-kidpicker" id="ch-kidpicker">
+              <!-- Rendered dynamically from state.kids -->
             </div>
 
             <div class="trust-card">
@@ -4458,7 +4457,32 @@
     grid.innerHTML = html;
   }
 
+  function renderKidPicker() {
+    const host = document.getElementById('ch-kidpicker');
+    if (!host) return;
+    const kids = (window.mb && window.mb.state.kids) || [];
+    const currentId = window.mb && window.mb.state.currentKidId;
+    if (kids.length === 0) {
+      host.innerHTML = '';
+      return;
+    }
+    host.innerHTML = kids.map(k => {
+      const active = k.id === currentId ? ' active' : '';
+      return '<div class="ch-kidchip' + active + '" data-kid-id="' + k.id + '">' +
+        '<div class="av">' + (k.buddy || '🦖') + '</div>' +
+        escapeHTML(k.name) + ' · ' + k.age +
+        '</div>';
+    }).join('');
+    // Wire click handlers via delegation
+    host.querySelectorAll('.ch-kidchip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        mbSetKid(chip.dataset.kidId);
+      });
+    });
+  }
+
   function renderResponsibility() {
+    renderKidPicker();
     const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
     if (!kid) return;
     const pts = kid.trustPoints || 0;
