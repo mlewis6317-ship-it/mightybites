@@ -2417,25 +2417,25 @@
       <div class="view" id="view-trophies">
         <div class="tro">
           <!-- Lifetime stats bar -->
-          <div class="tro-stats">
+          <div class="tro-stats" id="tro-stats">
             <div class="tro-stat">
               <div class="tro-stat-em">⭐</div>
               <div>
-                <div class="tro-stat-v">Tough <span class="buddy-name">Dino</span></div>
-                <div class="tro-stat-l">Lifetime stage · 4,820 XP</div>
+                <div class="tro-stat-v"><span id="tro-stage">Sprout</span> <span class="buddy-name">Dino</span></div>
+                <div class="tro-stat-l">Lifetime stage · <span id="tro-life-xp">0</span> XP</div>
               </div>
             </div>
             <div class="tro-stat">
               <div class="tro-stat-em">🏆</div>
-              <div><div class="tro-stat-v">7</div><div class="tro-stat-l">Weeks won</div></div>
+              <div><div class="tro-stat-v" id="tro-weeks-won">0</div><div class="tro-stat-l">Weeks won</div></div>
             </div>
             <div class="tro-stat">
               <div class="tro-stat-em">🔥</div>
-              <div><div class="tro-stat-v">4</div><div class="tro-stat-l">Streak weeks</div></div>
+              <div><div class="tro-stat-v" id="tro-streak">0</div><div class="tro-stat-l">Streak weeks</div></div>
             </div>
             <div class="tro-stat">
               <div class="tro-stat-em">🎀</div>
-              <div><div class="tro-stat-v">11</div><div class="tro-stat-l">Cosmetics owned</div></div>
+              <div><div class="tro-stat-v" id="tro-cos">0</div><div class="tro-stat-l">Cosmetics equipped</div></div>
             </div>
           </div>
 
@@ -2635,9 +2635,9 @@
           <div class="badge-collection">
             <div class="bc-head">
               <h3 class="bc-title">🎖️ Badges</h3>
-              <div class="bc-count"><b>14 of 18 earned</b> · 4 still locked</div>
+              <div class="bc-count" id="bc-count"><b>0 earned</b> this week</div>
             </div>
-            <div class="bc-grid">
+            <div class="bc-grid" id="bc-grid">
               <div class="bc-tile earned">
                 <div class="bc-tile-em">✓</div>
                 <div class="bc-tile-nm">Goal Hit</div>
@@ -4405,6 +4405,129 @@
   // Also re-render stats when kids list changes (currentKid name/age may have updated)
   window.addEventListener('mb-kids-changed', () => renderProfileStats());
 
+  // ============ Phase 2G: Trophies + Badges ============
+  const LIFETIME_STAGES = [
+    { min: 0, name: 'Sprout' },
+    { min: 100, name: 'Baby' },
+    { min: 500, name: 'Tween' },
+    { min: 2000, name: 'Tough' },
+    { min: 5000, name: 'Champion' },
+    { min: 15000, name: 'Legend' }
+  ];
+  function lifetimeStageName(xp) {
+    let n = 'Sprout';
+    for (let i = 0; i < LIFETIME_STAGES.length; i++) {
+      if (xp >= LIFETIME_STAGES[i].min) n = LIFETIME_STAGES[i].name;
+    }
+    return n;
+  }
+
+  const BADGES = [
+    { key: 'goal_hit', em: '✓', nm: 'Goal Hit', rarity: 'common', req: 'Hit 700 XP this week',
+      check: (kid, meals, weekStart) => (kid.currentWeekXP || 0) >= 700 },
+    { key: 'full_dinner', em: '🌙', nm: 'Full Dinner Week', rarity: 'common', req: 'Log dinner all 7 nights',
+      check: (kid, meals, weekStart) => {
+        const days = new Set();
+        meals.forEach(m => { if (m.meal === 'dinner' && m.amount && m.amount !== 'skipped' && m.day >= weekStart) days.add(m.day); });
+        return days.size >= 7;
+      } },
+    { key: 'no_junk', em: '🚫', nm: 'No Junk Week', rarity: 'rare', req: 'No treats logged this week',
+      check: (kid, meals, weekStart) => {
+        const treats = meals.filter(m => m.group === 'treats' && m.amount && m.amount !== 'skipped' && m.day >= weekStart);
+        // Need at least 3 days of logging to qualify (avoid awarding on empty week)
+        const loggedDays = new Set(meals.filter(m => m.day >= weekStart).map(m => m.day));
+        return treats.length === 0 && loggedDays.size >= 3;
+      } },
+    { key: 'perfect_week', em: '👑', nm: 'Perfect Week', rarity: 'legendary', req: 'All 5 groups every dinner ×7',
+      check: (kid, meals, weekStart) => {
+        const groups = ['dairy','protein','grains','fruit','veggies'];
+        const byDay = {};
+        meals.forEach(m => {
+          if (m.meal === 'dinner' && m.amount && m.amount !== 'skipped' && m.day >= weekStart && groups.indexOf(m.group) >= 0) {
+            if (!byDay[m.day]) byDay[m.day] = new Set();
+            byDay[m.day].add(m.group);
+          }
+        });
+        const perfectDays = Object.values(byDay).filter(set => set.size === 5).length;
+        return perfectDays >= 7;
+      } },
+    { key: 'family_first', em: '🏆', nm: 'Family #1', rarity: 'rare', req: 'Top weekly leaderboard',
+      check: (kid, meals, weekStart) => {
+        const kids = (window.mb && window.mb.state.kids) || [];
+        if (kids.length < 2) return false;
+        const sorted = [...kids].sort((a,b) => (b.currentWeekXP||0) - (a.currentWeekXP||0));
+        return sorted[0].id === kid.id && (kid.currentWeekXP || 0) > 0;
+      } },
+    { key: 'brave_bites', em: '🌟', nm: 'Brave Bites', rarity: 'rare', req: 'Try 3+ new foods (coming soon)',
+      check: () => false },
+    { key: 'comeback', em: '🚀', nm: 'Comeback Kid', rarity: 'common', req: 'Biggest improvement this week (coming soon)',
+      check: () => false },
+    { key: 'streak_4', em: '🔥', nm: '4-Week Streak', rarity: 'legendary', req: 'Hit goal 4 weeks in a row (coming soon)',
+      check: () => false },
+    { key: 'speed_logger', em: '⚡', nm: 'Speed Logger', rarity: 'rare', req: 'Dinner before 7pm × 7 (coming soon)',
+      check: () => false },
+    { key: 'sibling_cheer', em: '👫', nm: 'Sibling Cheer', rarity: 'rare', req: 'Cheer a sibling × 5 (coming soon)',
+      check: () => false },
+    { key: 'month_master', em: '💎', nm: 'Month Master', rarity: 'legendary', req: '4× Family #1 in a row (coming soon)',
+      check: () => false },
+    { key: 'veggie_champ', em: '🥦', nm: 'Veggie Champion', rarity: 'rare', req: 'Most veggies in family this week (coming soon)',
+      check: () => false }
+  ];
+
+  function renderTrophies() {
+    const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    if (!kid) return;
+
+    // 1. Lifetime stats
+    const lifeXP = kid.lifetimeXP || 0;
+    const stageEl = document.getElementById('tro-stage');
+    if (stageEl) stageEl.textContent = lifetimeStageName(lifeXP);
+    const lifeXPEl = document.getElementById('tro-life-xp');
+    if (lifeXPEl) lifeXPEl.textContent = lifeXP.toLocaleString();
+    const weeksWonEl = document.getElementById('tro-weeks-won');
+    if (weeksWonEl) weeksWonEl.textContent = (kid.badges && kid.badges.family_first) || 0;
+    const streakEl = document.getElementById('tro-streak');
+    if (streakEl) streakEl.textContent = kid.streakWeeks || 0;
+    const cosEl = document.getElementById('tro-cos');
+    if (cosEl) {
+      const equipped = kid.equipped || {};
+      const count = Object.values(equipped).filter(Boolean).length;
+      cosEl.textContent = count;
+    }
+
+    // 2. Badges
+    const meals = (window.mb && window.mb.state.meals) || [];
+    const weekStart = startOfWeekISO();
+    let earnedCount = 0;
+    const cards = BADGES.map(b => {
+      const isEarned = b.check(kid, meals, weekStart);
+      if (isEarned) earnedCount++;
+      const lifetimeCount = (kid.badges && kid.badges[b.key]) || 0;
+      const cls = ['bc-tile'];
+      if (b.rarity === 'rare') cls.push('rare');
+      if (b.rarity === 'legendary') cls.push('legendary');
+      if (isEarned || lifetimeCount > 0) cls.push('earned');
+      else cls.push('locked');
+      const meta = isEarned
+        ? '✨ earned this week!'
+        : lifetimeCount > 0
+          ? 'earned ×' + lifetimeCount
+          : b.req;
+      return '<div class="' + cls.join(' ') + '">' +
+        '<div class="bc-tile-em">' + b.em + '</div>' +
+        '<div class="bc-tile-nm">' + b.nm + '</div>' +
+        '<div class="bc-tile-meta">' + (b.rarity === 'rare' ? 'RARE · ' : b.rarity === 'legendary' ? 'LEGENDARY · ' : '') + meta + '</div>' +
+        '</div>';
+    });
+    const grid = document.getElementById('bc-grid');
+    if (grid) grid.innerHTML = cards.join('');
+    const count = document.getElementById('bc-count');
+    if (count) count.innerHTML = '<b>' + earnedCount + ' earned</b> this week · ' + (BADGES.length - earnedCount) + ' to chase';
+  }
+
+  window.addEventListener('mb-kids-changed', () => renderTrophies());
+  window.addEventListener('mb-meals-changed', () => renderTrophies());
+
   // ============ Phase 2E: Trust + Chores ============
   const TRUST_LEVELS = [
     { min: 0, name: 'Helper Apprentice', short: 'Helper', stars: 1 },
@@ -4595,6 +4718,7 @@
       renderProfileStats();
       renderBehaviorTiles();
       renderResponsibility();
+      renderTrophies();
     }
   }, 200);
   // Belt-and-suspenders: also try a couple more times in case subscription is slow
