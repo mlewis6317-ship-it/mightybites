@@ -3063,9 +3063,12 @@
       feedAva.classList.remove('strong','weak','queasy','sick');
       if (mood !== 'normal') feedAva.classList.add(mood);
     }
+    // Old "ml-react" reaction area was removed in Phase 2J — the feed-status div now
+    // handles reactions. Just bail if the legacy DOM isn't present.
     const mini = document.getElementById('av-mini');
     const react = document.getElementById('ml-react');
     const msg = document.getElementById('ml-react-msg');
+    if (!react || !mini || !msg) return;
     react.classList.remove('queasy','sick');
     const xp = calcXP(currentGroup, currentAmt);
     const xpStr = (xp >= 0 ? '+' : '') + xp;
@@ -3145,7 +3148,7 @@
   });
 
   // Feed button: full animation with burst, sparks, XP pop, avatar punch
-  document.getElementById('feed-btn').addEventListener('click', () => {
+  document.getElementById('feed-btn')?.addEventListener('click', () => {
     const xp = calcXP(currentGroup, currentAmt);
     const xpStr = (xp >= 0 ? '+' : '') + xp + ' XP';
     const burst = document.getElementById('feed-burst');
@@ -3153,7 +3156,7 @@
     const profileAva = document.querySelector('#view-profile .ava-shell');
 
     // Clear any prior burst children
-    burst.innerHTML = '';
+    if (burst) burst.innerHTML = '';
 
     // Ring(s)
     const ring1 = document.createElement('div');
