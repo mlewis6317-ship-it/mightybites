@@ -2165,7 +2165,7 @@
             <div class="sc-grid">
               <div class="sc-row primary"><span class="sc-em">🥗</span><span class="sc-lbl">Healthy food groups · finished serving</span><span class="sc-val">+15 to +25 each</span></div>
               <div class="sc-row"><span class="sc-em">👅</span><span class="sc-lbl">Tried it · half eaten</span><span class="sc-val">+3 to +12</span></div>
-              <div class="sc-row"><span class="sc-em">⭐</span><span class="sc-lbl">Chores &amp; responsibilities</span><span class="sc-val">+1 to +10 each</span></div>
+              <div class="sc-row"><span class="sc-em">⭐</span><span class="sc-lbl">Chores &amp; responsibilities</span><span class="sc-val">+1 to +10 trust · also ×5 weekly XP</span></div>
               <div class="sc-row"><span class="sc-em">🎯</span><span class="sc-lbl">Mealtime bonuses</span><span class="sc-val">customizable in Settings</span></div>
               <div class="sc-row warn"><span class="sc-em">🍩</span><span class="sc-lbl">3rd treat in a day</span><span class="sc-val">−15 each</span></div>
             </div>
@@ -2182,6 +2182,26 @@
               <div class="lb-date" id="lb-date">Today</div>
               <h2 class="lb-title">🏆 Family Leaderboard</h2>
               <p class="lb-sub">Tap a kid's tile to open their dashboard.</p>
+            </div>
+          </div>
+
+          <div id="family-goal-card" style="display:none; background: linear-gradient(135deg, #fff7e6, #ffe4f0); border: 2px solid #ffd66b; border-radius: 18px; padding: 14px 18px; box-shadow: 0 6px 14px rgba(255,200,80,.18);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px; gap: 12px; flex-wrap: wrap;">
+              <div>
+                <div style="font-size: 11px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; opacity: .65;">This week · team goal</div>
+                <h3 style="margin: 2px 0 0; font-size: 18px; font-weight: 900; color: #7a4b00;" id="family-goal-title">🌟 Family Weekly Goal</h3>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size: 22px; font-weight: 900; color: #7a4b00; line-height: 1;" id="family-goal-amount">0 / 0</div>
+                <div style="font-size: 11px; opacity: .65; font-weight: 700;">XP earned together</div>
+              </div>
+            </div>
+            <div style="background: rgba(0,0,0,.06); border-radius: 999px; height: 18px; overflow: hidden; position: relative;">
+              <div id="family-goal-bar" style="background: linear-gradient(90deg, #ffd66b, #ff8a5c, #d9477b); height: 100%; width: 0%; transition: width .6s ease-out; border-radius: 999px;"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 6px; gap: 12px; flex-wrap: wrap;">
+              <div style="font-size: 12px; font-weight: 700; opacity: .75;" id="family-goal-meta">Work together to hit the goal this week!</div>
+              <button id="family-goal-edit-btn" style="background:#fff; border:1.5px solid #ffd66b; padding:5px 10px; border-radius:999px; font-size:11px; font-weight:800; cursor:pointer; color:#7a4b00;">Set goal</button>
             </div>
           </div>
 
@@ -4223,6 +4243,7 @@
       const now = new Date();
       dateEl.textContent = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate();
     }
+    renderFamilyGoal(kids);
     const list = document.getElementById('lb-list');
     const podium = document.getElementById('lb-podium');
     const callout = document.getElementById('lb-callout');
@@ -4308,6 +4329,58 @@
       });
     }
   }
+  // Family weekly goal: sum of all kids' currentWeekXP vs family target
+  function getFamilyWeeklyGoal(kids) {
+    const fam = window.mb && window.mb.state && window.mb.state.family;
+    const stored = fam && fam.settings && fam.settings.familyWeeklyGoal;
+    if (typeof stored === 'number' && stored > 0) return stored;
+    // Default: 700 XP per kid (matches individual weekly goal scaled up)
+    return Math.max(700, (kids || []).length * 700);
+  }
+  function renderFamilyGoal(kids) {
+    const card = document.getElementById('family-goal-card');
+    if (!card) return;
+    if (!kids || !kids.length) { card.style.display = 'none'; return; }
+    card.style.display = 'block';
+    const totalXP = kids.reduce((s, k) => s + (k.currentWeekXP || 0), 0);
+    const goal = getFamilyWeeklyGoal(kids);
+    const pct = Math.min(100, Math.round((totalXP / goal) * 100));
+    const amt = document.getElementById('family-goal-amount');
+    if (amt) amt.textContent = totalXP.toLocaleString() + ' / ' + goal.toLocaleString();
+    const bar = document.getElementById('family-goal-bar');
+    if (bar) bar.style.width = pct + '%';
+    const meta = document.getElementById('family-goal-meta');
+    if (meta) {
+      if (totalXP >= goal) meta.textContent = '🎉 Goal hit! Time to celebrate together.';
+      else meta.textContent = (goal - totalXP).toLocaleString() + ' XP to go — every meal & chore counts!';
+    }
+  }
+  // Wire "Set goal" button → prompt for a new goal value, save to family settings
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('#family-goal-edit-btn');
+    if (!btn) return;
+    const kids = (window.mb && window.mb.state && window.mb.state.kids) || [];
+    const current = getFamilyWeeklyGoal(kids);
+    const val = prompt('Set this week\'s family goal (total XP).\n\nDefault: ' + (kids.length * 700) + ' (700 per kid).', String(current));
+    if (val === null) return;
+    const num = parseInt(val, 10);
+    if (!num || num <= 0) return;
+    if (window.mb && window.mb.updateFamilyWeeklyGoal) {
+      try {
+        await window.mb.updateFamilyWeeklyGoal(num);
+        // Re-render
+        if (typeof renderFamilyGoal === 'function') renderFamilyGoal((window.mb.state && window.mb.state.kids) || []);
+      } catch (err) {
+        console.error('updateFamilyWeeklyGoal failed:', err);
+        alert('Failed to save goal: ' + err.message);
+      }
+    }
+  });
+  window.addEventListener('mb-family-changed', () => {
+    const kids = (window.mb && window.mb.state && window.mb.state.kids) || [];
+    renderFamilyGoal(kids);
+  });
+
   function renderProfile() {
     const kid = (window.mb && window.mb.state.kids || []).find(k => k.id === window.mb.state.currentKidId);
     if (!kid) return;
@@ -6124,9 +6197,13 @@
     const update = period === 'daily' ? { day: dayOrWeek } : { week: dayOrWeek };
     update[choreKey] = 'done';
     await setDoc(path, update, { merge: true });
+    // Chores feed both trust ladder AND weekly leaderboard XP (Phase 2N).
+    // We use a small multiplier so chores complement rather than dominate meal XP.
     const kidRef = doc(db, 'families', state.family.id, 'kids', kidId);
     await updateDoc(kidRef, {
-      trustPoints: increment(trustPts)
+      trustPoints: increment(trustPts),
+      currentWeekXP: increment(trustPts * 5),
+      lifetimeXP: increment(trustPts * 5)
     });
   }
   window.mb.logChore = logChore;
@@ -6193,6 +6270,13 @@
     await updateDoc(famRef, update);
   }
   window.mb.updateFamilyBonus = updateFamilyBonus;
+
+  async function updateFamilyWeeklyGoal(goal) {
+    if (!state.family) return;
+    const famRef = doc(db, 'families', state.family.id);
+    await updateDoc(famRef, { 'settings.familyWeeklyGoal': goal });
+  }
+  window.mb.updateFamilyWeeklyGoal = updateFamilyWeeklyGoal;
 
   async function addFamilyBonus(bonusKey, bonus) {
     if (!state.family) return;
