@@ -2201,7 +2201,7 @@
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 6px; gap: 12px; flex-wrap: wrap;">
               <div style="font-size: 12px; font-weight: 700; opacity: .75;" id="family-goal-meta">Work together to hit the goal this week!</div>
-              <button id="family-goal-edit-btn" style="background:#fff; border:1.5px solid #ffd66b; padding:5px 10px; border-radius:999px; font-size:11px; font-weight:800; cursor:pointer; color:#7a4b00;">Set goal</button>
+              <button id="family-goal-edit-btn" style="background:#fff; border:1.5px solid #ffd66b; padding:5px 10px; border-radius:999px; font-size:11px; font-weight:800; cursor:pointer; color:#7a4b00;">⚙️ Edit in Settings</button>
             </div>
           </div>
 
@@ -2340,7 +2340,6 @@
             <div class="mlog-head" style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
               <div>
                 <h2 class="mlog-title" id="mlog-title">Today's food, <span id="mlog-kid-name">friend</span>!</h2>
-                <div class="mlog-sub" id="mlog-sub">Tap a food group, pick an amount, then feed your buddy.</div>
               </div>
               <div id="mlog-today-points" style="background: linear-gradient(135deg, #d9477b, #ff8a5c); color:#fff; padding:8px 14px; border-radius:14px; text-align:center; box-shadow:0 4px 10px rgba(217,71,123,.25); flex-shrink:0;">
                 <div style="font-size:22px; font-weight:900; line-height:1;" id="mlog-today-xp">0</div>
@@ -2439,7 +2438,10 @@
       <!-- ============ TROPHIES (Champions Wall + buddy/unlock) ============ -->
       <div class="view" id="view-trophies">
         <div class="tro">
-          <div class="switch-kid" id="trophies-switch-kid" style="margin-bottom:10px;"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px;">
+            <button class="app-back" onclick="mbGoTo('leaderboard')">← Home</button>
+            <div class="switch-kid" id="trophies-switch-kid"></div>
+          </div>
           <!-- Lifetime stats bar -->
           <div class="tro-stats" id="tro-stats">
             <div class="tro-stat">
@@ -2745,6 +2747,23 @@
             <div class="pref-row"><div class="pref-lbl">Kitchen-iPad mode</div><label class="set-toggle"><input type="checkbox" checked /> <span>On</span></label></div>
           </section>
 
+          <!-- ============ Family weekly goal ============ -->
+          <section class="set-card">
+            <div class="set-card-head">
+              <h3 class="set-h3">🌟 Family weekly goal</h3>
+            </div>
+            <p class="set-note">The whole family chases this XP total each week. Every kid's logged meals and chores count toward it.</p>
+            <div class="pref-row">
+              <div class="pref-lbl">Goal (XP) <div style="font-size:11px; opacity:.6; font-weight:600;">Default: 700 per kid · easy to hit a champion week</div></div>
+              <input type="number" id="set-family-goal" style="width:120px; padding:8px 10px; border-radius:8px; border:1px solid #d8c8a6; font-size:14px; font-weight:700;" />
+            </div>
+            <div class="pref-row">
+              <div class="pref-lbl">What they earn <div style="font-size:11px; opacity:.6; font-weight:600;">e.g. "Movie night with popcorn" or "Pick a Saturday adventure"</div></div>
+              <input type="text" id="set-family-reward" style="flex:1; max-width: 280px; padding:8px 10px; border-radius:8px; border:1px solid #d8c8a6; font-size:14px; font-weight:700;" placeholder="Movie night" />
+            </div>
+            <div class="set-note" id="set-family-goal-status" style="text-align:right; font-size:11px; opacity:.65; min-height:14px;"></div>
+          </section>
+
           <!-- ============ Family management ============ -->
           <section class="set-card">
             <div class="set-card-head">
@@ -2858,13 +2877,16 @@
       <div class="view" id="view-chores">
         <div class="chores">
           <div class="chores-left">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:8px;">
+              <button class="app-back" onclick="mbGoTo('leaderboard')">← Home</button>
+              <div class="switch-kid" id="chores-switch-kid"></div>
+            </div>
             <div class="ch-head">
               <div>
                 <h2 class="ch-title">⭐ Trust &amp; Responsibility</h2>
-                <p class="ch-sub">Separate from food strength — fair across ages. Earns privileges, not leaderboard XP.</p>
               </div>
             </div>
-            <div class="switch-kid" id="chores-switch-kid"></div>
+            <div class="trust-msg" id="trust-msg" style="background: linear-gradient(135deg, #fff7e6, #ffe4f0); border: 1.5px solid #ffd66b; border-radius: 14px; padding: 12px 16px; font-size: 13px; font-weight: 700; color: #7a4b00; line-height: 1.4; margin-bottom: 4px;">Loading…</div>
 
             <div class="trust-card">
               <div class="trust-head">
@@ -4286,18 +4308,24 @@
         const xp = k.currentWeekXP || 0;
         const pct = Math.min(100, (xp / 700) * 100);
         const rank = i < 3 ? rankClass[i] : '';
+        const choreXP = k.currentWeekChoreXP || 0;
+        const mealXP = Math.max(0, xp - choreXP);
+        const mealGoal = 500, choreGoal = 200;
+        const mealPct = Math.min(100, Math.round((mealXP / mealGoal) * 100));
+        const chorePct = Math.min(100, Math.round((choreXP / choreGoal) * 100));
         return '<div class="lb-row ' + rank + '" data-kid-id="' + k.id + '">' +
           '<div class="lb-rank">' + (i + 1) + '</div>' +
           '<div class="lb-ava">' + (k.buddy || '🦖') + '</div>' +
           '<div class="lb-info">' +
             '<div class="lb-name">' + escapeHTML(k.name) + '</div>' +
             '<div class="lb-meta">' + buddyStageName(k.buddy) + ' · age ' + k.age + '</div>' +
-            '<div class="lb-bar"><div class="lb-bar-fill" style="width: ' + pct + '%;"></div><div class="lb-bar-target"></div></div>' +
-            '<div class="lb-bar-lbl"><b>' + xp + '</b> / 700 weekly goal · all-time ' + (k.lifetimeXP || 0) + '</div>' +
+            '<div style="display:flex; align-items:center; gap:8px; font-size:11px; font-weight:800; margin-top:6px;"><span style="opacity:.6; width:60px;">🍽️ Meals</span><div class="lb-bar" style="flex:1; margin:0;"><div class="lb-bar-fill" style="width: ' + mealPct + '%; background: linear-gradient(90deg, #5BB8FF, #6CC36A);"></div></div><span style="min-width:60px; text-align:right; opacity:.75;">' + mealXP + '/' + mealGoal + '</span></div>' +
+            '<div style="display:flex; align-items:center; gap:8px; font-size:11px; font-weight:800; margin-top:4px;"><span style="opacity:.6; width:60px;">⭐ Chores</span><div class="lb-bar" style="flex:1; margin:0;"><div class="lb-bar-fill" style="width: ' + chorePct + '%; background: linear-gradient(90deg, #ffd66b, #ff8a5c);"></div></div><span style="min-width:60px; text-align:right; opacity:.75;">' + choreXP + '/' + choreGoal + '</span></div>' +
+            '<div class="lb-bar-lbl" style="margin-top:6px;"><b>' + xp + '</b> total this week · all-time ' + (k.lifetimeXP || 0) + '</div>' +
           '</div>' +
           '<div class="lb-tap">' +
             '<div class="lb-xp">' + xp + '<span>this week</span></div>' +
-            '<button class="lb-log-btn" data-log-kid="' + k.id + '">Log dinner →</button>' +
+            '<button class="lb-log-btn" data-log-kid="' + k.id + '">View profile →</button>' +
           '</div>' +
         '</div>';
       }).join('');
@@ -4313,7 +4341,7 @@
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
           const kid = btn.dataset.logKid;
-          if (kid) { mbSetKid(kid); mbGoTo('meal'); }
+          if (kid) { mbSetKid(kid); mbGoTo('profile'); }
         });
       });
     }
@@ -4351,30 +4379,18 @@
     if (bar) bar.style.width = pct + '%';
     const meta = document.getElementById('family-goal-meta');
     if (meta) {
-      if (totalXP >= goal) meta.textContent = '🎉 Goal hit! Time to celebrate together.';
-      else meta.textContent = (goal - totalXP).toLocaleString() + ' XP to go — every meal & chore counts!';
+      const fam = window.mb && window.mb.state && window.mb.state.family;
+      const reward = fam && fam.settings && fam.settings.familyWeeklyReward;
+      const rewardTxt = reward ? ' · 🎁 ' + reward : '';
+      if (totalXP >= goal) meta.textContent = '🎉 Goal hit! Time to celebrate together.' + rewardTxt;
+      else meta.textContent = (goal - totalXP).toLocaleString() + ' XP to go' + rewardTxt;
     }
   }
-  // Wire "Set goal" button → prompt for a new goal value, save to family settings
-  document.addEventListener('click', async (e) => {
+  // Edit family goal → opens Settings
+  document.addEventListener('click', (e) => {
     const btn = e.target.closest('#family-goal-edit-btn');
     if (!btn) return;
-    const kids = (window.mb && window.mb.state && window.mb.state.kids) || [];
-    const current = getFamilyWeeklyGoal(kids);
-    const val = prompt('Set this week\'s family goal (total XP).\n\nDefault: ' + (kids.length * 700) + ' (700 per kid).', String(current));
-    if (val === null) return;
-    const num = parseInt(val, 10);
-    if (!num || num <= 0) return;
-    if (window.mb && window.mb.updateFamilyWeeklyGoal) {
-      try {
-        await window.mb.updateFamilyWeeklyGoal(num);
-        // Re-render
-        if (typeof renderFamilyGoal === 'function') renderFamilyGoal((window.mb.state && window.mb.state.kids) || []);
-      } catch (err) {
-        console.error('updateFamilyWeeklyGoal failed:', err);
-        alert('Failed to save goal: ' + err.message);
-      }
-    }
+    if (typeof mbGoTo === 'function') mbGoTo('settings');
   });
   window.addEventListener('mb-family-changed', () => {
     const kids = (window.mb && window.mb.state && window.mb.state.kids) || [];
@@ -5260,6 +5276,37 @@
 
 
 
+  // ============ Phase 2O: Trust-level encouragement messages ============
+  const TRUST_MSGS = [
+    "🌱 You're just getting started! Every little chore builds trust with your family. Tap a chore below to earn your first points!",
+    "⭐ Nice work! Your family trusts you to handle daily things on your own. Keep showing up — bigger privileges are coming.",
+    "🤝 You're part of the crew now. Bigger responsibilities mean bigger fun. Try a weekly chore for more trust points!",
+    "🏆 Family MVP! You've earned the right to help decide things — like picking the family movie or staying up later.",
+    "👑 Champion! You've earned full independence. Lead by example — you're a role model for the family."
+  ];
+  function renderTrustMsg() {
+    const el = document.getElementById('trust-msg');
+    if (!el) return;
+    const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    if (!kid) { el.style.display = 'none'; return; }
+    el.style.display = '';
+    const pts = kid.trustPoints || 0;
+    // Reuse TRUST_LEVELS thresholds — defined later in script
+    const thresholds = [0, 100, 300, 700, 1500];
+    let lvl = 0;
+    for (let i = 0; i < thresholds.length; i++) { if (pts >= thresholds[i]) lvl = i; }
+    const next = thresholds[lvl + 1];
+    let msg = TRUST_MSGS[lvl] || TRUST_MSGS[0];
+    if (typeof next === 'number') {
+      const gap = next - pts;
+      msg += ' <span style="opacity:.7;">(' + gap + ' more pts to next level)</span>';
+    } else {
+      msg += ' <span style="opacity:.7;">(max level — keep it going!)</span>';
+    }
+    el.innerHTML = msg;
+  }
+  window.addEventListener('mb-kids-changed', () => renderTrustMsg());
+
   // ============ Phase 2H.3: Per-kid Responsibility + Trust Rewards ============
 
   // Age-appropriate chore catalog. Each entry: [emoji, name, points, period]
@@ -5868,6 +5915,42 @@
   // (Leaderboard Settings pill removed — use the header gear icon instead.)
   document.getElementById('pf-act-meal')?.addEventListener('click', () => mbGoTo('meal'));
 
+  // Family Weekly Goal inputs (Settings)
+  function loadFamilyGoalInputs() {
+    const fam = window.mb && window.mb.state && window.mb.state.family;
+    const kids = (window.mb && window.mb.state && window.mb.state.kids) || [];
+    const goal = (fam && fam.settings && fam.settings.familyWeeklyGoal) || Math.max(700, kids.length * 700);
+    const reward = (fam && fam.settings && fam.settings.familyWeeklyReward) || '';
+    const goalEl = document.getElementById('set-family-goal');
+    const rewardEl = document.getElementById('set-family-reward');
+    if (goalEl && document.activeElement !== goalEl) goalEl.value = goal;
+    if (rewardEl && document.activeElement !== rewardEl) rewardEl.value = reward;
+  }
+  function flashFamilyGoalStatus(txt) {
+    const el = document.getElementById('set-family-goal-status');
+    if (!el) return;
+    el.textContent = txt;
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.textContent = ''; }, 1500);
+  }
+  document.addEventListener('change', async (e) => {
+    if (e.target.id === 'set-family-goal') {
+      const num = parseInt(e.target.value, 10);
+      if (!num || num <= 0) return;
+      flashFamilyGoalStatus('Saving…');
+      try { await window.mb.updateFamilyWeeklyGoal(num); flashFamilyGoalStatus('✓ Saved'); }
+      catch (err) { console.error(err); flashFamilyGoalStatus('Save failed'); }
+    }
+    if (e.target.id === 'set-family-reward') {
+      const val = e.target.value.trim();
+      flashFamilyGoalStatus('Saving…');
+      try { await window.mb.updateFamilyWeeklyReward(val); flashFamilyGoalStatus('✓ Saved'); }
+      catch (err) { console.error(err); flashFamilyGoalStatus('Save failed'); }
+    }
+  });
+  window.addEventListener('mb-family-changed', () => loadFamilyGoalInputs());
+  window.addEventListener('mb-kids-changed', () => loadFamilyGoalInputs());
+
   // Settings: Family management buttons
   document.getElementById('set-leave-fam-btn')?.addEventListener('click', () => {
     if (typeof window.mbLeaveFamilyConfirm === 'function') window.mbLeaveFamilyConfirm();
@@ -5923,6 +6006,8 @@
       renderMealRings();
       renderMealNeeds();
       renderBuddyMood();
+      renderTrustMsg();
+      loadFamilyGoalInputs();
     }
   }, 200);
   // Belt-and-suspenders: also try a couple more times in case subscription is slow
@@ -6203,6 +6288,7 @@
     await updateDoc(kidRef, {
       trustPoints: increment(trustPts),
       currentWeekXP: increment(trustPts * 5),
+      currentWeekChoreXP: increment(trustPts * 5),
       lifetimeXP: increment(trustPts * 5)
     });
   }
@@ -6277,6 +6363,13 @@
     await updateDoc(famRef, { 'settings.familyWeeklyGoal': goal });
   }
   window.mb.updateFamilyWeeklyGoal = updateFamilyWeeklyGoal;
+
+  async function updateFamilyWeeklyReward(reward) {
+    if (!state.family) return;
+    const famRef = doc(db, 'families', state.family.id);
+    await updateDoc(famRef, { 'settings.familyWeeklyReward': reward });
+  }
+  window.mb.updateFamilyWeeklyReward = updateFamilyWeeklyReward;
 
   async function addFamilyBonus(bonusKey, bonus) {
     if (!state.family) return;
