@@ -4537,7 +4537,6 @@
     pill.title = 'Hold 2 seconds to leave/switch family';
     // No-op click — prevents accidental tap from doing anything
     pill.addEventListener('click', (e) => { e.preventDefault(); });
-    });
   })();
 
   window.addEventListener('mb-kids-changed', () => { renderSettingsMembers(); renderMealLog(); });
