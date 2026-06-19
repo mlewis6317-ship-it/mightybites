@@ -2708,6 +2708,27 @@
             <div class="pref-row"><div class="pref-lbl">Weekly recap email</div><label class="set-toggle"><input type="checkbox" checked /> <span>On</span></label></div>
             <div class="pref-row"><div class="pref-lbl">Kitchen-iPad mode</div><label class="set-toggle"><input type="checkbox" checked /> <span>On</span></label></div>
           </section>
+
+          <!-- ============ Family management ============ -->
+          <section class="set-card">
+            <div class="set-card-head">
+              <h3 class="set-h3">👨‍👩‍👧‍👦 This family</h3>
+            </div>
+            <div class="pref-row">
+              <div class="pref-lbl">
+                Family code · <b id="set-fam-code" style="font-family: monospace; letter-spacing:1px;">—</b>
+                <div style="font-size:11px; opacity:.6; font-weight:600;">Share this with another parent to sync the same family on their device.</div>
+              </div>
+              <button class="set-action" id="set-copy-code-btn">Copy</button>
+            </div>
+            <div class="pref-row">
+              <div class="pref-lbl">
+                Leave this family
+                <div style="font-size:11px; opacity:.6; font-weight:600;">You can rejoin anytime with the code. Your data stays in the cloud.</div>
+              </div>
+              <button class="set-action" id="set-leave-fam-btn" style="background:#fff0f0; color:#c0392b; border:1px solid #f3c5c5;">Leave family</button>
+            </div>
+          </section>
         </div>
       </div>
 
@@ -4508,36 +4529,28 @@
       }
     });
   })();
-  // Family pill is now read-only. To leave/switch family, hold the pill for 2 seconds.
+  // Family pill is now purely informational. Leaving the family is done from Settings.
   (function() {
     const pill = document.getElementById('header-family');
     if (!pill) return;
-    let pressTimer = null;
-    const startPress = (e) => {
-      pressTimer = setTimeout(() => {
-        const code = localStorage.getItem('mb_familyCode') || '?';
-        if (confirm('Leave family ' + code + '?\n\nThis is the only way to switch to a different family. Your kids and data stay safe in the cloud — you can rejoin with this code anytime.')) {
-          try {
-            localStorage.removeItem('mb_familyId');
-            localStorage.removeItem('mb_familyCode');
-            localStorage.removeItem('mb_familyName');
-            localStorage.removeItem('mb_currentKidId');
-          } catch(e) {}
-          location.reload();
-        }
-      }, 2000);
-    };
-    const cancelPress = () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } };
-    pill.addEventListener('mousedown', startPress);
-    pill.addEventListener('touchstart', startPress, { passive: true });
-    pill.addEventListener('mouseup', cancelPress);
-    pill.addEventListener('mouseleave', cancelPress);
-    pill.addEventListener('touchend', cancelPress);
-    pill.addEventListener('touchcancel', cancelPress);
-    pill.title = 'Hold 2 seconds to leave/switch family';
-    // No-op click — prevents accidental tap from doing anything
-    pill.addEventListener('click', (e) => { e.preventDefault(); });
+    pill.style.cursor = 'default';
+    pill.title = 'Your family code — go to Settings to leave';
   })();
+
+  // Global "Leave family" handler (wired to the Settings button below)
+  function mbLeaveFamilyConfirm() {
+    const code = localStorage.getItem('mb_familyCode') || '?';
+    if (confirm('Leave family ' + code + '?\n\nYour kids and all your data stay safe in the cloud. You can rejoin anytime by entering this code.')) {
+      try {
+        localStorage.removeItem('mb_familyId');
+        localStorage.removeItem('mb_familyCode');
+        localStorage.removeItem('mb_familyName');
+        localStorage.removeItem('mb_currentKidId');
+      } catch(e) {}
+      location.reload();
+    }
+  }
+  window.mbLeaveFamilyConfirm = mbLeaveFamilyConfirm;
 
   window.addEventListener('mb-kids-changed', () => { renderSettingsMembers(); renderMealLog(); });
 
@@ -5540,6 +5553,33 @@
   document.getElementById('pf-back')?.addEventListener('click', () => mbGoTo('leaderboard'));
   document.getElementById('meal-back-btn')?.addEventListener('click', () => mbGoTo('leaderboard'));
   document.getElementById('pf-act-meal')?.addEventListener('click', () => mbGoTo('meal'));
+
+  // Settings: Family management buttons
+  document.getElementById('set-leave-fam-btn')?.addEventListener('click', () => {
+    if (typeof window.mbLeaveFamilyConfirm === 'function') window.mbLeaveFamilyConfirm();
+  });
+  document.getElementById('set-copy-code-btn')?.addEventListener('click', async () => {
+    const code = localStorage.getItem('mb_familyCode') || '';
+    if (!code) return;
+    const btn = document.getElementById('set-copy-code-btn');
+    try {
+      await navigator.clipboard.writeText(code);
+      if (btn) { btn.textContent = '✓ Copied'; setTimeout(() => btn.textContent = 'Copy', 1500); }
+    } catch (e) {
+      // Fallback for browsers without clipboard API
+      prompt('Copy this family code:', code);
+    }
+  });
+
+  // Keep the Settings family code badge in sync with current state
+  function syncSetFamCode() {
+    const el = document.getElementById('set-fam-code');
+    if (!el) return;
+    const code = localStorage.getItem('mb_familyCode') || '—';
+    el.textContent = code;
+  }
+  window.addEventListener('mb-family-changed', syncSetFamCode);
+  setTimeout(syncSetFamCode, 300);
   document.getElementById('pf-act-chore')?.addEventListener('click', () => mbGoTo('chores'));
   document.getElementById('pf-act-trophies')?.addEventListener('click', () => mbGoTo('trophies'));
 
