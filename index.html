@@ -2168,14 +2168,11 @@
         <div class="lb">
           <div class="lb-head">
             <div>
-              <div class="lb-date">Tuesday, April 28</div>
+              <div class="lb-date" id="lb-date">Today</div>
               <h2 class="lb-title">🏆 Family Leaderboard</h2>
-              <p class="lb-sub">Tap a kid's tile to log their meal.</p>
+              <p class="lb-sub">Tap a kid's tile to open their dashboard.</p>
             </div>
-            <div class="lb-toggle">
-              <div class="lb-chip active">This week</div>
-              <div class="lb-chip">All-time</div>
-            </div>
+            <button id="lb-settings-btn" style="background: #fff; border: 1.5px solid var(--line, #eadfd1); border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 800; color: var(--ink, #2a2440); cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.04);">⚙️ Settings</button>
           </div>
 
 <div class="podium" id="lb-podium"></div>
@@ -4206,6 +4203,14 @@
     return String(x).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
   }
   function renderLeaderboard(kids) {
+    // Update today's date label
+    const dateEl = document.getElementById('lb-date');
+    if (dateEl) {
+      const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const now = new Date();
+      dateEl.textContent = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate();
+    }
     const list = document.getElementById('lb-list');
     const podium = document.getElementById('lb-podium');
     const callout = document.getElementById('lb-callout');
@@ -5586,6 +5591,10 @@
   // Dashboard action wiring
   document.getElementById('pf-back')?.addEventListener('click', () => mbGoTo('leaderboard'));
   document.getElementById('meal-back-btn')?.addEventListener('click', () => mbGoTo('leaderboard'));
+  document.getElementById('lb-settings-btn')?.addEventListener('click', () => {
+    try { mbGoTo('settings'); }
+    catch (e) { alert('Settings open failed: ' + (e.message || e)); }
+  });
   document.getElementById('pf-act-meal')?.addEventListener('click', () => mbGoTo('meal'));
 
   // Settings: Family management buttons
