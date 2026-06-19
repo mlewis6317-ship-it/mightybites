@@ -134,6 +134,11 @@
   .app-back:hover { background: var(--sun-2, #fef0c8); }
   .app-gear { background: #fff; border: 1px solid var(--line, #eadfd1); width: 40px; height: 40px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
   .app-gear:hover { background: var(--sun-2, #fef0c8); }
+  .sub-kidpick { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0 12px; border-bottom: 1px solid var(--line, #eadfd1); margin-bottom: 12px; }
+  .sub-kidpick-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--line, #eadfd1); background: #fff; font-size: 13px; font-weight: 800; cursor: pointer; transition: transform .12s, background .12s; }
+  .sub-kidpick-chip:hover { background: var(--sun-2, #fef0c8); }
+  .sub-kidpick-chip.active { background: var(--berry, #d9477b); border-color: var(--berry, #d9477b); color: #fff; transform: scale(1.05); }
+  .sub-kidpick-lbl { font-size: 11px; font-weight: 700; opacity: .55; align-self: center; margin-right: 4px; text-transform: uppercase; letter-spacing: .3px; }
   .header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
   .logo { width: 44px; height: 44px; border-radius: 12px; background: var(--berry); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 22px; box-shadow: var(--shadow); }
   .header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
@@ -2304,10 +2309,11 @@
           <div class="mlog-left">
             <div class="mlog-head">
               <div>
-                <h2 class="mlog-title" id="mlog-title">What did you eat, <span id="mlog-kid-name">Emma</span>?</h2>
+                <h2 class="mlog-title" id="mlog-title">Today's food, <span id="mlog-kid-name">friend</span>!</h2>
                 <div class="mlog-sub" id="mlog-sub">Tap a food group to log it</div>
               </div>
             </div>
+            <div class="sub-kidpick" id="meal-kidpick" data-view="meal"></div>
 
             <div class="ml-needs">
               <div class="ml-needs-ava">
@@ -2322,21 +2328,17 @@
                 </div>
               </div>
             </div>
-            <div class="meal-primary sel" data-meal="dinner">
-              <div class="mp-em">🌙</div>
-              <div class="mp-info">
-                <div class="mp-nm">Dinner</div>
-                <div class="mp-hint">The main quest · up to 100 pts/night</div>
-              </div>
-              <div class="mp-badge">5 of 7 this week</div>
-            </div>
-            <div class="meal-chips">
-              <div class="meal-chip" data-meal="breakfast"><span class="em">🌅</span>Breakfast <span class="opt">+25 pts</span></div>
-              <div class="meal-chip" data-meal="lunch"><span class="em">☀️</span>Lunch <span class="opt">+25 pts</span></div>
-              <div class="meal-chip" data-meal="snack"><span class="em">🍪</span>Snack <span class="opt">bonus</span></div>
+            <div class="bb-section-lbl">🍽️ Today's food groups · tap any to log</div>
+            <div class="grp-grid" id="grp-grid">
+              <div class="grp-tile" data-grp="dairy"><div class="grp-icon">🥛</div><div class="grp-info"><h4 class="grp-name">Dairy</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 0%;"></div></div><div class="grp-meta">Tap to log</div></div></div>
+              <div class="grp-tile" data-grp="protein"><div class="grp-icon">🍗</div><div class="grp-info"><h4 class="grp-name">Protein</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 0%;"></div></div><div class="grp-meta">Tap to log</div></div></div>
+              <div class="grp-tile" data-grp="grains"><div class="grp-icon">🍞</div><div class="grp-info"><h4 class="grp-name">Grains</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 0%;"></div></div><div class="grp-meta">Tap to log</div></div></div>
+              <div class="grp-tile" data-grp="fruit"><div class="grp-icon">🍎</div><div class="grp-info"><h4 class="grp-name">Fruit</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 0%;"></div></div><div class="grp-meta">Tap to log</div></div></div>
+              <div class="grp-tile" data-grp="veggies"><div class="grp-icon">🥦</div><div class="grp-info"><h4 class="grp-name">Veggies</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 0%;"></div></div><div class="grp-meta">Tap to log</div></div></div>
+              <div class="grp-tile junk" data-grp="treats"><div class="grp-icon">🍩</div><div class="grp-info"><h4 class="grp-name">Treats</h4><div class="grp-progress"><div class="grp-progress-fill junk" style="width: 0%;"></div></div><div class="grp-meta">Tap to log</div></div></div>
             </div>
 
-            <div class="bb-section-lbl">📋 Dinner expectations &amp; bonuses</div>
+            <div class="bb-section-lbl">📋 Mealtime expectations &amp; bonuses</div>
             <div class="behavior-bonuses">
               <div class="bb-tile expectation" id="bb-seated" data-state="met">
                 <span class="bb-em">🪑</span>
@@ -2377,21 +2379,6 @@
                 <div class="bb-xp">+10</div>
                 <div class="bb-check"></div>
               </div>
-            </div>
-            <div class="grp-grid" id="grp-grid">
-              <div class="grp-tile done" data-grp="dairy"><div class="grp-icon">🥛</div><div class="grp-info"><h4 class="grp-name">Dairy</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 67%;"></div></div><div class="grp-meta">2 of 3 servings</div></div></div>
-              <div class="grp-tile" data-grp="protein"><div class="grp-icon">🍗</div><div class="grp-info"><h4 class="grp-name">Protein</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 50%;"></div></div><div class="grp-meta">1 of 2 servings</div></div></div>
-              <div class="grp-tile" data-grp="grains"><div class="grp-icon">🍞</div><div class="grp-info"><h4 class="grp-name">Grains</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 80%;"></div></div><div class="grp-meta">4 of 5 servings</div></div></div>
-              <div class="grp-tile" data-grp="fruit"><div class="grp-icon">🍎</div><div class="grp-info"><h4 class="grp-name">Fruit</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 50%;"></div></div><div class="grp-meta">1 of 2 servings</div></div></div>
-              <div class="grp-tile urgent active" data-grp="veggies">
-                <div class="grp-icon" style="background: #FFE6EE;">🥦</div>
-                <div class="grp-info">
-                  <h4 class="grp-name">Veggies <span class="urgent-pill">+35 URGENT</span></h4>
-                  <div class="grp-progress"><div class="grp-progress-fill low" style="width: 0%;"></div></div>
-                  <div class="grp-meta">Last logged 72hrs ago · <span class="buddy-name-lc">dino</span> is begging!</div>
-                </div>
-              </div>
-              <div class="grp-tile junk" data-grp="treats"><div class="grp-icon">🍩</div><div class="grp-info"><h4 class="grp-name">Treats</h4><div class="grp-progress"><div class="grp-progress-fill junk" style="width: 50%;"></div></div><div class="grp-meta">1 of 2 OK · keep it balanced</div></div></div>
             </div>
           </div>
 
@@ -2458,6 +2445,7 @@
       <!-- ============ TROPHIES (Champions Wall + latest unlock) ============ -->
       <div class="view" id="view-trophies">
         <div class="tro">
+          <div class="sub-kidpick" id="trophies-kidpick" data-view="trophies"></div>
           <!-- Lifetime stats bar -->
           <div class="tro-stats" id="tro-stats">
             <div class="tro-stat">
@@ -3125,7 +3113,8 @@
   const mealNames = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
 
   function refreshHeader() {
-    document.getElementById('ml-meal-label').textContent = `${mealNames[currentMeal]} · ${groupNames[currentGroup]}`;
+    const lbl = document.getElementById('ml-meal-label');
+    if (lbl) lbl.textContent = groupNames[currentGroup] || 'Pick a food group';
   }
 
   function renderFoods(grp) {
@@ -4343,6 +4332,7 @@
     if (title) title.textContent = titleTxt || 'MightyBites';
     if (sub) sub.textContent = subTxt || '';
     if (back) back.style.display = (view === 'leaderboard') ? 'none' : '';
+    if (typeof renderSubKidPickers === 'function') renderSubKidPickers();
     // Scroll up
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -4368,9 +4358,32 @@
     if (typeof renderCosGrid === 'function') renderCosGrid();
     if (typeof renderChampionsWall === 'function') renderChampionsWall();
     if (typeof renderBehaviorTilesConfig === 'function') renderBehaviorTilesConfig();
+    if (typeof renderSubKidPickers === 'function') renderSubKidPickers();
     // Re-fire header title if currently on a kid page
     if (typeof mbGoTo === 'function' && currentView !== 'leaderboard') mbGoTo(currentView);
   }
+
+  // Render the kid-switcher chip rows shown at the top of sub-views (Meal Log, Trophies)
+  function renderSubKidPickers() {
+    const kids = (window.mb && window.mb.state && window.mb.state.kids) || [];
+    const curId = window.mb && window.mb.state && window.mb.state.currentKidId;
+    document.querySelectorAll('.sub-kidpick').forEach(host => {
+      if (kids.length <= 1) { host.style.display = 'none'; return; }
+      host.style.display = '';
+      let html = '<span class="sub-kidpick-lbl">Viewing</span>';
+      html += kids.map(k =>
+        '<button class="sub-kidpick-chip' + (k.id === curId ? ' active' : '') + '" data-kpid="' + k.id + '">' +
+          '<span style="font-size:18px;">' + (k.buddy || '🦖') + '</span>' +
+          '<span>' + (k.name || '') + '</span>' +
+        '</button>'
+      ).join('');
+      host.innerHTML = html;
+      host.querySelectorAll('[data-kpid]').forEach(btn => {
+        btn.addEventListener('click', () => { mbSetKid(btn.dataset.kpid); });
+      });
+    });
+  }
+  window.addEventListener('mb-kids-changed', () => { if (typeof renderSubKidPickers === 'function') renderSubKidPickers(); });
   // Backwards-compat aliases on window.mb if available
   function attachMbAliases() {
     if (window.mb) {
@@ -5543,6 +5556,7 @@
       renderRewLevelPicker();
       renderRewList();
       renderRespTabChores();
+      renderSubKidPickers();
     }
   }, 200);
   // Belt-and-suspenders: also try a couple more times in case subscription is slow
