@@ -1996,8 +1996,8 @@
       <h1 id="app-title">MightyBites</h1>
       <p id="app-sub" style="margin:0; font-size:12px; opacity:.55;">Tap a kid below to open their dashboard.</p>
     </div>
-    <div class="header-family" id="header-family" style="display: none;" title="Tap to leave or switch family">
-      <div class="hf-lbl">Family code <span style="opacity:0.4;">▾</span></div>
+    <div class="header-family" id="header-family" style="display: none;" title="Your family code">
+      <div class="hf-lbl">Family code</div>
       <div class="hf-code" id="hf-code">—</div>
     </div>
     <button class="app-gear" id="app-gear" title="Settings">⚙️</button>
@@ -4508,22 +4508,35 @@
       }
     });
   })();
-  // Leave-family handler: tap header family code pill to leave/switch
+  // Family pill is now read-only. To leave/switch family, hold the pill for 2 seconds.
   (function() {
     const pill = document.getElementById('header-family');
     if (!pill) return;
-    pill.addEventListener('click', () => {
-      const code = localStorage.getItem('mb_familyCode') || '?';
-      if (confirm('Leave family ' + code + '?\n\nYou can rejoin with the code, or create a new family. Your kids and data stay safe in the cloud.')) {
-        try {
-          localStorage.removeItem('mb_familyId');
-          localStorage.removeItem('mb_familyCode');
-          localStorage.removeItem('mb_familyName');
-          localStorage.removeItem('mb_currentKidId');
-        } catch(e) {}
-        // Hard reload to clean state
-        location.reload();
-      }
+    let pressTimer = null;
+    const startPress = (e) => {
+      pressTimer = setTimeout(() => {
+        const code = localStorage.getItem('mb_familyCode') || '?';
+        if (confirm('Leave family ' + code + '?\n\nThis is the only way to switch to a different family. Your kids and data stay safe in the cloud — you can rejoin with this code anytime.')) {
+          try {
+            localStorage.removeItem('mb_familyId');
+            localStorage.removeItem('mb_familyCode');
+            localStorage.removeItem('mb_familyName');
+            localStorage.removeItem('mb_currentKidId');
+          } catch(e) {}
+          location.reload();
+        }
+      }, 2000);
+    };
+    const cancelPress = () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } };
+    pill.addEventListener('mousedown', startPress);
+    pill.addEventListener('touchstart', startPress, { passive: true });
+    pill.addEventListener('mouseup', cancelPress);
+    pill.addEventListener('mouseleave', cancelPress);
+    pill.addEventListener('touchend', cancelPress);
+    pill.addEventListener('touchcancel', cancelPress);
+    pill.title = 'Hold 2 seconds to leave/switch family';
+    // No-op click — prevents accidental tap from doing anything
+    pill.addEventListener('click', (e) => { e.preventDefault(); });
     });
   })();
 
