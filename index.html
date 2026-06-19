@@ -130,6 +130,10 @@
     -webkit-overflow-scrolling: touch;
   }
   .stage { max-width: 1280px; margin: 0 auto; padding: 16px; }
+  .app-back { background: #fff; border: 1px solid var(--line, #eadfd1); padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 800; color: var(--ink, #2a2440); cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+  .app-back:hover { background: var(--sun-2, #fef0c8); }
+  .app-gear { background: #fff; border: 1px solid var(--line, #eadfd1); width: 40px; height: 40px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+  .app-gear:hover { background: var(--sun-2, #fef0c8); }
   .header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
   .logo { width: 44px; height: 44px; border-radius: 12px; background: var(--berry); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 22px; box-shadow: var(--shadow); }
   .header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
@@ -1980,19 +1984,21 @@
 </div>
 
 <div class="stage" id="mb-app" style="display: none;">
-  <div class="header">
+  <div class="header" id="app-header">
+    <button class="app-back" id="app-back" style="display:none;">← Back</button>
     <div class="logo">M</div>
-    <div style="flex: 1;">
-      <h1>MightyBites</h1>
-      <p>Tap a tab to switch screens. Designed for iPad landscape.</p>
+    <div style="flex: 1; min-width: 0;">
+      <h1 id="app-title">MightyBites</h1>
+      <p id="app-sub" style="margin:0; font-size:12px; opacity:.55;">Tap a kid below to open their dashboard.</p>
     </div>
     <div class="header-family" id="header-family" style="display: none;" title="Tap to leave or switch family">
       <div class="hf-lbl">Family code <span style="opacity:0.4;">▾</span></div>
       <div class="hf-code" id="hf-code">—</div>
     </div>
+    <button class="app-gear" id="app-gear" title="Settings">⚙️</button>
   </div>
 
-  <div class="tabs">
+  <div class="tabs" style="display:none;">
     <button class="tab active" data-view="leaderboard">Home</button>
     <button class="tab" data-view="characters">Choose Buddy</button>
     <button class="tab" data-view="profile">Profile</button>
@@ -2011,7 +2017,7 @@
       <div class="view" id="view-profile">
         <div class="profile">
           <div class="profile-top">
-            <div class="pf-back"><div class="av">←</div><span>Switch kid</span></div>
+            <div class="pf-back" id="pf-back" style="cursor:pointer;"><div class="av">←</div><span>Switch kid</span></div>
             <div class="pf-meta">
               <div class="pf-streak"><span style="font-size:18px;">🔥</span> 6-day streak</div>
               <div class="pf-trust" id="pf-trust-pill">⭐ <b>L1</b> Helper</div>
@@ -2147,9 +2153,9 @@
           </div>
 
           <div class="pf-actions">
-            <button class="pf-act alt">🍽️ Log a meal</button>
-            <button class="pf-act">⭐ Log a chore</button>
-            <button class="pf-act ghost">📊 See my week</button>
+            <button class="pf-act alt" id="pf-act-meal">🍽️ Log a meal</button>
+            <button class="pf-act" id="pf-act-chore">⭐ Responsibilities</button>
+            <button class="pf-act ghost" id="pf-act-trophies">🏆 Trophies & buddy</button>
           </div>
         </div>
       </div>
@@ -4247,10 +4253,36 @@
           '</div>' +
           '<div class="lb-tap">' +
             '<div class="lb-xp">' + xp + '<span>this week</span></div>' +
-            '<button class="lb-log-btn">Log dinner →</button>' +
+            '<button class="lb-log-btn" data-log-kid="' + k.id + '">Log dinner →</button>' +
           '</div>' +
         '</div>';
       }).join('');
+      // Wire row clicks → open dashboard for that kid; button stops propagation and goes to meal log
+      list.querySelectorAll('.lb-row').forEach(row => {
+        row.addEventListener('click', (e) => {
+          if (e.target.closest('.lb-log-btn')) return; // handled separately
+          const kid = row.dataset.kidId;
+          if (kid) { mbSetKid(kid); mbGoTo('profile'); }
+        });
+      });
+      list.querySelectorAll('.lb-log-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const kid = btn.dataset.logKid;
+          if (kid) { mbSetKid(kid); mbGoTo('meal'); }
+        });
+      });
+    }
+    // Also wire podium kid clicks
+    const podiumHost = document.getElementById('lb-podium');
+    if (podiumHost) {
+      podiumHost.querySelectorAll('.pod-bar').forEach((bar, idx) => {
+        const ordered = [sorted[1], sorted[0], sorted[2]];
+        const k = ordered[idx];
+        if (!k) return;
+        bar.style.cursor = 'pointer';
+        bar.addEventListener('click', () => { mbSetKid(k.id); mbGoTo('profile'); });
+      });
     }
   }
   function renderProfile() {
@@ -4268,14 +4300,57 @@
     if (back) back.textContent = window.mb.state.kids.length > 1 ? 'Switch kid' : kid.name;
   }
   // Top-level helpers (defined regardless of whether window.mb exists yet)
+  const VIEW_BACK_TARGETS = {
+    profile:    'leaderboard',
+    meal:       'profile',
+    chores:     'profile',
+    trophies:   'profile',
+    characters: 'profile',
+    settings:   'leaderboard',
+    kid:        'leaderboard',
+    parent:     'leaderboard'
+  };
+  const VIEW_TITLES = {
+    leaderboard: { t: 'MightyBites', s: 'Tap a kid below to open their dashboard.' },
+    profile:     { t: '', s: '' }, // dynamic — current kid name
+    meal:        { t: '', s: 'Log a meal' },
+    chores:      { t: '', s: 'Responsibilities' },
+    trophies:    { t: '', s: 'Trophies & buddy' },
+    characters:  { t: '', s: 'Pick a buddy' },
+    settings:    { t: '⚙️ Settings', s: 'Parent zone' },
+    kid:         { t: '📊 Recap', s: 'Kid view' },
+    parent:      { t: '📊 Recap', s: 'Parent view' }
+  };
+  let currentView = 'leaderboard';
   function mbGoTo(view) {
+    currentView = view;
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
     document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
     const tab = document.querySelector('[data-view="'+view+'"]');
     const v = document.getElementById('view-'+view);
     if (tab) tab.classList.add('active');
     if (v) v.classList.add('active');
+    // Header updates
+    const back = document.getElementById('app-back');
+    const title = document.getElementById('app-title');
+    const sub = document.getElementById('app-sub');
+    const meta = VIEW_TITLES[view] || { t: '', s: '' };
+    const kid = window.mb && window.mb.state && (window.mb.state.kids || []).find(k => k.id === window.mb.state.currentKidId);
+    let titleTxt = meta.t;
+    let subTxt = meta.s;
+    if (view === 'profile' && kid) { titleTxt = (kid.buddy || '🦖') + ' ' + kid.name; subTxt = 'Dashboard · age ' + (kid.age || '?'); }
+    else if (kid && view !== 'leaderboard' && view !== 'settings') { titleTxt = (kid.buddy || '🦖') + ' ' + kid.name; }
+    if (title) title.textContent = titleTxt || 'MightyBites';
+    if (sub) sub.textContent = subTxt || '';
+    if (back) back.style.display = (view === 'leaderboard') ? 'none' : '';
+    // Scroll up
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+  // Header back button + gear icon
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#app-back')) { mbGoTo(VIEW_BACK_TARGETS[currentView] || 'leaderboard'); return; }
+    if (e.target.closest('#app-gear')) { mbGoTo('settings'); return; }
+  });
   function mbSetKid(kidId) {
     if (!window.mb || !window.mb.state) return;
     window.mb.state.currentKidId = kidId;
@@ -4287,6 +4362,14 @@
     renderMealLog();
     if (typeof renderProfileStats === 'function') renderProfileStats();
     if (typeof renderBehaviorTiles === 'function') renderBehaviorTiles();
+    if (typeof renderRespTabChores === 'function') renderRespTabChores();
+    if (typeof renderTrophies === 'function') renderTrophies();
+    if (typeof renderNewUnlocks === 'function') renderNewUnlocks();
+    if (typeof renderCosGrid === 'function') renderCosGrid();
+    if (typeof renderChampionsWall === 'function') renderChampionsWall();
+    if (typeof renderBehaviorTilesConfig === 'function') renderBehaviorTilesConfig();
+    // Re-fire header title if currently on a kid page
+    if (typeof mbGoTo === 'function' && currentView !== 'leaderboard') mbGoTo(currentView);
   }
   // Backwards-compat aliases on window.mb if available
   function attachMbAliases() {
@@ -5431,6 +5514,12 @@
   window.addEventListener('mb-day-changed', () => renderResponsibility());
   window.addEventListener('mb-week-changed', () => renderResponsibility());
   window.addEventListener('mb-kids-changed', () => renderResponsibility());
+
+  // Dashboard action wiring
+  document.getElementById('pf-back')?.addEventListener('click', () => mbGoTo('leaderboard'));
+  document.getElementById('pf-act-meal')?.addEventListener('click', () => mbGoTo('meal'));
+  document.getElementById('pf-act-chore')?.addEventListener('click', () => mbGoTo('chores'));
+  document.getElementById('pf-act-trophies')?.addEventListener('click', () => mbGoTo('trophies'));
 
   setTimeout(() => {
     if (window.mb && window.mb.state) {
