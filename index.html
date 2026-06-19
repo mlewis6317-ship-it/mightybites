@@ -2324,17 +2324,13 @@
               </div>
             </div>
 
-            <div class="ml-needs">
+            <div class="ml-needs" id="ml-needs">
               <div class="ml-needs-ava">
                 <div class="ava-shell" id="ml-needs-buddy" style="width:56px;height:56px;font-size:36px;">🦖</div>
               </div>
               <div class="ml-needs-body">
                 <div class="ml-needs-eyebrow">Your <span class="buddy-name-lc">buddy</span> is asking for…</div>
-                <div class="ml-needs-list">
-                  <div class="needs-tag urgent"><span class="em">🥦</span> Veggies <b>+25</b></div>
-                  <div class="needs-tag deficit"><span class="em">🍗</span> Protein <b>+15</b></div>
-                  <div class="needs-tag good"><span class="em">🥛</span> Dairy <b>+10</b></div>
-                </div>
+                <div class="ml-needs-list" id="ml-needs-list"></div>
               </div>
             </div>
 
@@ -2367,8 +2363,12 @@
             <button class="feed-btn" id="feed-btn"><span class="em">🍽️</span> Feed your <span class="buddy-name-lc">buddy</span> · <span id="feed-xp">+60 XP</span></button>
           </div>
 
-          <!-- RIGHT COLUMN: mealtime expectations & bonuses -->
+          <!-- RIGHT COLUMN: daily plate rings + mealtime expectations & bonuses -->
           <div class="mlog-right">
+            <div class="pf-rings" id="ml-rings-box" style="margin-bottom: 14px;">
+              <h4>Today's plate <span class="sub" id="ml-rings-sub">· daily targets</span></h4>
+              <div class="ring-grid" id="ml-ring-grid"></div>
+            </div>
             <div class="bb-section-lbl">📋 Mealtime expectations &amp; bonuses</div>
             <div class="behavior-bonuses">
               <div class="bb-tile expectation" id="bb-seated" data-state="met">
@@ -4639,10 +4639,14 @@
   window.addEventListener('mb-kids-changed', () => { renderSettingsMembers(); renderMealLog(); });
 
   // ============ Phase 2C: Profile reflects real data ============
+  // Daily serving targets per age, based on USDA MyPlate Kids (myplate.gov/life-stages/kids).
+  // Each "serving" approximately = 1 cup (fruit/veg/dairy) or 1 oz-equivalent (grain/protein).
+  // Treats: not in MyPlate; we cap at 2/day per common pediatric guidance.
   function dailyTargets(age) {
-    if (age <= 5) return { dairy: 2, protein: 2, grains: 3, fruit: 1, veggies: 1, treats: 2 };
-    if (age <= 9) return { dairy: 3, protein: 2, grains: 5, fruit: 2, veggies: 2, treats: 2 };
-    return { dairy: 3, protein: 3, grains: 6, fruit: 2, veggies: 3, treats: 2 };
+    if (age <= 3) return { dairy: 2, protein: 2, grains: 3, fruit: 1, veggies: 1, treats: 2 };
+    if (age <= 8) return { dairy: 2, protein: 4, grains: 5, fruit: 1, veggies: 2, treats: 2 };
+    if (age <= 13) return { dairy: 3, protein: 5, grains: 6, fruit: 2, veggies: 3, treats: 2 };
+    return { dairy: 3, protein: 6, grains: 7, fruit: 2, veggies: 3, treats: 2 };
   }
   function startOfWeekISO() {
     const d = new Date();
@@ -4650,6 +4654,97 @@
     d.setDate(d.getDate() - (day - 1));
     return d.toISOString().slice(0, 10);
   }
+
+  // Color per food group for the rings (matches Profile)
+  const GROUP_RING_COLOR = { dairy:'#5BB8FF', protein:'#E84A6F', grains:'#BA7517', fruit:'#FF6F61', veggies:'#6CC36A', treats:'#E0A800' };
+
+  // Today's group counts for the current kid (non-skipped logs on today's date)
+  function todaysGroupCounts() {
+    const today = window.mb && window.mb.today ? window.mb.today() : '';
+    const meals = (window.mb && window.mb.state && window.mb.state.meals) || [];
+    const c = { dairy:0, protein:0, grains:0, fruit:0, veggies:0, treats:0 };
+    meals.forEach(m => {
+      if (m.day === today && m.amount && m.amount !== 'skipped' && c.hasOwnProperty(m.group)) {
+        c[m.group] += 1;
+      }
+    });
+    return c;
+  }
+
+  // Render the meal-log ring grid (mirrors profile rings, but in the right column)
+  function renderMealRings() {
+    const host = document.getElementById('ml-ring-grid');
+    if (!host) return;
+    const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    const sub = document.getElementById('ml-rings-sub');
+    if (!kid) { host.innerHTML = ''; if (sub) sub.textContent = ''; return; }
+    if (sub) sub.textContent = '· age ' + (kid.age || '?') + ' daily targets (USDA MyPlate)';
+    const targets = dailyTargets(kid.age || 5);
+    const counts = todaysGroupCounts();
+    host.innerHTML = ['dairy','protein','grains','fruit','veggies','treats'].map(g => {
+      const tgt = targets[g] || 0;
+      const cur = counts[g] || 0;
+      const pct = tgt > 0 ? Math.min(1, cur / tgt) : 0;
+      const dashLen = Math.round(pct * 138);
+      const stroke = GROUP_RING_COLOR[g];
+      const cls = ['ring-cell'];
+      if (g === 'treats' && cur > tgt) cls.push('junk');
+      else if (g !== 'treats' && cur === 0) cls.push('alert');
+      const em = { dairy:'🥛', protein:'🍗', grains:'🍞', fruit:'🍎', veggies:'🥦', treats:'🍩' }[g];
+      const nm = { dairy:'Dairy', protein:'Protein', grains:'Grains', fruit:'Fruit', veggies:'Veggies', treats:'Treats' }[g];
+      return '<div class="' + cls.join(' ') + '">' +
+        '<div class="ring-wrap">' +
+          '<svg class="ring-svg" viewBox="0 0 56 56">' +
+            '<circle class="ring-bg" cx="28" cy="28" r="22"></circle>' +
+            '<circle class="ring-fg" cx="28" cy="28" r="22" stroke="' + stroke + '" stroke-dasharray="' + dashLen + ' 138" />' +
+          '</svg>' +
+          '<span class="ico">' + em + '</span>' +
+        '</div>' +
+        '<div class="nm">' + nm + '</div>' +
+        '<div class="pr">' + cur + '/' + tgt + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // Render the "your buddy is asking for…" needs banner (real, based on today's deficit)
+  // Hides itself if nothing meaningful to display.
+  function renderMealNeeds() {
+    const section = document.getElementById('ml-needs');
+    const list = document.getElementById('ml-needs-list');
+    if (!section || !list) return;
+    const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    if (!kid) { section.style.display = 'none'; return; }
+    const targets = dailyTargets(kid.age || 5);
+    const counts = todaysGroupCounts();
+    // Compute deficits for the 5 healthy groups
+    const healthy = ['veggies','protein','dairy','fruit','grains'];
+    const baseXP = { dairy: 20, protein: 25, grains: 15, fruit: 15, veggies: 25 };
+    const deficits = healthy.map(g => ({
+      group: g,
+      deficit: Math.max(0, (targets[g] || 0) - (counts[g] || 0)),
+      xp: baseXP[g] || 15
+    })).filter(d => d.deficit > 0)
+       .sort((a, b) => b.deficit - a.deficit);
+
+    const items = [];
+    deficits.slice(0, 3).forEach((d, i) => {
+      const cls = i === 0 ? 'urgent' : (i === 1 ? 'deficit' : 'good');
+      const em = { dairy:'🥛', protein:'🍗', grains:'🍞', fruit:'🍎', veggies:'🥦' }[d.group];
+      const nm = { dairy:'Dairy', protein:'Protein', grains:'Grains', fruit:'Fruit', veggies:'Veggies' }[d.group];
+      items.push('<div class="needs-tag ' + cls + '"><span class="em">' + em + '</span> ' + nm + ' <b>+' + d.xp + '</b></div>');
+    });
+    // Treat overflow → suggest skipping
+    if ((counts.treats || 0) >= (targets.treats || 0) + 1) {
+      items.push('<div class="needs-tag good"><span class="em">🍩</span> Skip treats <b>+5</b></div>');
+    }
+    if (!items.length) { section.style.display = 'none'; return; }
+    section.style.display = '';
+    list.innerHTML = items.join('');
+  }
+
+  window.addEventListener('mb-meals-changed', () => { renderMealRings(); renderMealNeeds(); });
+  window.addEventListener('mb-kids-changed', () => { renderMealRings(); renderMealNeeds(); });
+  // Also re-render on each mbGoTo so the latest data is visible on entry
   function hoursSinceTs(ts) {
     if (!ts || !ts.seconds) return Infinity;
     const ms = Date.now() - (ts.seconds * 1000);
@@ -5691,6 +5786,8 @@
       renderRewList();
       renderRespTabChores();
       renderSubKidPickers();
+      renderMealRings();
+      renderMealNeeds();
     }
   }, 200);
   // Belt-and-suspenders: also try a couple more times in case subscription is slow
