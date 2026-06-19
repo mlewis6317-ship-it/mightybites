@@ -3273,7 +3273,8 @@
     }
   }
   // Demo button: reset the gate so we can re-fire for showcase purposes
-  document.getElementById('demo-goal').addEventListener('click', () => {
+  // (DOM removed in Phase 2J; keep a guard so the script doesn't break)
+  document.getElementById('demo-goal')?.addEventListener('click', () => {
     goalCelebratedToday = false;
     triggerGoalDance();
   });
