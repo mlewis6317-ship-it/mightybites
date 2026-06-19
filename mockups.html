@@ -380,7 +380,7 @@
   .pick-cta { background: var(--berry); color: white; border: none; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; }
 
   /* ============ MEAL LOG ============ */
-  .mlog { padding: 22px 28px; background: linear-gradient(180deg, #FFF6E5 0%, #FFE3C2 100%); display: flex; flex-direction: column; gap: 14px; max-width: 720px; margin: 0 auto; width: 100%; }
+  .mlog { padding: 22px 28px; background: linear-gradient(180deg, #FFF6E5 0%, #FFE3C2 100%); display: grid; grid-template-columns: 1.05fr 1fr; gap: 18px; align-items: start; }
   .mlog-left { display: flex; flex-direction: column; gap: 12px; }
   .mlog-head { display: flex; justify-content: space-between; align-items: center; }
   .mlog-title { font-size: 26px; font-weight: 900; margin: 0; letter-spacing: -0.5px; }
@@ -2183,7 +2183,6 @@
               <h2 class="lb-title">🏆 Family Leaderboard</h2>
               <p class="lb-sub">Tap a kid's tile to open their dashboard.</p>
             </div>
-            <button id="lb-settings-btn" style="background: #fff; border: 1.5px solid var(--line, #eadfd1); border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 800; color: var(--ink, #2a2440); cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.04);">⚙️ Settings</button>
           </div>
 
 <div class="podium" id="lb-podium"></div>
@@ -2311,21 +2310,23 @@
 
       <!-- ============ MEAL LOG ============ -->
       <div class="view" id="view-meal">
+        <div style="grid-column: 1 / -1; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:8px;">
+          <button class="app-back" id="meal-back-btn">← Home</button>
+          <div class="switch-kid" id="meal-switch-kid"></div>
+        </div>
         <div class="mlog">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
-            <button class="app-back" id="meal-back-btn">← Home</button>
-            <div class="switch-kid" id="meal-switch-kid"></div>
-          </div>
-          <div class="mlog-head">
-            <div>
-              <h2 class="mlog-title" id="mlog-title">Today's food, <span id="mlog-kid-name">friend</span>!</h2>
-              <div class="mlog-sub" id="mlog-sub">Tap a food group, pick an amount, then feed your buddy.</div>
+          <!-- LEFT COLUMN: needs → avatar → food groups → amount → feed button -->
+          <div class="mlog-left">
+            <div class="mlog-head">
+              <div>
+                <h2 class="mlog-title" id="mlog-title">Today's food, <span id="mlog-kid-name">friend</span>!</h2>
+                <div class="mlog-sub" id="mlog-sub">Tap a food group, pick an amount, then feed your buddy.</div>
+              </div>
             </div>
-          </div>
 
             <div class="ml-needs">
               <div class="ml-needs-ava">
-                <div class="ava-shell" id="ml-needs-buddy" style="width:64px;height:64px;font-size:42px;">🦖</div>
+                <div class="ava-shell" id="ml-needs-buddy" style="width:56px;height:56px;font-size:36px;">🦖</div>
               </div>
               <div class="ml-needs-body">
                 <div class="ml-needs-eyebrow">Your <span class="buddy-name-lc">buddy</span> is asking for…</div>
@@ -2364,8 +2365,11 @@
               <div class="ml-amount sel bonus" data-amt="finished"><span class="em">🏆</span><span class="nm">Finished!</span><span class="xp-tag">+60</span></div>
             </div>
             <button class="feed-btn" id="feed-btn"><span class="em">🍽️</span> Feed your <span class="buddy-name-lc">buddy</span> · <span id="feed-xp">+60 XP</span></button>
+          </div>
 
-            <div class="bb-section-lbl" style="margin-top: 6px;">📋 Mealtime expectations &amp; bonuses</div>
+          <!-- RIGHT COLUMN: mealtime expectations & bonuses -->
+          <div class="mlog-right">
+            <div class="bb-section-lbl">📋 Mealtime expectations &amp; bonuses</div>
             <div class="behavior-bonuses">
               <div class="bb-tile expectation" id="bb-seated" data-state="met">
                 <span class="bb-em">🪑</span>
@@ -5632,10 +5636,7 @@
   // Dashboard action wiring
   document.getElementById('pf-back')?.addEventListener('click', () => mbGoTo('leaderboard'));
   document.getElementById('meal-back-btn')?.addEventListener('click', () => mbGoTo('leaderboard'));
-  document.getElementById('lb-settings-btn')?.addEventListener('click', () => {
-    try { mbGoTo('settings'); }
-    catch (e) { alert('Settings open failed: ' + (e.message || e)); }
-  });
+  // (Leaderboard Settings pill removed — use the header gear icon instead.)
   document.getElementById('pf-act-meal')?.addEventListener('click', () => mbGoTo('meal'));
 
   // Settings: Family management buttons
