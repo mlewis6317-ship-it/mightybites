@@ -2317,10 +2317,14 @@
         <div class="mlog">
           <!-- LEFT COLUMN: needs → avatar → food groups → amount → feed button -->
           <div class="mlog-left">
-            <div class="mlog-head">
+            <div class="mlog-head" style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
               <div>
                 <h2 class="mlog-title" id="mlog-title">Today's food, <span id="mlog-kid-name">friend</span>!</h2>
                 <div class="mlog-sub" id="mlog-sub">Tap a food group, pick an amount, then feed your buddy.</div>
+              </div>
+              <div id="mlog-today-points" style="background: linear-gradient(135deg, #d9477b, #ff8a5c); color:#fff; padding:8px 14px; border-radius:14px; text-align:center; box-shadow:0 4px 10px rgba(217,71,123,.25); flex-shrink:0;">
+                <div style="font-size:22px; font-weight:900; line-height:1;" id="mlog-today-xp">0</div>
+                <div style="font-size:10px; font-weight:800; opacity:.9; letter-spacing:.5px; text-transform:uppercase; margin-top:2px;">XP today</div>
               </div>
             </div>
 
@@ -3864,40 +3868,31 @@
   window.addEventListener('mb-day-changed', () => renderBehaviorTiles());
   window.addEventListener('mb-kid-changed', () => renderBehaviorTilesConfig());
 
-  // Animate the big feed avatar + status text based on food group + amount
+  // Quick reaction when the user just fed the buddy. Pulses then settles back to steady mood.
   function reactToFood(group, amt, xp) {
     const ava = document.getElementById('feed-avatar');
     const status = document.getElementById('feed-status');
     if (!ava || !status) return;
-    ava.classList.remove('strong','weak','queasy','sick');
-    let cls = '', txt = '';
+    let txt = '';
     if (group === 'treats' && (amt === 'finished' || amt === 'half')) {
-      cls = 'queasy';
-      txt = '🍩 Whoa — that\'s sweet! Your buddy looks a bit queasy.';
+      txt = '🍩 Treat logged — +' + xp + ' XP.';
     } else if (amt === 'skipped' && group !== 'treats') {
-      cls = 'weak';
-      txt = '😔 Skipped ' + group + '… your buddy feels weak.';
+      txt = '🚫 Skipped ' + group + ' — 0 XP.';
     } else if (amt === 'finished') {
-      cls = 'strong';
-      txt = '💪 Powered up with ' + group + '! +' + xp + ' XP — looking strong!';
+      txt = '💪 Finished ' + group + '! +' + xp + ' XP.';
     } else if (amt === 'half') {
-      cls = '';
-      txt = '🙂 Halfway done — +' + xp + ' XP. Keep going!';
+      txt = '🙂 Halfway through ' + group + ' — +' + xp + ' XP.';
     } else if (amt === 'tried') {
-      cls = '';
       txt = '👅 Tried ' + group + ' — +' + xp + ' XP for being brave!';
-    } else {
-      cls = '';
-      txt = 'Pick a food group to feed your buddy!';
     }
-    if (cls) ava.classList.add(cls);
-    status.textContent = txt;
-    // Quick pulse animation
+    if (txt) status.textContent = txt;
     ava.animate([
       { transform: 'scale(1)' },
       { transform: 'scale(1.08)' },
       { transform: 'scale(1)' }
     ], { duration: 380, easing: 'ease-out' });
+    // After the pulse, recompute the steady-state mood + context (which will reflect the new log)
+    setTimeout(() => { if (typeof renderBuddyMood === 'function') renderBuddyMood(); }, 1400);
   }
   window.mbReactToFood = reactToFood;
 
@@ -4742,8 +4737,74 @@
     list.innerHTML = items.join('');
   }
 
-  window.addEventListener('mb-meals-changed', () => { renderMealRings(); renderMealNeeds(); });
-  window.addEventListener('mb-kids-changed', () => { renderMealRings(); renderMealNeeds(); });
+  // ============ Buddy mood + daily points (Phase 2M) ============
+  // Compute today's mood based on real progress vs USDA targets + treat overage.
+  // Returns { mood, context } where mood ∈ {strong, weak, queasy, sick, normal} and context is a short message.
+  function computeTodayMood(kid, counts, targets) {
+    if (!kid) return { mood: 'normal', context: '' };
+    const healthy = ['dairy','protein','grains','fruit','veggies'];
+    const totalHealthyTarget = healthy.reduce((s, g) => s + (targets[g] || 0), 0);
+    const totalHealthyCurrent = healthy.reduce((s, g) => s + Math.min(counts[g] || 0, targets[g] || 0), 0);
+    const healthyRatio = totalHealthyTarget > 0 ? totalHealthyCurrent / totalHealthyTarget : 0;
+    const treats = counts.treats || 0;
+    const treatLimit = targets.treats || 2;
+    const groupsAtTarget = healthy.filter(g => (counts[g] || 0) >= (targets[g] || 0)).length;
+    const groupsLogged = healthy.filter(g => (counts[g] || 0) > 0).length;
+
+    // SICK: way over treats + barely any healthy food
+    if (treats >= 3 && healthyRatio < 0.4) {
+      return { mood: 'sick', context: '🤢 ' + treats + ' treats and barely any real food — your buddy is sick. Log some veggies or protein to feel better!' };
+    }
+    // QUEASY: too many treats
+    if (treats > treatLimit) {
+      return { mood: 'queasy', context: '🍩 ' + treats + ' treats today (over the ' + treatLimit + '/day cap) — your buddy feels queasy.' };
+    }
+    // WEAK: very little real food
+    if (healthyRatio < 0.15 && groupsLogged < 2) {
+      return { mood: 'weak', context: '😔 Hardly anything logged today — your buddy is feeling weak. Tap any food group to feed them!' };
+    }
+    // STRONG: great progress
+    if (healthyRatio >= 0.7 || groupsAtTarget >= 4) {
+      const groupsName = groupsAtTarget >= 5 ? 'all 5 food groups!' : (groupsAtTarget + ' of 5 groups complete');
+      return { mood: 'strong', context: '💪 ' + groupsName + ' — your buddy is feeling STRONG today!' };
+    }
+    // Normal/happy: making progress
+    if (groupsLogged > 0) {
+      return { mood: 'normal', context: '😊 ' + groupsLogged + ' food group' + (groupsLogged === 1 ? '' : 's') + ' logged · ' + Math.round(healthyRatio * 100) + '% toward today\'s plate. Keep going!' };
+    }
+    return { mood: 'normal', context: 'Tap a food group to feed your buddy and watch their mood change!' };
+  }
+
+  // Compute today's total XP earned from meals
+  function todaysMealXP() {
+    const today = window.mb && window.mb.today ? window.mb.today() : '';
+    const meals = (window.mb && window.mb.state && window.mb.state.meals) || [];
+    let xp = 0;
+    meals.forEach(m => {
+      if (m.day !== today) return;
+      if (typeof m.xpEarned === 'number') xp += m.xpEarned;
+    });
+    return xp;
+  }
+
+  // Update the big avatar mood + status + daily XP badge based on real today's data
+  function renderBuddyMood() {
+    const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    const ava = document.getElementById('feed-avatar');
+    const status = document.getElementById('feed-status');
+    const xpEl = document.getElementById('mlog-today-xp');
+    if (xpEl) xpEl.textContent = todaysMealXP().toLocaleString();
+    if (!kid || !ava || !status) return;
+    const targets = dailyTargets(kid.age || 5);
+    const counts = todaysGroupCounts();
+    const { mood, context } = computeTodayMood(kid, counts, targets);
+    ava.classList.remove('strong','weak','queasy','sick');
+    if (mood !== 'normal') ava.classList.add(mood);
+    status.textContent = context || 'Pick a food group to feed your buddy!';
+  }
+
+  window.addEventListener('mb-meals-changed', () => { renderMealRings(); renderMealNeeds(); renderBuddyMood(); });
+  window.addEventListener('mb-kids-changed', () => { renderMealRings(); renderMealNeeds(); renderBuddyMood(); });
   // Also re-render on each mbGoTo so the latest data is visible on entry
   function hoursSinceTs(ts) {
     if (!ts || !ts.seconds) return Infinity;
@@ -5788,6 +5849,7 @@
       renderSubKidPickers();
       renderMealRings();
       renderMealNeeds();
+      renderBuddyMood();
     }
   }, 200);
   // Belt-and-suspenders: also try a couple more times in case subscription is slow
