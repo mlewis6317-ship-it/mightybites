@@ -2040,22 +2040,6 @@
                 <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
               </div>
             </div>
-            <div class="wg-right">
-              <div class="wg-delta">
-                <div class="wg-delta-arrow">↑</div>
-                <div>
-                  <div class="wg-delta-num">+85</div>
-                  <div class="wg-delta-lbl">vs last week</div>
-                </div>
-              </div>
-              <div class="wg-spark">
-                <div class="spark-bar" style="height: 30%;" title="Wk -3"></div>
-                <div class="spark-bar" style="height: 48%;" title="Wk -2"></div>
-                <div class="spark-bar" style="height: 65%;" title="Last wk"></div>
-                <div class="spark-bar now" style="height: 77%;" title="This wk"></div>
-              </div>
-              <div class="wg-spark-lbl">last 4 weeks</div>
-            </div>
           </div>
 
           <div class="pf-stage">
@@ -2161,6 +2145,20 @@
             <button class="pf-act alt" id="pf-act-meal">🍽️ Log a meal</button>
             <button class="pf-act" id="pf-act-chore">⭐ Responsibilities</button>
             <button class="pf-act ghost" id="pf-act-trophies">🏆 Trophies & buddy</button>
+          </div>
+          <div class="scoring-card" id="pf-scoring-card" style="margin-top: 14px;">
+            <div class="sc-head">
+              <div class="sc-title">How points work</div>
+              <div class="sc-tag">Weekly goal: 700 pts</div>
+            </div>
+            <div class="sc-grid">
+              <div class="sc-row primary"><span class="sc-em">🥗</span><span class="sc-lbl">Healthy food groups · finished serving</span><span class="sc-val">+15 to +25 each</span></div>
+              <div class="sc-row"><span class="sc-em">👅</span><span class="sc-lbl">Tried it · half eaten</span><span class="sc-val">+3 to +12</span></div>
+              <div class="sc-row"><span class="sc-em">⭐</span><span class="sc-lbl">Chores &amp; responsibilities</span><span class="sc-val">+1 to +10 each</span></div>
+              <div class="sc-row"><span class="sc-em">🎯</span><span class="sc-lbl">Mealtime bonuses</span><span class="sc-val">customizable in Settings</span></div>
+              <div class="sc-row warn"><span class="sc-em">🍩</span><span class="sc-lbl">3rd treat in a day</span><span class="sc-val">−15 each</span></div>
+            </div>
+            <div class="sc-foot">Aim for 100 pts a day across all food groups + bonuses. Hit 700/week = champion week!</div>
           </div>
         </div>
       </div>
@@ -2338,7 +2336,28 @@
               <div class="grp-tile junk" data-grp="treats"><div class="grp-icon">🍩</div><div class="grp-info"><h4 class="grp-name">Treats</h4><div class="grp-progress"><div class="grp-progress-fill junk" style="width: 0%;"></div></div><div class="grp-meta">Tap to log</div></div></div>
             </div>
 
-            <div class="bb-section-lbl">📋 Mealtime expectations &amp; bonuses</div>
+          </div>
+
+          <div class="mlog-right">
+            <button class="app-back" id="meal-back-btn" style="align-self: flex-start; margin-bottom: 4px;">← Home</button>
+            <div class="feed-host" id="feed-host" style="background: linear-gradient(180deg, #FFF6E5 0%, #FFE9D6 100%); border-radius: 18px; padding: 18px 12px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+              <div class="ava-shell ava-3d" id="feed-avatar" style="width:220px;height:220px;font-size:140px;">🦖<div class="sweat">💧</div></div>
+              <div class="feed-burst" id="feed-burst"></div>
+              <div id="feed-status" style="text-align:center; font-weight:800; font-size:14px; line-height:1.35; color:var(--ink, #2a2440); min-height:32px;">Pick a food group to feed your buddy!</div>
+            </div>
+            <div>
+              <div class="ml-step-label" id="ml-meal-label">Pick a food group</div>
+              <h3 class="ml-q" id="ml-q">How much did you have?</h3>
+            </div>
+            <div class="ml-amounts" id="ml-amounts">
+              <div class="ml-amount skip" data-amt="skipped"><span class="em">🚫</span><span class="nm">Skipped</span><span class="xp-tag">0 XP</span></div>
+              <div class="ml-amount" data-amt="tried"><span class="em">👅</span><span class="nm">Tried it</span><span class="xp-tag">+10</span></div>
+              <div class="ml-amount" data-amt="half"><span class="em">🙂</span><span class="nm">Ate half</span><span class="xp-tag">+20</span></div>
+              <div class="ml-amount sel bonus" data-amt="finished"><span class="em">🏆</span><span class="nm">Finished!</span><span class="xp-tag">+60</span></div>
+            </div>
+            <button class="feed-btn" id="feed-btn"><span class="em">🍽️</span> Feed your <span class="buddy-name-lc">buddy</span> · <span id="feed-xp">+60 XP</span></button>
+
+            <div class="bb-section-lbl" style="margin-top: 6px;">📋 Mealtime expectations &amp; bonuses</div>
             <div class="behavior-bonuses">
               <div class="bb-tile expectation" id="bb-seated" data-state="met">
                 <span class="bb-em">🪑</span>
@@ -2349,7 +2368,6 @@
                 <div class="bb-xp neutral">expected</div>
                 <div class="bb-check"></div>
               </div>
-
               <div class="bb-tile bonus" id="bb-no-whining" data-state="unclaimed" data-pts="5">
                 <span class="bb-em">😊</span>
                 <div class="bb-info">
@@ -2359,7 +2377,6 @@
                 <div class="bb-xp">+5</div>
                 <div class="bb-check"></div>
               </div>
-
               <div class="bb-tile bonus" id="bb-cleanup" data-state="unclaimed" data-pts="10">
                 <span class="bb-em">🧹</span>
                 <div class="bb-info">
@@ -2369,7 +2386,6 @@
                 <div class="bb-xp">+10</div>
                 <div class="bb-check"></div>
               </div>
-
               <div class="bb-tile bonus" id="bb-new-food" data-state="unclaimed" data-pts="10">
                 <span class="bb-em">🌟</span>
                 <div class="bb-info">
@@ -2379,64 +2395,6 @@
                 <div class="bb-xp">+10</div>
                 <div class="bb-check"></div>
               </div>
-            </div>
-          </div>
-
-          <div class="mlog-right">
-            <div>
-              <div class="ml-step-label" id="ml-meal-label">Dinner · Veggies 🥦</div>
-              <h3 class="ml-q" id="ml-q">How much did you have?</h3>
-            </div>
-
-            <div class="ml-amounts" id="ml-amounts">
-              <div class="ml-amount skip" data-amt="skipped"><span class="em">🚫</span><span class="nm">Skipped</span><span class="xp-tag">0 XP</span></div>
-              <div class="ml-amount" data-amt="tried"><span class="em">👅</span><span class="nm">Tried it</span><span class="xp-tag">+10</span></div>
-              <div class="ml-amount" data-amt="half"><span class="em">🙂</span><span class="nm">Ate half</span><span class="xp-tag">+20</span></div>
-              <div class="ml-amount sel bonus" data-amt="finished"><span class="em">🏆</span><span class="nm">Finished!</span><span class="xp-tag">+60</span></div>
-            </div>
-
-            <button class="feed-btn" id="feed-btn"><span class="em">🍽️</span> Feed your <span class="buddy-name-lc">dino</span> · <span id="feed-xp">+60 XP</span></button>
-
-            <div class="feed-host" id="feed-host">
-              <div class="ava-shell" id="feed-avatar" style="width:120px;height:120px;font-size:74px;">🦖<div class="sweat">💧</div></div>
-              <div class="feed-burst" id="feed-burst"></div>
-            </div>
-
-            <div class="ml-react" id="ml-react">
-              <div class="av-mini" id="av-mini">🦖</div>
-              <div class="msg" id="ml-react-msg">
-                <span class="xp">+60 XP!</span> Veggies are deficit today — bonus! One more and I level up. 💪
-              </div>
-            </div>
-
-            <div>
-              <div class="editor-label" style="margin-bottom: 4px;">See how <span class="buddy-name-lc">dino</span> reacts</div>
-              <div class="demo-states" id="demo-states">
-                <div class="demo-state sel" data-mood="strong"><span class="dot healthy"></span>Strong</div>
-                <div class="demo-state" data-mood="weak"><span class="dot weak"></span>Weak</div>
-                <div class="demo-state" data-mood="queasy"><span class="dot queasy"></span>Queasy</div>
-                <div class="demo-state" data-mood="sick"><span class="dot sick"></span>Sick</div>
-                <div class="demo-state goal" id="demo-goal" style="background: var(--leaf); color: white; border-color: var(--leaf);">🕺 Goal hit! Dance</div>
-              </div>
-            </div>
-
-            <div class="scoring-card">
-              <div class="sc-head">
-                <div class="sc-title">How points work</div>
-                <div class="sc-tag">Weekly goal: 700 pts</div>
-              </div>
-              <div class="sc-grid">
-                <div class="sc-row primary">
-                  <span class="sc-em">🌙</span>
-                  <span class="sc-lbl">Dinner (the main quest)</span>
-                  <span class="sc-val">100 pts × 7 = <b>700</b></span>
-                </div>
-                <div class="sc-row"><span class="sc-em">🌅</span><span class="sc-lbl">Breakfast bonus</span><span class="sc-val">25 × 7 = +175</span></div>
-                <div class="sc-row"><span class="sc-em">☀️</span><span class="sc-lbl">Lunch bonus</span><span class="sc-val">25 × 7 = +175</span></div>
-                <div class="sc-row"><span class="sc-em">⭐</span><span class="sc-lbl">Chores</span><span class="sc-val">up to +140</span></div>
-                <div class="sc-row warn"><span class="sc-em">🍩</span><span class="sc-lbl">3rd treat / day</span><span class="sc-val">−15 each</span></div>
-              </div>
-              <div class="sc-foot">Eat dinner all 7 nights = full goal. Everything else is upside.</div>
             </div>
           </div>
         </div>
@@ -3049,7 +3007,7 @@
       if (amt === 'half') return -5;
       if (amt === 'finished') return -15;
     }
-    let xp = groupBase[grp] * amtMult[amt] * mealMult[currentMeal];
+    let xp = groupBase[grp] * amtMult[amt];
     if (groupDeficit[grp] && amt !== 'skipped') xp = xp * 1.5;
     xp = Math.round(xp);
     // Scaling urgent bonus stacks on top
@@ -3234,6 +3192,7 @@
     if (window.mb && window.mb.state.currentKidId && window.mb.logMeal) {
       const kid = window.mb.state.kids.find(k => k.id === window.mb.state.currentKidId);
       if (kid) {
+        if (typeof window.mbReactToFood === 'function') window.mbReactToFood(currentGroup, currentAmt, xp);
         window.mb.logMeal(kid.id, window.mb.today(), currentMeal, currentGroup, currentAmt, xp)
           .catch(err => console.error('Save meal failed:', err));
       }
@@ -3869,6 +3828,43 @@
   }
   window.addEventListener('mb-day-changed', () => renderBehaviorTiles());
   window.addEventListener('mb-kid-changed', () => renderBehaviorTilesConfig());
+
+  // Animate the big feed avatar + status text based on food group + amount
+  function reactToFood(group, amt, xp) {
+    const ava = document.getElementById('feed-avatar');
+    const status = document.getElementById('feed-status');
+    if (!ava || !status) return;
+    ava.classList.remove('strong','weak','queasy','sick');
+    let cls = '', txt = '';
+    if (group === 'treats' && (amt === 'finished' || amt === 'half')) {
+      cls = 'queasy';
+      txt = '🍩 Whoa — that\'s sweet! Your buddy looks a bit queasy.';
+    } else if (amt === 'skipped' && group !== 'treats') {
+      cls = 'weak';
+      txt = '😔 Skipped ' + group + '… your buddy feels weak.';
+    } else if (amt === 'finished') {
+      cls = 'strong';
+      txt = '💪 Powered up with ' + group + '! +' + xp + ' XP — looking strong!';
+    } else if (amt === 'half') {
+      cls = '';
+      txt = '🙂 Halfway done — +' + xp + ' XP. Keep going!';
+    } else if (amt === 'tried') {
+      cls = '';
+      txt = '👅 Tried ' + group + ' — +' + xp + ' XP for being brave!';
+    } else {
+      cls = '';
+      txt = 'Pick a food group to feed your buddy!';
+    }
+    if (cls) ava.classList.add(cls);
+    status.textContent = txt;
+    // Quick pulse animation
+    ava.animate([
+      { transform: 'scale(1)' },
+      { transform: 'scale(1.08)' },
+      { transform: 'scale(1)' }
+    ], { duration: 380, easing: 'ease-out' });
+  }
+  window.mbReactToFood = reactToFood;
 
   // Rebuild the behavior tiles list on Meal Log from current bonus config
   // - Hides disabled bonuses
@@ -5530,6 +5526,7 @@
 
   // Dashboard action wiring
   document.getElementById('pf-back')?.addEventListener('click', () => mbGoTo('leaderboard'));
+  document.getElementById('meal-back-btn')?.addEventListener('click', () => mbGoTo('leaderboard'));
   document.getElementById('pf-act-meal')?.addEventListener('click', () => mbGoTo('meal'));
   document.getElementById('pf-act-chore')?.addEventListener('click', () => mbGoTo('chores'));
   document.getElementById('pf-act-trophies')?.addEventListener('click', () => mbGoTo('trophies'));
