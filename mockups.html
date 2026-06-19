@@ -723,6 +723,17 @@
   /* ============ CUSTOM CHORES ============ */
   .chores { padding: 26px 32px; background: linear-gradient(180deg, #FFF6E5 0%, #FFE3C2 100%); color: var(--ink); display: flex; flex-direction: column; gap: 18px; }
   .chores-left { display: flex; flex-direction: column; gap: 14px; max-width: 720px; margin: 0 auto; width: 100%; }
+  .chores { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding: 22px 28px; background: linear-gradient(180deg, #FFF6E5 0%, #FFE3C2 100%); align-items: start; }
+  .chores-col-left { display: flex; flex-direction: column; gap: 14px; }
+  .chores-col-right { display: flex; flex-direction: column; gap: 10px; }
+  .trust-def-card { display: flex; gap: 14px; align-items: flex-start; background: #fff; border: 1.5px solid var(--line, #eadfd1); border-radius: 14px; padding: 14px 16px; box-shadow: 0 2px 6px rgba(0,0,0,.04); }
+  .tdc-em { font-size: 38px; line-height: 1; flex-shrink: 0; }
+  .tdc-body { flex: 1; }
+  .tdc-eyebrow { font-size: 10px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; opacity: .55; margin-bottom: 4px; }
+  .tdc-text { font-size: 13px; font-weight: 700; line-height: 1.5; color: var(--ink, #2a2440); }
+  @media (max-width: 900px) {
+    .chores { grid-template-columns: 1fr; }
+  }
   .chores-foot {
     max-width: 720px; margin: 0 auto; width: 100%;
     background: var(--paper); border: 1px solid var(--line);
@@ -2893,18 +2904,20 @@
       <!-- ============ CUSTOM CHORES ============ -->
       <div class="view" id="view-chores">
         <div class="chores">
-          <div class="chores-left">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:8px;">
-              <button class="app-back" onclick="mbGoTo('leaderboard')">← Home</button>
-              <div class="switch-kid" id="chores-switch-kid"></div>
-            </div>
+          <div style="grid-column: 1 / -1; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:8px;">
+            <button class="app-back" onclick="mbGoTo('leaderboard')">← Home</button>
+            <div class="switch-kid" id="chores-switch-kid"></div>
+          </div>
+          <div style="grid-column: 1 / -1;">
             <div class="ch-head">
               <div>
                 <h2 class="ch-title">⭐ Trust &amp; Responsibility</h2>
               </div>
             </div>
-            <div class="trust-msg" id="trust-msg" style="background: linear-gradient(135deg, #fff7e6, #ffe4f0); border: 1.5px solid #ffd66b; border-radius: 14px; padding: 12px 16px; font-size: 13px; font-weight: 700; color: #7a4b00; line-height: 1.4; margin-bottom: 4px;">Loading…</div>
+            <div class="trust-msg" id="trust-msg" style="background: linear-gradient(135deg, #fff7e6, #ffe4f0); border: 1.5px solid #ffd66b; border-radius: 14px; padding: 12px 16px; font-size: 13px; font-weight: 700; color: #7a4b00; line-height: 1.4;">Loading…</div>
+          </div>
 
+          <div class="chores-col-left">
             <div class="trust-card">
               <div class="trust-head">
                 <div>
@@ -2930,22 +2943,29 @@
               <div class="trust-pace">⏳ Trust builds slowly — by design. Levels reflect months of consistent responsibility, not days.</div>
             </div>
 
-            <div class="ch-section-lbl" style="margin-top: 14px;">⭐ Trust levels · what each means</div>
-            <div class="trust-levels-card" id="trust-levels-card"></div>
+            <!-- Inline definition: what it means to be this trust level (set by renderTrustDef) -->
+            <div class="trust-def-card" id="trust-def-card">
+              <div class="tdc-em">🌱</div>
+              <div class="tdc-body">
+                <div class="tdc-eyebrow">What it means</div>
+                <div class="tdc-text" id="tdc-text">Loading…</div>
+              </div>
+            </div>
+          </div>
 
-            <div class="ch-section-lbl" style="margin-top: 14px;">📅 Today's chores · tap each one you finished</div>
+          <div class="chores-col-right">
+            <div class="ch-section-lbl">📅 Today's chores · tap each one you finished</div>
             <div class="ch-grid" data-period="daily" id="resp-tab-daily"></div>
 
             <div class="ch-section-lbl">🗓️ This week's chores · tap to log</div>
             <div class="ch-grid" data-period="weekly" id="resp-tab-weekly"></div>
-            <div class="ch-cap">Daily max ≈ 11 pts · Weekly max ≈ 37 pts · ~50 pts/week sustainable</div>
+            <div class="ch-cap" id="ch-cap-line">Daily max · Weekly max · sustainable pace</div>
 
             <div class="ch-section-lbl" style="margin-top: 14px;">🎁 Your unlocked privileges</div>
             <div class="priv-grid" id="priv-grid">
               <!-- Rendered dynamically by JS based on kid's trust level -->
             </div>
           </div>
-
         </div>
       </div>
 
@@ -4327,7 +4347,19 @@
         const rank = i < 3 ? rankClass[i] : '';
         const choreXP = k.currentWeekChoreXP || 0;
         const mealXP = Math.max(0, xp - choreXP);
-        const mealGoal = 500, choreGoal = 200;
+        // Realistic potential per kid:
+        //  - Meal max = sum(target[g] × groupBase[g]) for healthy groups × 7 days
+        //  - Chore max = (sum daily pts × 7 + sum weekly pts) × 5 (weekly XP multiplier)
+        const baseXP = { dairy: 20, protein: 25, grains: 15, fruit: 15, veggies: 25 };
+        const tgts = (typeof dailyTargets === 'function') ? dailyTargets(k.age || 5) : { dairy:2, protein:3, grains:5, fruit:1, veggies:2 };
+        const mealMaxDaily = ['dairy','protein','grains','fruit','veggies'].reduce((sum, g) => sum + (tgts[g] || 0) * baseXP[g], 0);
+        const mealGoal = Math.max(50, mealMaxDaily * 7);
+        const resp = k.responsibility || {};
+        const dailyChores = Array.isArray(resp.daily) ? resp.daily : [];
+        const weeklyChores = Array.isArray(resp.weekly) ? resp.weekly : [];
+        const dailySum = dailyChores.reduce((s, c) => s + (c.pts || 0), 0);
+        const weeklySum = weeklyChores.reduce((s, c) => s + (c.pts || 0), 0);
+        const choreGoal = Math.max(20, (dailySum * 7 + weeklySum) * 5);
         const mealPct = Math.min(100, Math.round((mealXP / mealGoal) * 100));
         const chorePct = Math.min(100, Math.round((choreXP / choreGoal) * 100));
         return '<div class="lb-row ' + rank + '" data-kid-id="' + k.id + '">' +
@@ -5322,32 +5354,34 @@
     el.innerHTML = msg;
   }
 
-  // Trust levels card — 5 cells showing what each level means
-  const TRUST_LEVELS_DEF = [
-    { lvl: 'L1', nm: 'Helper',     pts: '0+ pts',     em: '🌱', desc: 'Sticker chart, pick bedtime song' },
-    { lvl: 'L2', nm: 'Reliable',   pts: '100+ pts',   em: '⭐', desc: 'Pick snacks & dinner music' },
-    { lvl: 'L3', nm: 'Crew',       pts: '300+ pts',   em: '🤝', desc: 'Bonus screen time, dessert pick' },
-    { lvl: 'L4', nm: 'MVP',        pts: '700+ pts',   em: '🏆', desc: 'Later bedtime, pick movies' },
-    { lvl: 'L5', nm: 'Champion',   pts: '1,500+ pts', em: '👑', desc: 'Allowance, full independence' }
+  // Trust-level definitions: what it MEANS to be at each level (job-description style).
+  // Age-appropriate qualities that describe the kind of person you are at each trust tier.
+  const TRUST_LEVEL_DEFS = [
+    { em: '🌱', def: 'You\'re just starting to show up and pitch in. You\'re learning what helping looks like — putting toys away when reminded, brushing your teeth, listening when adults ask. Every small effort counts here.' },
+    { em: '⭐', def: 'You handle the daily basics on your own — without reminders. You listen the first time, follow your routine, and stay calm when things don\'t go your way. Your family knows they can count on you.' },
+    { em: '🤝', def: 'You volunteer to help without being asked. You finish what you start, look out for siblings, and own your mistakes when they happen. Adults trust you with small decisions and bigger responsibilities.' },
+    { em: '🏆', def: 'You\'re a leader at home. You think ahead, notice what needs doing, and handle bigger jobs on your own. Adults trust your judgment and ask your opinion on family decisions.' },
+    { em: '👑', def: 'You\'re fully self-directed. You see what needs doing and do it — without being told. The family runs better because of you. You set the example and earn full independence to make your own choices.' }
   ];
-  function renderTrustLevelsCard() {
-    const host = document.getElementById('trust-levels-card');
+  function renderTrustDef() {
+    const host = document.getElementById('trust-def-card');
     if (!host) return;
     const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
-    const pts = (kid && kid.trustPoints) || 0;
+    if (!kid) { host.style.display = 'none'; return; }
+    host.style.display = '';
+    const pts = kid.trustPoints || 0;
     const thresholds = [0, 100, 300, 700, 1500];
     let curLvl = 0;
     for (let i = 0; i < thresholds.length; i++) { if (pts >= thresholds[i]) curLvl = i; }
-    host.innerHTML = TRUST_LEVELS_DEF.map((t, i) =>
-      '<div class="tlc-cell' + (i === curLvl ? ' current' : '') + '">' +
-        '<div class="lvl">' + t.lvl + ' ' + t.em + '</div>' +
-        '<div class="nm">' + t.nm + '</div>' +
-        '<div class="pts">' + t.pts + '</div>' +
-        '<div class="desc">' + t.desc + '</div>' +
-      '</div>'
-    ).join('');
+    const def = TRUST_LEVEL_DEFS[curLvl];
+    const em = host.querySelector('.tdc-em');
+    const txt = host.querySelector('#tdc-text');
+    if (em) em.textContent = def.em;
+    if (txt) txt.textContent = def.def;
   }
-  window.addEventListener('mb-kids-changed', () => { renderTrustMsg(); renderTrustLevelsCard(); });
+  // Legacy stub for older callers
+  function renderTrustLevelsCard() { renderTrustDef(); }
+  window.addEventListener('mb-kids-changed', () => { renderTrustMsg(); renderTrustDef(); });
 
   // ============ Phase 2H.3: Per-kid Responsibility + Trust Rewards ============
 
@@ -5734,6 +5768,16 @@
     const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
     const day = (window.mb && window.mb.state.today) || {};
     const week = (window.mb && window.mb.state.week) || {};
+    // Update the cap line with this kid's realistic max
+    if (kid) {
+      const resp = kid.responsibility || {};
+      const dList = Array.isArray(resp.daily) ? resp.daily : [];
+      const wList = Array.isArray(resp.weekly) ? resp.weekly : [];
+      const dSum = dList.reduce((s, c) => s + (c.pts || 0), 0);
+      const wSum = wList.reduce((s, c) => s + (c.pts || 0), 0);
+      const capEl = document.getElementById('ch-cap-line');
+      if (capEl) capEl.textContent = 'Daily max ≈ ' + dSum + ' trust pts · Weekly max ≈ ' + (dSum * 7 + wSum) + ' trust pts/week';
+    }
     ['daily','weekly'].forEach(period => {
       const host = document.getElementById('resp-tab-' + period);
       if (!host) return;
@@ -6049,7 +6093,7 @@
       renderMealNeeds();
       renderBuddyMood();
       renderTrustMsg();
-      renderTrustLevelsCard();
+      renderTrustDef();
       loadFamilyGoalInputs();
     }
   }, 200);
