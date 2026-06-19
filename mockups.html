@@ -2014,7 +2014,7 @@
             <div class="pf-back"><div class="av">←</div><span>Switch kid</span></div>
             <div class="pf-meta">
               <div class="pf-streak"><span style="font-size:18px;">🔥</span> 6-day streak</div>
-              <div class="pf-trust" title="Trust feature is on for Emma">⭐ <b>L3</b> Trusted Crew</div>
+              <div class="pf-trust" id="pf-trust-pill">⭐ <b>L1</b> Helper</div>
               <div class="pf-gear">⚙️</div>
             </div>
           </div>
@@ -2254,7 +2254,7 @@
         <div class="pick">
           <div>
             <div class="pick-head">
-              <h2>Pick your buddy, Emma!</h2>
+              <h2>Pick your buddy!</h2>
               <p>Each one grows differently. Pick whichever feels like you.</p>
             </div>
             <div class="pick-grid" id="char-grid">
@@ -2683,92 +2683,67 @@
           <section class="set-card">
             <div class="set-card-head">
               <h3 class="set-h3">⭐ Responsibility setup</h3>
-              <div class="set-kid-pick">
-                <button class="kp-chip">Emma · 9</button>
-                <button class="kp-chip active">Theo · 5</button>
-              </div>
+              <div class="set-kid-pick" id="resp-kid-pick"><!-- dynamic --></div>
             </div>
-
             <p class="set-note">Tracking starts at age 3 with simple, picture-led chores. Lists scale with age — see suggestions below.</p>
-
             <div class="set-2col">
               <div>
-                <div class="set-sublbl">📅 Daily list (4 chores)</div>
-                <div class="ed-list">
-                  <div class="ed-list-item"><span class="em">🧸</span><span class="nm">Pick up toys</span><span class="pt">+1</span><button class="ed-x">×</button></div>
-                  <div class="ed-list-item"><span class="em">🦷</span><span class="nm">Brush teeth (with help)</span><span class="pt">+1</span><button class="ed-x">×</button></div>
-                  <div class="ed-list-item"><span class="em">🍽️</span><span class="nm">Carry plate to sink</span><span class="pt">+1</span><button class="ed-x">×</button></div>
-                  <div class="ed-list-item"><span class="em">👕</span><span class="nm">Clothes in hamper</span><span class="pt">+1</span><button class="ed-x">×</button></div>
-                  <div class="ed-list-add"><span>+</span> Add a daily chore</div>
-                </div>
+                <div class="set-sublbl">📅 Daily list</div>
+                <div class="ed-list" id="resp-daily-list"></div>
               </div>
               <div>
-                <div class="set-sublbl">🗓️ Weekly list (2 chores)</div>
-                <div class="ed-list">
-                  <div class="ed-list-item"><span class="em">🛏️</span><span class="nm">Help make bed</span><span class="pt">+3</span><button class="ed-x">×</button></div>
-                  <div class="ed-list-item"><span class="em">🌱</span><span class="nm">Water one plant</span><span class="pt">+3</span><button class="ed-x">×</button></div>
-                  <div class="ed-list-add"><span>+</span> Add a weekly chore</div>
-                </div>
+                <div class="set-sublbl">🗓️ Weekly list</div>
+                <div class="ed-list" id="resp-weekly-list"></div>
               </div>
             </div>
-
-            <!-- Age-appropriate suggestions -->
+            <!-- Inline chore editor (toggled when 'Add chore' is tapped) -->
+            <div id="chore-add-form" class="custom-bonus-form" style="display:none;">
+              <div class="cbf-grid">
+                <div class="cbf-field">
+                  <label class="cbf-lbl">Icon</label>
+                  <div class="cbf-emoji-picker" id="chore-emoji-picker"></div>
+                </div>
+                <div class="cbf-field">
+                  <label class="cbf-lbl">Chore name</label>
+                  <input id="chore-name" placeholder="e.g. Brush teeth" maxlength="40" />
+                </div>
+                <div class="cbf-field cbf-narrow">
+                  <label class="cbf-lbl">Trust pts</label>
+                  <input id="chore-points" type="number" value="2" />
+                </div>
+              </div>
+              <div class="cbf-actions">
+                <button class="btn-secondary" id="chore-cancel">Cancel</button>
+                <button class="btn-primary" id="chore-save" style="background: var(--berry); flex: 0; padding: 8px 16px;">Add chore</button>
+              </div>
+            </div>
             <div class="suggest-box">
               <div class="sug-head">
                 <div>
-                  <h4 class="sug-title">💡 Suggestions for age 5</h4>
-                  <p class="sug-sub">Tap any to add to Theo's daily list</p>
+                  <h4 class="sug-title" id="resp-sug-title">💡 Suggestions</h4>
+                  <p class="sug-sub" id="resp-sug-sub">Tap any to add</p>
                 </div>
               </div>
-              <div class="sug-grid">
-                <div class="sug-tile"><span class="ico">🐾</span><div class="nm">Feed pet (with help)</div><div class="pts">+2</div></div>
-                <div class="sug-tile"><span class="ico">📚</span><div class="nm">Pick up books</div><div class="pts">+1</div></div>
-                <div class="sug-tile"><span class="ico">🪥</span><div class="nm">Get pajamas on</div><div class="pts">+1</div></div>
-                <div class="sug-tile"><span class="ico">🥄</span><div class="nm">Set spoons at table</div><div class="pts">+1</div></div>
-              </div>
+              <div class="sug-grid" id="resp-sug-grid"></div>
             </div>
-
-            <!-- Conversation prompt -->
-            <div class="convo-prompt">
-              <div class="cp-em">💬</div>
-              <div class="cp-body">
-                <div class="cp-title">Time to talk?</div>
-                <div class="cp-msg">Theo's done <b>Pick up toys</b> 28 days running. He's ready to add a new responsibility — try <b>Set the table</b>?</div>
-              </div>
-              <div class="cp-actions">
-                <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px;">Maybe later</button>
-                <button class="btn-primary" style="padding: 6px 12px; font-size: 12px; flex: 0;">Add chore</button>
-              </div>
-            </div>
+            <div class="set-note" id="resp-save-status" style="text-align:right; font-size:11px; opacity:.65; min-height:14px; margin-top:4px;"></div>
           </section>
 
           <!-- ============ Trust rewards customizer ============ -->
           <section class="set-card">
             <div class="set-card-head">
               <h3 class="set-h3">🎁 Trust rewards per level</h3>
-              <div class="set-kid-pick">
-                <button class="kp-chip">Emma · 9</button>
-                <button class="kp-chip active">Theo · 5</button>
-              </div>
+              <div class="set-kid-pick" id="rew-kid-pick"></div>
             </div>
-            <p class="set-note">Rewards scale per kid — what unlocks for Theo at L3 may differ from Emma's L3.</p>
-            <div class="rc-level-picker">
-              <div class="rc-level active"><div class="lv">L1</div><div class="nm">Helper</div></div>
-              <div class="rc-level"><div class="lv">L2</div><div class="nm">Reliable</div></div>
-              <div class="rc-level"><div class="lv">L3</div><div class="nm">Crew</div></div>
-              <div class="rc-level"><div class="lv">L4</div><div class="nm">MVP</div></div>
-              <div class="rc-level"><div class="lv">L5</div><div class="nm">Indep.</div></div>
-            </div>
+            <p class="set-note">Rewards scale per kid — each kid earns their own privileges as they level up.</p>
+            <div class="rc-level-picker" id="rew-level-picker"></div>
             <div class="rc-edit-head">
               <span class="rc-eye">Editing</span>
-              <b class="rc-current">L1 · Helper Apprentice</b>
-              <span class="rc-pts">starts at <b>0 pts</b></span>
+              <b class="rc-current" id="rew-current-label">L1 · Helper Apprentice</b>
+              <span class="rc-pts">starts at <b id="rew-current-pts">0 pts</b></span>
             </div>
-            <div class="rc-list">
-              <div class="rc-item"><button class="rc-em">🌟</button><input class="rc-name" value="Sticker chart star · daily" /><button class="rc-del">×</button></div>
-              <div class="rc-item"><button class="rc-em">🤗</button><input class="rc-name" value="Pick the bedtime hug song" /><button class="rc-del">×</button></div>
-              <div class="rc-add"><span class="rc-plus">+</span> Add a reward</div>
-            </div>
+            <div class="rc-list" id="rew-list"></div>
+            <div class="set-note" id="rew-save-status" style="text-align:right; font-size:11px; opacity:.65; min-height:14px; margin-top:4px;"></div>
           </section>
 
           <!-- ============ App preferences ============ -->
@@ -2914,23 +2889,10 @@
             </div>
 
             <div class="ch-section-lbl">📅 Daily chores · tap to log</div>
-            <div class="ch-grid" data-period="daily">
-              <div class="ch-tile"><div class="ico">🛏️</div><div class="nm">Make bed</div><div class="xp trust">+2 trust</div></div>
-              <div class="ch-tile"><div class="ico">🦷</div><div class="nm">Brush teeth · AM</div><div class="xp trust">+1 trust</div></div>
-              <div class="ch-tile"><div class="ico">🦷</div><div class="nm">Brush teeth · PM</div><div class="xp trust">+1 trust</div></div>
-              <div class="ch-tile"><div class="ico">🍽️</div><div class="nm">Clear plate</div><div class="xp trust">+2 trust</div></div>
-              <div class="ch-tile"><div class="ico">🎒</div><div class="nm">Pack bag</div><div class="xp trust">+2 trust</div></div>
-              <div class="ch-tile"><div class="ico">🐕</div><div class="nm">Feed dog</div><div class="xp trust">+3 trust</div><div class="badge">!</div></div>
-            </div>
+            <div class="ch-grid" data-period="daily" id="resp-tab-daily"></div>
 
             <div class="ch-section-lbl">🗓️ Weekly chores · tap to log</div>
-            <div class="ch-grid" data-period="weekly">
-              <div class="ch-tile"><div class="ico">🧹</div><div class="nm">Tidy room</div><div class="xp trust">+8 trust</div></div>
-              <div class="ch-tile editing"><div class="ico">🪴</div><div class="nm">Water plants</div><div class="xp trust">+5 trust</div></div>
-              <div class="ch-tile"><div class="ico">🧺</div><div class="nm">Laundry</div><div class="xp trust">+10 trust</div></div>
-              <div class="ch-tile"><div class="ico">🚮</div><div class="nm">Take out trash</div><div class="xp trust">+6 trust</div></div>
-              <div class="ch-tile"><div class="ico">🧴</div><div class="nm">Wipe bathroom</div><div class="xp trust">+8 trust</div></div>
-            </div>
+            <div class="ch-grid" data-period="weekly" id="resp-tab-weekly"></div>
             <div class="ch-cap">Daily max ≈ 11 pts · Weekly max ≈ 37 pts · ~50 pts/week sustainable</div>
           </div>
           <div class="chores-foot">
@@ -4868,6 +4830,445 @@
 
 
 
+  // ============ Phase 2H.3: Per-kid Responsibility + Trust Rewards ============
+
+  // Age-appropriate chore catalog. Each entry: [emoji, name, points, period]
+  const CHORE_CATALOG = [
+    // Toddler/Preschool (3-4)
+    { em: '🧸', nm: 'Pick up toys', pts: 1, period: 'daily', minAge: 3 },
+    { em: '👕', nm: 'Clothes in hamper', pts: 1, period: 'daily', minAge: 3 },
+    { em: '📚', nm: 'Put away books', pts: 1, period: 'daily', minAge: 3 },
+    { em: '🪥', nm: 'Get pajamas on', pts: 1, period: 'daily', minAge: 3 },
+    { em: '🥄', nm: 'Help stir / mix', pts: 1, period: 'daily', minAge: 3 },
+    { em: '🦷', nm: 'Brush teeth (with help)', pts: 1, period: 'daily', minAge: 3 },
+    // Early elementary (5-6)
+    { em: '🍽️', nm: 'Clear plate', pts: 2, period: 'daily', minAge: 5 },
+    { em: '🥄', nm: 'Set spoons at table', pts: 1, period: 'daily', minAge: 5 },
+    { em: '🐾', nm: 'Feed pet (with help)', pts: 2, period: 'daily', minAge: 5 },
+    { em: '🛏️', nm: 'Help make bed', pts: 2, period: 'daily', minAge: 5 },
+    { em: '🦷', nm: 'Brush teeth solo · AM', pts: 1, period: 'daily', minAge: 5 },
+    { em: '🦷', nm: 'Brush teeth solo · PM', pts: 1, period: 'daily', minAge: 5 },
+    // Middle elementary (7-9)
+    { em: '🛏️', nm: 'Make bed', pts: 2, period: 'daily', minAge: 7 },
+    { em: '🎒', nm: 'Pack school bag', pts: 2, period: 'daily', minAge: 7 },
+    { em: '🐕', nm: 'Feed pet', pts: 3, period: 'daily', minAge: 7 },
+    { em: '🍽️', nm: 'Set the table', pts: 2, period: 'daily', minAge: 7 },
+    { em: '🌱', nm: 'Water plants', pts: 5, period: 'weekly', minAge: 7 },
+    { em: '🧹', nm: 'Tidy room', pts: 8, period: 'weekly', minAge: 7 },
+    // Tween+ (10+)
+    { em: '🚮', nm: 'Take out trash', pts: 6, period: 'weekly', minAge: 10 },
+    { em: '🧺', nm: 'Laundry', pts: 10, period: 'weekly', minAge: 10 },
+    { em: '🧴', nm: 'Wipe bathroom', pts: 8, period: 'weekly', minAge: 10 },
+    { em: '🍳', nm: 'Help cook dinner', pts: 5, period: 'weekly', minAge: 10 },
+    { em: '🐕', nm: 'Walk dog', pts: 3, period: 'daily', minAge: 10 }
+  ];
+
+  function defaultChoresForAge(age, period) {
+    const all = CHORE_CATALOG.filter(c => c.period === period && c.minAge <= age);
+    // Take the most age-appropriate (highest minAge but ≤ age) first
+    const sorted = all.slice().sort((a, b) => b.minAge - a.minAge);
+    const target = period === 'daily' ? 4 : 2;
+    const out = [];
+    const seen = new Set();
+    for (const c of sorted) {
+      const key = c.em + '|' + c.nm;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(Object.assign({ id: 'default_' + out.length }, c));
+      if (out.length >= target) break;
+    }
+    return out;
+  }
+
+  // Default rewards per trust level (used until parent customizes)
+  const DEFAULT_REWARDS_BY_LEVEL = {
+    0: [ { em: '🌟', label: 'Sticker chart star · daily' }, { em: '🤗', label: 'Pick the bedtime hug song' } ],
+    1: [ { em: '🍪', label: 'Pick a snack' }, { em: '🎵', label: 'Pick dinner music' } ],
+    2: [ { em: '🎮', label: '20 min screen time bonus' }, { em: '🍦', label: 'Choose family dessert' } ],
+    3: [ { em: '🛌', label: '15 min later bedtime · Fri/Sat' }, { em: '🎬', label: 'Pick the family movie' } ],
+    4: [ { em: '💸', label: 'Allowance upgrade' }, { em: '🚴', label: 'Solo bike rides' }, { em: '📱', label: 'More screen freedom' } ]
+  };
+
+  // Per-section editing state
+  const respState = { editKidId: null, addingPeriod: null, addEmoji: '🧸' };
+  const rewState = { editKidId: null, level: 0 };
+
+  function getResponsibilityForKid(kid) {
+    if (!kid) return { daily: [], weekly: [] };
+    const stored = kid.responsibility || {};
+    return {
+      daily: Array.isArray(stored.daily) ? stored.daily : defaultChoresForAge(kid.age || 5, 'daily'),
+      weekly: Array.isArray(stored.weekly) ? stored.weekly : defaultChoresForAge(kid.age || 5, 'weekly')
+    };
+  }
+
+  function getRewardsForKid(kid, lvl) {
+    if (!kid) return DEFAULT_REWARDS_BY_LEVEL[lvl] || [];
+    const stored = kid.trustRewards || {};
+    const arr = stored['L' + (lvl + 1)];
+    return Array.isArray(arr) ? arr : (DEFAULT_REWARDS_BY_LEVEL[lvl] || []);
+  }
+
+  function flashRespStatus(txt) {
+    const el = document.getElementById('resp-save-status');
+    if (!el) return;
+    el.textContent = txt;
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.textContent = ''; }, 1500);
+  }
+  function flashRewStatus(txt) {
+    const el = document.getElementById('rew-save-status');
+    if (!el) return;
+    el.textContent = txt;
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.textContent = ''; }, 1500);
+  }
+
+  function renderRespKidPicker() {
+    const host = document.getElementById('resp-kid-pick');
+    if (!host) return;
+    const kids = (window.mb && window.mb.state.kids) || [];
+    if (!kids.length) { host.innerHTML = '<span style="opacity:.6;font-size:12px;">Add a kid first</span>'; return; }
+    if (!respState.editKidId || !kids.find(k => k.id === respState.editKidId)) {
+      respState.editKidId = kids[0].id;
+    }
+    host.innerHTML = kids.map(k =>
+      '<button class="kp-chip' + (k.id === respState.editKidId ? ' active' : '') + '" data-rkid="' + k.id + '">' +
+        (k.buddy || '🦖') + ' ' + k.name + ' · ' + (k.age || '?') +
+      '</button>'
+    ).join('');
+    host.querySelectorAll('[data-rkid]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        respState.editKidId = btn.dataset.rkid;
+        renderRespKidPicker();
+        renderRespEditor();
+        renderRespSuggestions();
+      });
+    });
+  }
+
+  function renderRespEditor() {
+    const kids = (window.mb && window.mb.state.kids) || [];
+    const kid = kids.find(k => k.id === respState.editKidId);
+    if (!kid) {
+      ['resp-daily-list','resp-weekly-list'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
+      return;
+    }
+    const lists = getResponsibilityForKid(kid);
+    ['daily','weekly'].forEach(period => {
+      const host = document.getElementById('resp-' + period + '-list');
+      if (!host) return;
+      const items = lists[period] || [];
+      const itemsHtml = items.map((it, i) =>
+        '<div class="ed-list-item" data-period="' + period + '" data-idx="' + i + '">' +
+          '<span class="em">' + (it.em || '⭐') + '</span>' +
+          '<span class="nm">' + (it.nm || '') + '</span>' +
+          '<span class="pt">+' + (it.pts || 1) + '</span>' +
+          '<button class="ed-x" data-rdelete="' + period + ':' + i + '">×</button>' +
+        '</div>'
+      ).join('');
+      host.innerHTML = itemsHtml + '<div class="ed-list-add" data-radd="' + period + '"><span>+</span> Add a ' + period + ' chore</div>';
+    });
+    // Wire delete buttons
+    document.querySelectorAll('[data-rdelete]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const [period, idx] = btn.dataset.rdelete.split(':');
+        const kid2 = kids.find(k => k.id === respState.editKidId);
+        if (!kid2) return;
+        const lists2 = getResponsibilityForKid(kid2);
+        lists2[period].splice(parseInt(idx, 10), 1);
+        flashRespStatus('Saving…');
+        try {
+          await window.mb.updateKidResponsibility(kid2.id, period, lists2[period]);
+          flashRespStatus('✓ Saved');
+        } catch (e) {
+          console.error('Delete chore failed:', e);
+          flashRespStatus('Save failed');
+        }
+      });
+    });
+    // Wire add buttons
+    document.querySelectorAll('[data-radd]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        respState.addingPeriod = btn.dataset.radd;
+        respState.addEmoji = '🧸';
+        const form = document.getElementById('chore-add-form');
+        if (form) form.style.display = 'block';
+        document.getElementById('chore-name').value = '';
+        document.getElementById('chore-points').value = btn.dataset.radd === 'weekly' ? '5' : '2';
+        renderChoreEmojiPicker();
+      });
+    });
+  }
+
+  function renderChoreEmojiPicker() {
+    const host = document.getElementById('chore-emoji-picker');
+    if (!host) return;
+    host.innerHTML = PICKER_EMOJIS.map(em =>
+      '<div class="cbf-em-tile' + (em === respState.addEmoji ? ' active' : '') + '" data-em="' + em + '">' + em + '</div>'
+    ).join('');
+    host.querySelectorAll('.cbf-em-tile').forEach(el => {
+      el.addEventListener('click', () => {
+        respState.addEmoji = el.dataset.em;
+        renderChoreEmojiPicker();
+      });
+    });
+  }
+
+  function renderRespSuggestions() {
+    const titleEl = document.getElementById('resp-sug-title');
+    const subEl = document.getElementById('resp-sug-sub');
+    const grid = document.getElementById('resp-sug-grid');
+    if (!grid) return;
+    const kids = (window.mb && window.mb.state.kids) || [];
+    const kid = kids.find(k => k.id === respState.editKidId);
+    if (!kid) { grid.innerHTML = ''; if (titleEl) titleEl.textContent = '💡 Suggestions'; if (subEl) subEl.textContent = ''; return; }
+    const age = kid.age || 5;
+    if (titleEl) titleEl.textContent = '💡 Suggestions for age ' + age;
+    if (subEl) subEl.textContent = 'Tap any to add to ' + kid.name + "'s list";
+    // Show CHORE_CATALOG items appropriate for this age that aren't already in their list
+    const lists = getResponsibilityForKid(kid);
+    const existing = new Set([].concat(lists.daily, lists.weekly).map(c => c.em + '|' + c.nm));
+    const candidates = CHORE_CATALOG
+      .filter(c => c.minAge <= age && c.minAge >= Math.max(3, age - 2))
+      .filter(c => !existing.has(c.em + '|' + c.nm))
+      .slice(0, 8);
+    grid.innerHTML = candidates.map((c, i) =>
+      '<div class="sug-tile" data-rsug="' + i + '">' +
+        '<span class="ico">' + c.em + '</span>' +
+        '<div class="nm">' + c.nm + '</div>' +
+        '<div class="pts">+' + c.pts + ' (' + c.period + ')</div>' +
+      '</div>'
+    ).join('');
+    grid.querySelectorAll('[data-rsug]').forEach(tile => {
+      tile.addEventListener('click', async () => {
+        const idx = parseInt(tile.dataset.rsug, 10);
+        const c = candidates[idx];
+        if (!c) return;
+        const kid2 = kids.find(k => k.id === respState.editKidId);
+        if (!kid2) return;
+        const lists2 = getResponsibilityForKid(kid2);
+        const newItem = { id: 'sug_' + Date.now(), em: c.em, nm: c.nm, pts: c.pts };
+        lists2[c.period].push(newItem);
+        flashRespStatus('Saving…');
+        try {
+          await window.mb.updateKidResponsibility(kid2.id, c.period, lists2[c.period]);
+          flashRespStatus('✓ Added "' + c.nm + '"');
+        } catch (e) {
+          console.error('Add suggested chore failed:', e);
+          flashRespStatus('Save failed');
+        }
+      });
+    });
+  }
+
+  // Wire chore add form buttons
+  const choreCancel = document.getElementById('chore-cancel');
+  if (choreCancel) choreCancel.addEventListener('click', () => {
+    document.getElementById('chore-add-form').style.display = 'none';
+  });
+  const choreSave = document.getElementById('chore-save');
+  if (choreSave) choreSave.addEventListener('click', async () => {
+    const name = (document.getElementById('chore-name').value || '').trim();
+    const pts = parseInt(document.getElementById('chore-points').value, 10) || 1;
+    if (!name) { document.getElementById('chore-name').focus(); return; }
+    const kids = (window.mb && window.mb.state.kids) || [];
+    const kid = kids.find(k => k.id === respState.editKidId);
+    if (!kid) return;
+    const period = respState.addingPeriod;
+    const lists = getResponsibilityForKid(kid);
+    const newItem = { id: 'custom_' + Date.now(), em: respState.addEmoji, nm: name, pts: pts };
+    lists[period].push(newItem);
+    choreSave.disabled = true;
+    choreSave.textContent = 'Saving…';
+    try {
+      await window.mb.updateKidResponsibility(kid.id, period, lists[period]);
+      document.getElementById('chore-add-form').style.display = 'none';
+      flashRespStatus('✓ Added "' + name + '"');
+    } catch (e) {
+      console.error('Add chore failed:', e);
+      flashRespStatus('Save failed');
+    } finally {
+      choreSave.disabled = false;
+      choreSave.textContent = 'Add chore';
+    }
+  });
+
+  // ====== Trust rewards editor ======
+  function renderRewKidPicker() {
+    const host = document.getElementById('rew-kid-pick');
+    if (!host) return;
+    const kids = (window.mb && window.mb.state.kids) || [];
+    if (!kids.length) { host.innerHTML = '<span style="opacity:.6;font-size:12px;">Add a kid first</span>'; return; }
+    if (!rewState.editKidId || !kids.find(k => k.id === rewState.editKidId)) {
+      rewState.editKidId = kids[0].id;
+    }
+    host.innerHTML = kids.map(k =>
+      '<button class="kp-chip' + (k.id === rewState.editKidId ? ' active' : '') + '" data-rwkid="' + k.id + '">' +
+        (k.buddy || '🦖') + ' ' + k.name + ' · ' + (k.age || '?') +
+      '</button>'
+    ).join('');
+    host.querySelectorAll('[data-rwkid]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        rewState.editKidId = btn.dataset.rwkid;
+        renderRewKidPicker();
+        renderRewLevelPicker();
+        renderRewList();
+      });
+    });
+  }
+
+  function renderRewLevelPicker() {
+    const host = document.getElementById('rew-level-picker');
+    if (!host) return;
+    host.innerHTML = TRUST_LEVELS.map((lvl, i) =>
+      '<div class="rc-level' + (i === rewState.level ? ' active' : '') + '" data-rwlvl="' + i + '">' +
+        '<div class="lv">L' + (i + 1) + '</div>' +
+        '<div class="nm">' + lvl.short + '</div>' +
+      '</div>'
+    ).join('');
+    host.querySelectorAll('[data-rwlvl]').forEach(el => {
+      el.addEventListener('click', () => {
+        rewState.level = parseInt(el.dataset.rwlvl, 10);
+        renderRewLevelPicker();
+        renderRewList();
+      });
+    });
+    const headLbl = document.getElementById('rew-current-label');
+    const headPts = document.getElementById('rew-current-pts');
+    const lvl = TRUST_LEVELS[rewState.level];
+    if (headLbl && lvl) headLbl.textContent = 'L' + (rewState.level + 1) + ' · ' + lvl.name;
+    if (headPts && lvl) headPts.textContent = lvl.min + ' pts';
+  }
+
+  function renderRewList() {
+    const host = document.getElementById('rew-list');
+    if (!host) return;
+    const kids = (window.mb && window.mb.state.kids) || [];
+    const kid = kids.find(k => k.id === rewState.editKidId);
+    const rewards = getRewardsForKid(kid, rewState.level);
+    host.innerHTML = rewards.map((r, i) =>
+      '<div class="rc-item" data-rwidx="' + i + '">' +
+        '<button class="rc-em" data-rwemoji="' + i + '">' + (r.em || '🎁') + '</button>' +
+        '<input class="rc-name" data-rwname="' + i + '" value="' + (r.label || '').replace(/"/g, '&quot;') + '" />' +
+        '<button class="rc-del" data-rwdel="' + i + '">×</button>' +
+      '</div>'
+    ).join('') +
+      '<div class="rc-add" id="rew-add-btn"><span class="rc-plus">+</span> Add a reward</div>';
+    // Wire change on name input
+    host.querySelectorAll('[data-rwname]').forEach(inp => {
+      inp.addEventListener('change', async () => {
+        const idx = parseInt(inp.dataset.rwname, 10);
+        const k = kids.find(kk => kk.id === rewState.editKidId);
+        if (!k) return;
+        const list = getRewardsForKid(k, rewState.level).slice();
+        list[idx] = Object.assign({}, list[idx], { label: inp.value });
+        flashRewStatus('Saving…');
+        try { await window.mb.updateKidRewards(k.id, rewState.level, list); flashRewStatus('✓ Saved'); }
+        catch (e) { console.error('Update reward failed:', e); flashRewStatus('Save failed'); }
+      });
+    });
+    // Wire delete buttons
+    host.querySelectorAll('[data-rwdel]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const idx = parseInt(btn.dataset.rwdel, 10);
+        const k = kids.find(kk => kk.id === rewState.editKidId);
+        if (!k) return;
+        const list = getRewardsForKid(k, rewState.level).slice();
+        list.splice(idx, 1);
+        flashRewStatus('Saving…');
+        try { await window.mb.updateKidRewards(k.id, rewState.level, list); flashRewStatus('✓ Removed'); }
+        catch (e) { console.error('Delete reward failed:', e); flashRewStatus('Save failed'); }
+      });
+    });
+    // Wire emoji cycle on tap (simple — pick from PICKER_EMOJIS modal-less by cycling)
+    host.querySelectorAll('[data-rwemoji]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const idx = parseInt(btn.dataset.rwemoji, 10);
+        const k = kids.find(kk => kk.id === rewState.editKidId);
+        if (!k) return;
+        const list = getRewardsForKid(k, rewState.level).slice();
+        const cur = list[idx].em || '🎁';
+        const curIdx = PICKER_EMOJIS.indexOf(cur);
+        const next = PICKER_EMOJIS[(curIdx + 1) % PICKER_EMOJIS.length];
+        list[idx] = Object.assign({}, list[idx], { em: next });
+        flashRewStatus('Saving…');
+        try { await window.mb.updateKidRewards(k.id, rewState.level, list); flashRewStatus('✓ Saved'); }
+        catch (e) { console.error('Update reward emoji failed:', e); flashRewStatus('Save failed'); }
+      });
+    });
+    // Add reward
+    const addBtn = document.getElementById('rew-add-btn');
+    if (addBtn) addBtn.addEventListener('click', async () => {
+      const k = kids.find(kk => kk.id === rewState.editKidId);
+      if (!k) return;
+      const list = getRewardsForKid(k, rewState.level).slice();
+      list.push({ em: '🎁', label: 'New reward — tap to rename' });
+      flashRewStatus('Saving…');
+      try { await window.mb.updateKidRewards(k.id, rewState.level, list); flashRewStatus('✓ Added'); }
+      catch (e) { console.error('Add reward failed:', e); flashRewStatus('Save failed'); }
+    });
+  }
+
+  // ====== Responsibility tab — render chore tiles from current kid's saved list ======
+  function renderRespTabChores() {
+    const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    const day = (window.mb && window.mb.state.today) || {};
+    const week = (window.mb && window.mb.state.week) || {};
+    ['daily','weekly'].forEach(period => {
+      const host = document.getElementById('resp-tab-' + period);
+      if (!host) return;
+      if (!kid) { host.innerHTML = '<div class="ch-cap" style="grid-column:1/-1;">Pick a kid to see chores</div>'; return; }
+      const list = getResponsibilityForKid(kid)[period] || [];
+      if (!list.length) {
+        host.innerHTML = '<div class="ch-cap" style="grid-column:1/-1; opacity:.6;">No ' + period + ' chores yet — add some in Settings</div>';
+        return;
+      }
+      const stateMap = period === 'daily' ? day : week;
+      host.innerHTML = list.map(c => {
+        const key = choreKeyFrom(c.nm);
+        const done = stateMap[key] === 'done';
+        return '<div class="ch-tile' + (done ? ' editing' : '') + '" data-cnm="' + (c.nm || '').replace(/"/g,'&quot;') + '" data-cpts="' + (c.pts || 0) + '" data-cperiod="' + period + '">' +
+          '<div class="ico">' + (c.em || '⭐') + '</div>' +
+          '<div class="nm">' + (c.nm || '') + '</div>' +
+          '<div class="xp trust">+' + (c.pts || 0) + ' trust</div>' +
+          (done ? '<div class="badge">✓</div>' : '') +
+        '</div>';
+      }).join('');
+      // Wire click handlers
+      host.querySelectorAll('.ch-tile').forEach(tile => {
+        tile.addEventListener('click', async () => {
+          const k = ((window.mb && window.mb.state.kids) || []).find(kk => kk.id === window.mb.state.currentKidId);
+          if (!k) return;
+          const name = tile.dataset.cnm;
+          const pts = parseInt(tile.dataset.cpts, 10) || 0;
+          const per = tile.dataset.cperiod;
+          const key = choreKeyFrom(name);
+          const map = per === 'daily' ? (window.mb.state.today || {}) : (window.mb.state.week || {});
+          if (map[key] === 'done') return;
+          pulseTile(tile);
+          spawnPointPop(tile, '+' + pts, false);
+          if (window.mb && window.mb.logChore) {
+            window.mb.logChore(k.id, per, key, pts).catch(err => console.error('logChore failed:', err));
+          }
+        });
+      });
+    });
+  }
+
+  // Hook into render cycle
+  window.addEventListener('mb-kids-changed', () => {
+    renderRespKidPicker();
+    renderRespEditor();
+    renderRespSuggestions();
+    renderRewKidPicker();
+    renderRewLevelPicker();
+    renderRewList();
+    renderRespTabChores();
+  });
+  window.addEventListener('mb-day-changed', () => renderRespTabChores());
+  window.addEventListener('mb-week-changed', () => renderRespTabChores());
+
   // ============ Phase 2E: Trust + Chores ============
   const TRUST_LEVELS = [
     { min: 0, name: 'Helper Apprentice', short: 'Helper', stars: 1 },
@@ -5023,26 +5424,8 @@
   // Click handler for chore tiles
   document.querySelectorAll('#view-chores .ch-grid[data-period] .ch-tile').forEach(tile => {
     if (tile.classList.contains('add')) return;
-    tile.addEventListener('click', async () => {
-      const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
-      if (!kid) return;
-      const grid = tile.closest('.ch-grid');
-      const period = grid && grid.dataset.period;
-      if (!period) return;
-      const name = tile.querySelector('.nm')?.textContent || '';
-      const key = choreKeyFrom(name);
-      const map = period === 'daily' ? (window.mb.state.today || {}) : (window.mb.state.week || {});
-      if (map[key] === 'done') return; // already claimed
-      const pts = parseTrustPts(tile.querySelector('.xp')?.textContent);
-      // Visual feedback immediately
-      pulseTile(tile);
-      spawnPointPop(tile, '+' + pts, false);
-      // Persist
-      if (window.mb && window.mb.logChore) {
-        window.mb.logChore(kid.id, period, key, pts)
-          .catch(err => console.error('logChore failed:', err));
-      }
-    });
+    // Click handling is now done by renderRespTabChores() per-render, since chore tiles
+    // are dynamically rebuilt per kid. This block intentionally no longer attaches handlers.
   });
 
   window.addEventListener('mb-day-changed', () => renderResponsibility());
@@ -5064,6 +5447,13 @@
       renderChampionsWall();
       renderBonusSettings();
       renderBehaviorTilesConfig();
+      renderRespKidPicker();
+      renderRespEditor();
+      renderRespSuggestions();
+      renderRewKidPicker();
+      renderRewLevelPicker();
+      renderRewList();
+      renderRespTabChores();
     }
   }, 200);
   // Belt-and-suspenders: also try a couple more times in case subscription is slow
@@ -5368,6 +5758,24 @@
     await updateDoc(kidRef, { seenCosmetics: seenIds });
   }
   window.mb.updateKidSeenCosmetics = updateKidSeenCosmetics;
+
+  async function updateKidResponsibility(kidId, period, list) {
+    if (!state.family) return;
+    const kidRef = doc(db, 'families', state.family.id, 'kids', kidId);
+    const update = {};
+    update['responsibility.' + period] = list;
+    await updateDoc(kidRef, update);
+  }
+  window.mb.updateKidResponsibility = updateKidResponsibility;
+
+  async function updateKidRewards(kidId, levelIdx, list) {
+    if (!state.family) return;
+    const kidRef = doc(db, 'families', state.family.id, 'kids', kidId);
+    const update = {};
+    update['trustRewards.L' + (levelIdx + 1)] = list;
+    await updateDoc(kidRef, update);
+  }
+  window.mb.updateKidRewards = updateKidRewards;
 
   // Phase 2H: Subscribe to family doc so settings changes propagate live across devices
   function subscribeFamily(familyId) {
