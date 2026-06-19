@@ -134,6 +134,17 @@
   .app-back:hover { background: var(--sun-2, #fef0c8); }
   .app-gear { background: #fff; border: 1px solid var(--line, #eadfd1); width: 44px; height: 44px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,.04); position: relative; z-index: 50; flex-shrink: 0; }
   .app-gear:hover { background: var(--sun-2, #fef0c8); }
+  .switch-kid { position: relative; display: inline-flex; }
+  .switch-kid-btn { background: #fff; border: 1.5px solid var(--line, #eadfd1); border-radius: 999px; padding: 8px 14px; font-size: 13px; font-weight: 800; color: var(--ink, #2a2440); cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+  .switch-kid-btn:hover { background: var(--sun-2, #fef0c8); }
+  .switch-kid-btn .em { font-size: 18px; }
+  .switch-kid-btn .arrow { opacity: .5; font-size: 11px; }
+  .switch-kid-pop { position: absolute; top: calc(100% + 6px); left: 0; background: #fff; border: 1px solid var(--line, #eadfd1); border-radius: 14px; box-shadow: 0 10px 24px rgba(0,0,0,.12); padding: 6px; display: none; z-index: 100; min-width: 200px; }
+  .switch-kid-pop.open { display: block; }
+  .switch-kid-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .switch-kid-item:hover { background: var(--sun-2, #fef0c8); }
+  .switch-kid-item.active { background: var(--berry, #d9477b); color: #fff; }
+  .switch-kid-item .em { font-size: 20px; }
   .sub-kidpick { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0 12px; border-bottom: 1px solid var(--line, #eadfd1); margin-bottom: 12px; }
   .sub-kidpick-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--line, #eadfd1); background: #fff; font-size: 13px; font-weight: 800; cursor: pointer; transition: transform .12s, background .12s; }
   .sub-kidpick-chip:hover { background: var(--sun-2, #fef0c8); }
@@ -369,7 +380,7 @@
   .pick-cta { background: var(--berry); color: white; border: none; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; }
 
   /* ============ MEAL LOG ============ */
-  .mlog { padding: 22px 28px; background: linear-gradient(180deg, #FFF6E5 0%, #FFE3C2 100%); display: grid; grid-template-columns: 1.05fr 1fr; gap: 18px; }
+  .mlog { padding: 22px 28px; background: linear-gradient(180deg, #FFF6E5 0%, #FFE3C2 100%); display: flex; flex-direction: column; gap: 14px; max-width: 720px; margin: 0 auto; width: 100%; }
   .mlog-left { display: flex; flex-direction: column; gap: 12px; }
   .mlog-head { display: flex; justify-content: space-between; align-items: center; }
   .mlog-title { font-size: 26px; font-weight: 900; margin: 0; letter-spacing: -0.5px; }
@@ -2301,29 +2312,38 @@
       <!-- ============ MEAL LOG ============ -->
       <div class="view" id="view-meal">
         <div class="mlog">
-          <div class="mlog-left">
-            <div class="mlog-head">
-              <div>
-                <h2 class="mlog-title" id="mlog-title">Today's food, <span id="mlog-kid-name">friend</span>!</h2>
-                <div class="mlog-sub" id="mlog-sub">Tap a food group to log it</div>
-              </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+            <button class="app-back" id="meal-back-btn">← Home</button>
+            <div class="switch-kid" id="meal-switch-kid"></div>
+          </div>
+          <div class="mlog-head">
+            <div>
+              <h2 class="mlog-title" id="mlog-title">Today's food, <span id="mlog-kid-name">friend</span>!</h2>
+              <div class="mlog-sub" id="mlog-sub">Tap a food group, pick an amount, then feed your buddy.</div>
             </div>
-            <div class="sub-kidpick" id="meal-kidpick" data-view="meal"></div>
+          </div>
 
             <div class="ml-needs">
               <div class="ml-needs-ava">
                 <div class="ava-shell" id="ml-needs-buddy" style="width:64px;height:64px;font-size:42px;">🦖</div>
               </div>
               <div class="ml-needs-body">
-                <div class="ml-needs-eyebrow"><span class="buddy-name">Dino</span> is asking for…</div>
+                <div class="ml-needs-eyebrow">Your <span class="buddy-name-lc">buddy</span> is asking for…</div>
                 <div class="ml-needs-list">
-                  <div class="needs-tag urgent"><span class="em">🥦</span> Veggies <b>+35 urgent</b></div>
-                  <div class="needs-tag deficit"><span class="em">🍗</span> Protein <b>+8 deficit</b></div>
-                  <div class="needs-tag good"><span class="em">🍩</span> Skip a treat <b>+5</b></div>
+                  <div class="needs-tag urgent"><span class="em">🥦</span> Veggies <b>+25</b></div>
+                  <div class="needs-tag deficit"><span class="em">🍗</span> Protein <b>+15</b></div>
+                  <div class="needs-tag good"><span class="em">🥛</span> Dairy <b>+10</b></div>
                 </div>
               </div>
             </div>
-            <div class="bb-section-lbl">🍽️ Today's food groups · tap any to log</div>
+
+            <div class="feed-host" id="feed-host" style="background: linear-gradient(180deg, #FFF6E5 0%, #FFE9D6 100%); border-radius: 18px; padding: 18px 12px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+              <div class="ava-shell ava-3d" id="feed-avatar" style="width:240px;height:240px;font-size:150px;">🦖<div class="sweat">💧</div></div>
+              <div class="feed-burst" id="feed-burst"></div>
+              <div id="feed-status" style="text-align:center; font-weight:800; font-size:14px; line-height:1.35; color:var(--ink, #2a2440); min-height:32px;">Pick a food group to feed your buddy!</div>
+            </div>
+
+            <div class="bb-section-lbl">🍽️ Tap a food group</div>
             <div class="grp-grid" id="grp-grid">
               <div class="grp-tile" data-grp="dairy"><div class="grp-icon">🥛</div><div class="grp-info"><h4 class="grp-name">Dairy</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 0%;"></div></div><div class="grp-meta">Tap to log</div></div></div>
               <div class="grp-tile" data-grp="protein"><div class="grp-icon">🍗</div><div class="grp-info"><h4 class="grp-name">Protein</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 0%;"></div></div><div class="grp-meta">Tap to log</div></div></div>
@@ -2333,17 +2353,8 @@
               <div class="grp-tile junk" data-grp="treats"><div class="grp-icon">🍩</div><div class="grp-info"><h4 class="grp-name">Treats</h4><div class="grp-progress"><div class="grp-progress-fill junk" style="width: 0%;"></div></div><div class="grp-meta">Tap to log</div></div></div>
             </div>
 
-          </div>
-
-          <div class="mlog-right">
-            <button class="app-back" id="meal-back-btn" style="align-self: flex-start; margin-bottom: 4px;">← Home</button>
-            <div class="feed-host" id="feed-host" style="background: linear-gradient(180deg, #FFF6E5 0%, #FFE9D6 100%); border-radius: 18px; padding: 18px 12px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-              <div class="ava-shell ava-3d" id="feed-avatar" style="width:220px;height:220px;font-size:140px;">🦖<div class="sweat">💧</div></div>
-              <div class="feed-burst" id="feed-burst"></div>
-              <div id="feed-status" style="text-align:center; font-weight:800; font-size:14px; line-height:1.35; color:var(--ink, #2a2440); min-height:32px;">Pick a food group to feed your buddy!</div>
-            </div>
             <div>
-              <div class="ml-step-label" id="ml-meal-label">Pick a food group</div>
+              <div class="ml-step-label" id="ml-meal-label">Pick a food group above</div>
               <h3 class="ml-q" id="ml-q">How much did you have?</h3>
             </div>
             <div class="ml-amounts" id="ml-amounts">
@@ -2397,10 +2408,10 @@
         </div>
       </div>
 
-      <!-- ============ TROPHIES (Champions Wall + latest unlock) ============ -->
+      <!-- ============ TROPHIES (Champions Wall + buddy/unlock) ============ -->
       <div class="view" id="view-trophies">
         <div class="tro">
-          <div class="sub-kidpick" id="trophies-kidpick" data-view="trophies"></div>
+          <div class="switch-kid" id="trophies-switch-kid" style="margin-bottom:10px;"></div>
           <!-- Lifetime stats bar -->
           <div class="tro-stats" id="tro-stats">
             <div class="tro-stat">
@@ -2825,9 +2836,7 @@
                 <p class="ch-sub">Separate from food strength — fair across ages. Earns privileges, not leaderboard XP.</p>
               </div>
             </div>
-            <div class="ch-kidpicker" id="ch-kidpicker">
-              <!-- Rendered dynamically from state.kids -->
-            </div>
+            <div class="switch-kid" id="chores-switch-kid"></div>
 
             <div class="trust-card">
               <div class="trust-head">
@@ -4423,26 +4432,54 @@
     if (typeof mbGoTo === 'function' && currentView !== 'leaderboard') mbGoTo(currentView);
   }
 
-  // Render the kid-switcher chip rows shown at the top of sub-views (Meal Log, Trophies)
+  // Render the kid-switcher buttons shown at the top of sub-views.
+  // Replaces the older multi-chip strip with a single "Switch kid" pill + popover.
   function renderSubKidPickers() {
     const kids = (window.mb && window.mb.state && window.mb.state.kids) || [];
     const curId = window.mb && window.mb.state && window.mb.state.currentKidId;
-    document.querySelectorAll('.sub-kidpick').forEach(host => {
-      if (kids.length <= 1) { host.style.display = 'none'; return; }
+    // Hide legacy chip strips
+    document.querySelectorAll('.sub-kidpick').forEach(host => host.style.display = 'none');
+    document.querySelectorAll('.switch-kid').forEach(host => {
+      if (kids.length === 0) { host.style.display = 'none'; return; }
       host.style.display = '';
-      let html = '<span class="sub-kidpick-lbl">Viewing</span>';
-      html += kids.map(k =>
-        '<button class="sub-kidpick-chip' + (k.id === curId ? ' active' : '') + '" data-kpid="' + k.id + '">' +
-          '<span style="font-size:18px;">' + (k.buddy || '🦖') + '</span>' +
-          '<span>' + (k.name || '') + '</span>' +
-        '</button>'
-      ).join('');
-      host.innerHTML = html;
-      host.querySelectorAll('[data-kpid]').forEach(btn => {
-        btn.addEventListener('click', () => { mbSetKid(btn.dataset.kpid); });
-      });
+      const cur = kids.find(k => k.id === curId) || kids[0];
+      const isSingle = kids.length === 1;
+      host.innerHTML =
+        '<button class="switch-kid-btn" type="button">' +
+          '<span class="em">' + (cur.buddy || '🦖') + '</span>' +
+          '<span>' + (cur.name || 'Pick a kid') + '</span>' +
+          (isSingle ? '' : '<span class="arrow">▾ Switch</span>') +
+        '</button>' +
+        (isSingle ? '' :
+          '<div class="switch-kid-pop">' +
+            kids.map(k =>
+              '<div class="switch-kid-item' + (k.id === cur.id ? ' active' : '') + '" data-skid="' + k.id + '">' +
+                '<span class="em">' + (k.buddy || '🦖') + '</span>' +
+                '<span>' + (k.name || '') + '</span>' +
+              '</div>'
+            ).join('') +
+          '</div>');
+      const btn = host.querySelector('.switch-kid-btn');
+      const pop = host.querySelector('.switch-kid-pop');
+      if (btn && pop) {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.switch-kid-pop.open').forEach(p => { if (p !== pop) p.classList.remove('open'); });
+          pop.classList.toggle('open');
+        });
+        pop.querySelectorAll('[data-skid]').forEach(item => {
+          item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            pop.classList.remove('open');
+            mbSetKid(item.dataset.skid);
+          });
+        });
+      }
     });
   }
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.switch-kid-pop.open').forEach(p => p.classList.remove('open'));
+  });
   window.addEventListener('mb-kids-changed', () => { if (typeof renderSubKidPickers === 'function') renderSubKidPickers(); });
   // Backwards-compat aliases on window.mb if available
   function attachMbAliases() {
