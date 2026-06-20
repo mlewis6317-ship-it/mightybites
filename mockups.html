@@ -136,6 +136,15 @@
   .app-home:hover { background: var(--sun-2, #fef0c8); }
   .app-gear { background: #fff; border: 1px solid var(--line, #eadfd1); width: 44px; height: 44px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,.04); position: relative; z-index: 50; flex-shrink: 0; }
   .app-gear:hover { background: var(--sun-2, #fef0c8); }
+  .sub-tab-bar { display: flex; gap: 4px; background: #fff; border: 1px solid var(--line, #eadfd1); border-radius: 14px; padding: 4px; margin-bottom: 12px; }
+  .sub-tab { flex: 1; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; text-align: center; border: none; background: transparent; color: var(--ink, #2a2440); transition: all .15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .sub-tab:hover { background: var(--sun-2, #fef0c8); }
+  .sub-tab.active { background: var(--berry, #d9477b); color: #fff; box-shadow: 0 2px 6px rgba(217,71,123,.25); }
+  .sub-tab .em { font-size: 16px; }
+  @media (max-width: 480px) {
+    .sub-tab { padding: 8px 6px; font-size: 11px; }
+    .sub-tab .em { font-size: 15px; }
+  }
   .switch-kid { position: relative; display: inline-flex; }
   .switch-kid-btn { background: #fff; border: 1.5px solid var(--line, #eadfd1); border-radius: 999px; padding: 8px 14px; font-size: 13px; font-weight: 800; color: var(--ink, #2a2440); cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
   .switch-kid-btn:hover { background: var(--sun-2, #fef0c8); }
@@ -2077,7 +2086,7 @@
 
 <div class="stage" id="mb-app" style="display: none;">
   <div class="header" id="app-header">
-    <button class="app-back" id="app-back" style="display:none;">← Back</button>
+    <button class="app-back" id="app-back" style="display:none !important;">← Back</button>
     <button class="app-home" id="app-home" style="display:none;" title="Home">🏠</button>
     <div class="logo">M</div>
     <div style="flex: 1; min-width: 0;">
@@ -2110,7 +2119,7 @@
       <div class="view" id="view-profile">
         <div class="profile">
           <div class="profile-top">
-            <div class="pf-back" id="pf-back" style="cursor:pointer;"><div class="av">←</div><span>Home</span></div>
+            <div class="pf-back" id="pf-back" style="cursor:pointer;"><div class="av">←</div><span>Back</span></div>
             <div class="pf-meta">
               <div class="pf-streak"><span style="font-size:18px;">🔥</span> 6-day streak</div>
               <div class="pf-trust" id="pf-trust-pill">⭐ <b>L1</b> Helper</div>
@@ -2123,6 +2132,12 @@
               <h2 id="pf-name-kid" style="margin:2px 0 0; font-size:28px; font-weight:900; letter-spacing:-0.5px;">Kid Name</h2>
               <div id="pf-name-buddyname" style="font-size:13px; opacity:.7; font-weight:700; margin-top:2px;">with their buddy</div>
             </div>
+            <div class="switch-kid" id="profile-switch-kid" style="flex-shrink:0;"></div>
+          </div>
+          <div class="sub-tab-bar">
+            <button class="sub-tab" data-subtab="meal"><span class="em">🍽️</span> Meals</button>
+            <button class="sub-tab" data-subtab="chores"><span class="em">⭐</span> Chores</button>
+            <button class="sub-tab" data-subtab="trophies"><span class="em">🏆</span> Trophies</button>
           </div>
 
           <div class="weekly-goal">
@@ -2414,9 +2429,14 @@
 
       <!-- ============ MEAL LOG ============ -->
       <div class="view" id="view-meal">
-        <div style="grid-column: 1 / -1; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:8px;">
-          <button class="app-back" id="meal-back-btn">← Home</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:8px;">
+          <button class="app-back" id="meal-back-btn">← Back</button>
           <div class="switch-kid" id="meal-switch-kid"></div>
+        </div>
+        <div class="sub-tab-bar">
+          <button class="sub-tab active" data-subtab="meal"><span class="em">🍽️</span> Meals</button>
+          <button class="sub-tab" data-subtab="chores"><span class="em">⭐</span> Chores</button>
+          <button class="sub-tab" data-subtab="trophies"><span class="em">🏆</span> Trophies</button>
         </div>
         <div class="mlog">
           <!-- LEFT COLUMN: needs → avatar → food groups → amount → feed button -->
@@ -2523,8 +2543,13 @@
       <div class="view" id="view-trophies">
         <div class="tro">
           <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px;">
-            <button class="app-back" onclick="mbGoTo('leaderboard')">← Home</button>
+            <button class="app-back" id="trophies-back-btn">← Back</button>
             <div class="switch-kid" id="trophies-switch-kid"></div>
+          </div>
+          <div class="sub-tab-bar">
+            <button class="sub-tab" data-subtab="meal"><span class="em">🍽️</span> Meals</button>
+            <button class="sub-tab" data-subtab="chores"><span class="em">⭐</span> Chores</button>
+            <button class="sub-tab active" data-subtab="trophies"><span class="em">🏆</span> Trophies</button>
           </div>
           <!-- Lifetime stats bar -->
           <div class="tro-stats" id="tro-stats">
@@ -2953,8 +2978,13 @@
       <div class="view" id="view-chores">
         <div class="chores">
           <div style="grid-column: 1 / -1; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:8px;">
-            <button class="app-back" onclick="mbGoTo('leaderboard')">← Home</button>
+            <button class="app-back" id="chores-back-btn">← Back</button>
             <div class="switch-kid" id="chores-switch-kid"></div>
+          </div>
+          <div class="sub-tab-bar" style="grid-column: 1 / -1;">
+            <button class="sub-tab" data-subtab="meal"><span class="em">🍽️</span> Meals</button>
+            <button class="sub-tab active" data-subtab="chores"><span class="em">⭐</span> Chores</button>
+            <button class="sub-tab" data-subtab="trophies"><span class="em">🏆</span> Trophies</button>
           </div>
           <div style="grid-column: 1 / -1;">
             <div class="ch-head">
@@ -4574,6 +4604,11 @@
     const home = document.getElementById('app-home');
     if (home) home.style.display = (view === 'leaderboard') ? 'none' : '';
     if (typeof renderSubKidPickers === 'function') renderSubKidPickers();
+    // Highlight the correct sub-tab in the tab bars
+    const subKey = (view === 'meal') ? 'meal' : (view === 'chores' ? 'chores' : (view === 'trophies' ? 'trophies' : null));
+    document.querySelectorAll('.sub-tab').forEach(t => {
+      t.classList.toggle('active', subKey != null && t.dataset.subtab === subKey);
+    });
     // Scroll up
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -4581,6 +4616,47 @@
   document.getElementById('app-home')?.addEventListener('click', () => {
     viewHistory.length = 0;
     mbGoTo('leaderboard');
+  });
+
+  // Wire in-container back buttons → use history stack like the main Back
+  function backOneStep() {
+    try {
+      const prev = viewHistory.length ? viewHistory.pop() : (VIEW_BACK_TARGETS[currentView] || 'leaderboard');
+      currentView = prev;
+      document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+      const v = document.getElementById('view-'+prev);
+      if (v) v.classList.add('active');
+      const titleEl = document.getElementById('app-title');
+      const subEl = document.getElementById('app-sub');
+      const meta = VIEW_TITLES[prev] || { t:'', s:'' };
+      const kid = window.mb && window.mb.state && (window.mb.state.kids || []).find(k => k.id === window.mb.state.currentKidId);
+      let titleTxt = meta.t, subTxt = meta.s;
+      if (prev === 'profile' && kid) { titleTxt = (kid.buddy || '🦖') + ' ' + kid.name; subTxt = 'Dashboard · age ' + (kid.age || '?'); }
+      else if (kid && prev !== 'leaderboard' && prev !== 'settings') { titleTxt = (kid.buddy || '🦖') + ' ' + kid.name; }
+      if (titleEl) titleEl.textContent = titleTxt || 'MightyBites';
+      if (subEl) subEl.textContent = subTxt || '';
+      const homeBtn = document.getElementById('app-home');
+      if (homeBtn) homeBtn.style.display = (prev === 'leaderboard') ? 'none' : '';
+      if (typeof renderSubKidPickers === 'function') renderSubKidPickers();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) { console.error('back failed:', e); }
+  }
+  ['chores-back-btn','trophies-back-btn'].forEach(id => {
+    document.getElementById(id)?.addEventListener('click', backOneStep);
+  });
+
+  // Sub-tab bar: delegate clicks
+  document.addEventListener('click', (e) => {
+    const tab = e.target.closest('.sub-tab');
+    if (!tab) return;
+    const sub = tab.dataset.subtab;
+    if (!sub) return;
+    // Map subtab key → view id
+    const target = sub === 'meal' ? 'meal' : (sub === 'chores' ? 'chores' : 'trophies');
+    if (currentView !== target) mbGoTo(target);
+    // Activate this tab visually (mbGoTo also re-runs but useful when staying)
+    document.querySelectorAll('.sub-tab-bar .sub-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('[data-subtab="' + sub + '"]').forEach(t => t.classList.add('active'));
   });
   // Header back button + gear icon — direct handlers
   function wireHeaderButtons() {
@@ -6082,8 +6158,8 @@
   window.addEventListener('mb-kids-changed', () => renderResponsibility());
 
   // Dashboard action wiring
-  document.getElementById('pf-back')?.addEventListener('click', () => mbGoTo('leaderboard'));
-  document.getElementById('meal-back-btn')?.addEventListener('click', () => mbGoTo('leaderboard'));
+  document.getElementById('pf-back')?.addEventListener('click', backOneStep);
+  document.getElementById('meal-back-btn')?.addEventListener('click', backOneStep);
   // (Leaderboard Settings pill removed — use the header gear icon instead.)
   document.getElementById('pf-act-meal')?.addEventListener('click', () => mbGoTo('meal'));
 
