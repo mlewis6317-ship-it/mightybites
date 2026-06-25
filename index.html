@@ -2809,17 +2809,10 @@
               <div class="dress-preview">
                 <div class="dress-stage-wrap" id="dress-stage-wrap">
                   <div class="mood-indicator" id="dress-mood">🤩</div>
-                  <div class="ava-3d-rotator">
-                    <div class="ava-shell ava-3d" id="dress-avatar" style="width:180px;height:180px;font-size:115px;">
-                      <span class="ava-emoji">🦖</span>
-                      <span class="cos cos-head" data-slot="head">👑</span>
-                      <span class="cos cos-eyes" data-slot="eyes">🕶</span>
-                      <span class="cos cos-cape" data-slot="cape">⚡</span>
-                      <span class="cos cos-effect" data-slot="effect">✨</span>
-                      <span class="cos cos-acc" data-slot="acc">🎀</span>
-                    </div>
+                  <div id="dress-avatar" style="width:220px; height:240px; position: relative; display:flex; align-items:center; justify-content:center;">
+                    <div id="dress-buddy-svg" style="width:100%; height:100%;"></div>
                   </div>
-                  <div class="drag-hint">✋ Tap any earned item below — your outfit saves automatically</div>
+                  <div class="drag-hint">✋ Tap any item below — your buddy will wear it</div>
                 </div>
                 <div class="dress-equipped">
                   <div class="dress-eq-lbl">Wearing</div>
@@ -3795,39 +3788,10 @@
     });
   }
 
-  // Default positions for cosmetics inside the 180×180 avatar shell (centered = 90,90)
-  // Negative values place items above/outside the shell; values >180 place them below/outside.
-  const cosPositions = {
-    head:   { x: 90,  y: -20 },   // above the head
-    eyes:   { x: 90,  y: 75 },    // on the face
-    cape:   { x: 170, y: 160 },   // lower-right (cape feel)
-    effect: { x: 165, y: 20 },    // upper-right sparkle
-    acc:    { x: 30,  y: 165 }    // lower-left accessory
-  };
-
-  function applyCosPosition(slot) {
-    const el = document.querySelector(`.cos[data-slot="${slot}"]`);
-    if (!el) return;
-    const p = cosPositions[slot];
-    el.style.left = p.x + 'px';
-    el.style.top = p.y + 'px';
-  }
-
   function renderEquipped() {
-    // Update avatar cosmetic slots
-    document.querySelectorAll('.dress-stage-wrap .cos').forEach(el => {
-      const slot = el.dataset.slot;
-      const id = equipped[slot];
-      const c = cosmetics.find(x => x.id === id);
-      if (c) {
-        el.textContent = c.em;
-        el.classList.add('on');
-        applyCosPosition(slot);
-      } else {
-        el.classList.remove('on');
-      }
-    });
-    // Apply effect transformations (rainbow / sparkle) to the avatar shell
+    // Re-render the SVG dressing-room avatar with current cosmetics
+    if (typeof renderBuddySVG === 'function') renderBuddySVG();
+    // Apply effect transformations to the dress avatar wrapper
     const dressAvatar = document.getElementById('dress-avatar');
     if (dressAvatar) {
       dressAvatar.classList.remove('fx-rainbow', 'fx-sparkle');
@@ -4457,7 +4421,7 @@
   equipped = getEquipped();
   renderCosGrid();
   renderEquipped();
-  initCosDrag();
+  // initCosDrag() — removed in Phase 2ZA: cosmetics are now positioned by species anchors.
 
   // Customize-rewards level picker (visual only)
   const levelMap = {
@@ -5555,6 +5519,51 @@
   };
   function speciesFor(buddy) { return BUDDY_EMOJI_TO_SPECIES[buddy] || 'dino'; }
 
+  // Cosmetic anchor points per slot — positions inside the 240×240 SVG viewBox.
+  // size = font-size for emoji text. rotate = degrees rotation around anchor.
+  const COSMETIC_ANCHORS = {
+    head:   { x: 120, y: 52,  size: 48, rotate: -6 },
+    eyes:   { x: 120, y: 90,  size: 32, rotate: 0  },
+    cape:   { x: 62,  y: 162, size: 50, rotate: -18 },
+    effect: { x: 200, y: 60,  size: 42, rotate: 0  },
+    acc:    { x: 120, y: 178, size: 32, rotate: 0  }
+  };
+  // Per-species head-offset overrides (e.g. bunny has tall ears, robo has antenna)
+  const SPECIES_HEAD_OFFSET = {
+    bunny: -28,  // long ears: push the hat higher
+    robo:  -22,  // antenna: push higher
+    fox:   -2,
+    shark: 4,
+    bear:  -2
+  };
+
+  // Return an SVG string with equipped cosmetics rendered as <text> overlays at proper anchor points
+  function buddySVGWithCosmetics(species, equipped) {
+    let svg = BUDDY_SVGS[species] || BUDDY_SVGS.dino;
+    if (!equipped) return svg;
+    const cosmeticLib = (typeof cosmetics !== 'undefined') ? cosmetics : [];
+    const overlays = [];
+    Object.keys(equipped).forEach(slot => {
+      const id = equipped[slot];
+      if (!id) return;
+      const c = cosmeticLib.find(x => x.id === id);
+      if (!c) return;
+      const a = COSMETIC_ANCHORS[slot];
+      if (!a) return;
+      let yAdj = a.y;
+      if (slot === 'head' && SPECIES_HEAD_OFFSET[species]) yAdj += SPECIES_HEAD_OFFSET[species];
+      const rotate = a.rotate ? ('rotate(' + a.rotate + ' ' + a.x + ' ' + yAdj + ')') : '';
+      // Add subtle drop-shadow so cosmetics feel layered on, not flat
+      overlays.push(
+        '<text x="' + a.x + '" y="' + yAdj + '" text-anchor="middle" dominant-baseline="central" font-size="' + a.size + '" ' +
+        (rotate ? 'transform="' + rotate + '" ' : '') +
+        'style="filter: drop-shadow(0 2px 3px rgba(0,0,0,.25));">' + c.em + '</text>'
+      );
+    });
+    if (overlays.length) svg = svg.replace('</svg>', overlays.join('') + '</svg>');
+    return svg;
+  }
+
   // Return a HEAD-ONLY cropped version of the SVG (viewBox zooms in on the face area)
   function buddySVGHead(species) {
     const raw = BUDDY_SVGS[species] || BUDDY_SVGS.dino;
@@ -5574,12 +5583,13 @@
   function renderBuddySVG() {
     const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
     const sp = speciesFor(kid ? kid.buddy : '🦖');
-    const fullSvg = BUDDY_SVGS[sp] || BUDDY_SVGS.dino;
+    const equippedMap = kid && kid.equipped ? kid.equipped : {};
+    const fullSvgWithCos = buddySVGWithCosmetics(sp, equippedMap);
     const headSvg = buddySVGHead(sp);
-    // FULL-BODY hosts (large avatars on Meal Log + Profile dashboard)
-    ['feed-buddy-svg', 'pf-buddy-svg'].forEach(id => {
+    // FULL-BODY hosts (large avatars on Meal Log + Profile dashboard + Dressing room)
+    ['feed-buddy-svg', 'pf-buddy-svg', 'dress-buddy-svg'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.innerHTML = fullSvg;
+      if (el) el.innerHTML = fullSvgWithCos;
     });
     // HEAD-ONLY hosts (small circular avatars throughout the app)
     ['pf-name-buddy', 'ml-needs-buddy'].forEach(id => {
