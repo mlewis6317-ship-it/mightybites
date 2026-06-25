@@ -5530,6 +5530,19 @@
     return map[buddy] || 'dino';
   }
 
+  // Make all SVG ids (gradients, filters, etc.) unique per instance so multiple
+  // copies of the same SVG on a page don't collide. CRITICAL — without this,
+  // the second+ instance of e.g. <radialGradient id="uni-body"> doesn't render.
+  let _svgIdCounter = 0;
+  function randomizeSVGIds(svg) {
+    if (!svg) return svg;
+    _svgIdCounter++;
+    const suffix = '-mb' + _svgIdCounter + Math.random().toString(36).slice(2, 6);
+    return svg
+      .replace(/id="([^"]+)"/g, 'id="$1' + suffix + '"')
+      .replace(/url\(#([^)]+)\)/g, 'url(#$1' + suffix + ')');
+  }
+
   // Schedule a forceful re-render after the script fully parses (BUDDY_SVGS is in TDZ
   // when initial renderEquipped fires near the top of the script). These deferred
   // calls ensure all avatar hosts get the proper SVG populated once everything's loaded.
@@ -5640,25 +5653,24 @@
     ['feed-buddy-svg', 'pf-buddy-svg', 'dress-buddy-svg'].forEach(id => {
       const el = document.getElementById(id);
       if (el) {
-        el.innerHTML = ''; // clear stale first
-        el.innerHTML = fullSvgWithCos;
+        el.innerHTML = '';
+        el.innerHTML = randomizeSVGIds(fullSvgWithCos);
       }
     });
     // HEAD-ONLY hosts (small circular avatars throughout the app)
     ['pf-name-buddy', 'ml-needs-buddy'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.innerHTML = headSvg;
+      if (el) el.innerHTML = randomizeSVGIds(headSvg);
     });
-    // Leaderboard/podium mini avatars — each carries its own species via data attr
+    // Leaderboard/podium mini avatars
     document.querySelectorAll('.buddy-svg-mini').forEach(el => {
-      // Make sure we're NOT touching feed-buddy-svg or pf-buddy-svg
       if (el.id === 'feed-buddy-svg' || el.id === 'pf-buddy-svg') return;
       const sp2 = el.dataset.species || sp;
-      el.innerHTML = buddySVGHead(sp2);
+      el.innerHTML = randomizeSVGIds(buddySVGHead(sp2));
     });
-    // This week's growth strip — use current buddy's head crop
+    // This week's growth strip
     document.querySelectorAll('.growth-day .gd-ava[data-growth="future"], .growth-day .gd-ava[data-growth="now"]').forEach(el => {
-      el.innerHTML = headSvg;
+      el.innerHTML = randomizeSVGIds(headSvg);
     });
     } catch (err) { console.error('renderBuddySVG failed:', err); }
   }
