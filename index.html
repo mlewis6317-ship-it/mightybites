@@ -5676,7 +5676,7 @@
     specs:   '<g class="cos-specs"><circle cx="105" cy="92" r="12" fill="rgba(255,255,255,.3)" stroke="#5B7C99" stroke-width="2"/><circle cx="135" cy="92" r="12" fill="rgba(255,255,255,.3)" stroke="#5B7C99" stroke-width="2"/><line x1="117" y1="92" x2="123" y2="92" stroke="#5B7C99" stroke-width="2"/></g>',
     goggles: '<g class="cos-goggles"><ellipse cx="105" cy="92" rx="13" ry="11" fill="rgba(91,184,255,.55)" stroke="#3F7B9B" stroke-width="2"/><ellipse cx="135" cy="92" rx="13" ry="11" fill="rgba(91,184,255,.55)" stroke="#3F7B9B" stroke-width="2"/><path d="M72 92 Q60 92 60 100 M168 92 Q180 92 180 100" stroke="#3F7B9B" stroke-width="2" fill="none"/></g>',
     // ===== CAPE =====
-    scarf:   '<g class="cos-scarf"><ellipse cx="120" cy="124" rx="40" ry="10" fill="#D9477B"/><ellipse cx="120" cy="122" rx="38" ry="7" fill="#FF6FA0"/><path d="M110 130 Q103 165 102 200 L120 198 Q120 165 120 130 Z" fill="#D9477B"/><path d="M130 130 Q137 165 138 200 L120 198 Q120 165 120 130 Z" fill="#B83864"/><line x1="106" y1="150" x2="118" y2="150" stroke="#FFC0D0" stroke-width="2" stroke-linecap="round"/><line x1="105" y1="170" x2="118" y2="170" stroke="#FFC0D0" stroke-width="2" stroke-linecap="round"/><line x1="103" y1="190" x2="118" y2="190" stroke="#FFC0D0" stroke-width="2" stroke-linecap="round"/><line x1="122" y1="150" x2="135" y2="150" stroke="#FFC0D0" stroke-width="2" stroke-linecap="round"/><line x1="122" y1="170" x2="136" y2="170" stroke="#FFC0D0" stroke-width="2" stroke-linecap="round"/><line x1="122" y1="190" x2="138" y2="190" stroke="#FFC0D0" stroke-width="2" stroke-linecap="round"/><line x1="85" y1="124" x2="155" y2="124" stroke="#B83864" stroke-width="1" opacity=".5"/></g>',
+    scarf:   '<g class="cos-scarf"><ellipse cx="120" cy="128" rx="44" ry="11" fill="#D9477B"/><ellipse cx="120" cy="125" rx="40" ry="7" fill="#FF6FA0"/><ellipse cx="120" cy="130" rx="42" ry="3" fill="#B83864" opacity=".6"/><path d="M104 135 Q98 165 96 195 L112 193 Q114 165 114 135 Z" fill="#D9477B"/><path d="M136 135 Q142 165 144 195 L128 193 Q126 165 126 135 Z" fill="#B83864"/><line x1="100" y1="148" x2="112" y2="148" stroke="#FFC0D0" stroke-width="2" stroke-linecap="round"/><line x1="99" y1="165" x2="112" y2="165" stroke="#FFC0D0" stroke-width="2" stroke-linecap="round"/><line x1="98" y1="182" x2="112" y2="182" stroke="#FFC0D0" stroke-width="2" stroke-linecap="round"/><line x1="128" y1="148" x2="140" y2="148" stroke="#FFC0D0" stroke-width="2" stroke-linecap="round"/><line x1="129" y1="165" x2="142" y2="165" stroke="#FFC0D0" stroke-width="2" stroke-linecap="round"/><line x1="130" y1="182" x2="143" y2="182" stroke="#FFC0D0" stroke-width="2" stroke-linecap="round"/><line x1="80" y1="128" x2="160" y2="128" stroke="#FFC0D0" stroke-width="1" opacity=".5"/></g>',
     cape:    '<g class="cos-cape" style="transform-origin: 120px 115px;"><path d="M60 115 Q35 130 25 175 Q35 215 80 200 L120 205 L160 200 Q205 215 215 175 Q205 130 180 115 Q120 105 60 115 Z" fill="#FFD66B" opacity=".88"/><path d="M85 160 L75 175 L82 178 L74 200 L92 178 L86 174 Z" fill="#FF8A5C"/><path d="M155 160 L165 175 L158 178 L166 200 L148 178 L154 174 Z" fill="#FF8A5C"/></g>',
     wings:   '<g class="cos-wings" style="transform-origin: center;"><ellipse cx="55" cy="135" rx="32" ry="42" fill="rgba(255,141,199,.65)" stroke="#D9477B" stroke-width="1.5"/><ellipse cx="185" cy="135" rx="32" ry="42" fill="rgba(125,196,255,.65)" stroke="#5BB8FF" stroke-width="1.5"/><circle cx="55" cy="120" r="8" fill="#FFD66B" opacity=".6"/><circle cx="185" cy="120" r="8" fill="#FFD66B" opacity=".6"/><circle cx="55" cy="150" r="6" fill="#fff" opacity=".5"/><circle cx="185" cy="150" r="6" fill="#fff" opacity=".5"/></g>',
     // ===== EFFECTS — drawn on top, mostly decorations =====
@@ -5746,10 +5746,15 @@
             (rotate ? 'transform="' + rotate + '" ' : '') +
             'style="filter: drop-shadow(0 2px 3px rgba(0,0,0,.25));">' + c.em + '</text>';
         }
-        // Decide draw order:
-        //   - capes, wings, and the lion mane render BEHIND the character (drawn first)
-        //   - everything else (hats, eyes, acc, effects) renders ON TOP
-        const goBehind = (slot === 'cape') || (id === 'mane');
+        // Decide draw order per cosmetic:
+        //   - Capes/wings → BEHIND (drape from back) — capes 'cape', wings, lightning cape
+        //   - Lion mane → BEHIND head (face still visible in front)
+        //   - Scarf → IN FRONT (wraps around the neck/chest, visible from the front)
+        //   - All hats, eyes, acc, effects → ON TOP
+        const FRONT_OVERRIDE = ['scarf'];  // cape-slot items that should render in front
+        const BEHIND_OVERRIDE = ['mane'];  // head-slot items that should render behind
+        const goBehind = (BEHIND_OVERRIDE.indexOf(id) >= 0) ||
+                         (slot === 'cape' && FRONT_OVERRIDE.indexOf(id) < 0);
         if (goBehind) before.push(pieceHtml);
         else after.push(pieceHtml);
       });
