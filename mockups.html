@@ -4922,8 +4922,10 @@
     if (typeof renderTrustDef === 'function') renderTrustDef();
     if (typeof applyBuddyStageEverywhere === 'function') applyBuddyStageEverywhere();
     if (typeof renderEmotionPicker === 'function') renderEmotionPicker();
-    if (typeof getEquipped === 'function') equipped = getEquipped();
-    if (typeof renderBuddySVG === 'function') renderBuddySVG();
+    try {
+      if (typeof getEquipped === 'function') equipped = getEquipped();
+      if (typeof renderBuddySVG === 'function') renderBuddySVG();
+    } catch (err) { console.error('mbSetKid SVG refresh failed:', err); }
     // Re-fire header title if currently on a kid page
     if (typeof mbGoTo === 'function' && currentView !== 'leaderboard') mbGoTo(currentView);
   }
@@ -5544,6 +5546,7 @@
 
   // Return an SVG string with equipped cosmetics rendered as <text> overlays at proper anchor points
   function buddySVGWithCosmetics(species, equipped) {
+    try {
     let svg = BUDDY_SVGS[species] || BUDDY_SVGS.dino;
     if (!equipped) return svg;
     const cosmeticLib = (typeof cosmetics !== 'undefined') ? cosmetics : [];
@@ -5567,6 +5570,10 @@
     });
     if (overlays.length) svg = svg.replace('</svg>', overlays.join('') + '</svg>');
     return svg;
+    } catch (err) {
+      console.error('buddySVGWithCosmetics failed:', err);
+      return BUDDY_SVGS[species] || BUDDY_SVGS.dino;
+    }
   }
 
   // Return a HEAD-ONLY cropped version of the SVG (viewBox zooms in on the face area)
@@ -5586,15 +5593,16 @@
   }
 
   function renderBuddySVG() {
+    try {
     const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
     const sp = speciesFor(kid ? kid.buddy : '🦖');
-    // Merge: kid.equipped (Firestore-synced) overlaid with local `equipped` (immediate from dressing-room taps)
-    const fromKid = (kid && kid.equipped) ? kid.equipped : {};
-    const fromLocal = (typeof equipped !== 'undefined' && equipped) ? equipped : {};
+    let fromKid = {};
+    let fromLocal = {};
+    try { fromKid = (kid && kid.equipped) ? kid.equipped : {}; } catch (_) {}
+    try { fromLocal = (typeof equipped !== 'undefined' && equipped) ? equipped : {}; } catch (_) {}
     const equippedMap = Object.assign({}, fromKid, fromLocal);
-    const fullSvgWithCos = buddySVGWithCosmetics(sp, equippedMap);
+    const fullSvgWithCos = (typeof buddySVGWithCosmetics === 'function') ? buddySVGWithCosmetics(sp, equippedMap) : (BUDDY_SVGS[sp] || BUDDY_SVGS.dino);
     const headSvg = buddySVGHead(sp);
-    // Debug aid (visible in dev console)
     if (window.mbDebug) console.log('[mb] renderBuddySVG kid=' + (kid && kid.name) + ' species=' + sp + ' equipped=', equippedMap);
     // FULL-BODY hosts (large avatars on Meal Log + Profile dashboard + Dressing room)
     ['feed-buddy-svg', 'pf-buddy-svg', 'dress-buddy-svg'].forEach(id => {
@@ -5620,10 +5628,13 @@
     document.querySelectorAll('.growth-day .gd-ava[data-growth="future"], .growth-day .gd-ava[data-growth="now"]').forEach(el => {
       el.innerHTML = headSvg;
     });
+    } catch (err) { console.error('renderBuddySVG failed:', err); }
   }
   window.addEventListener('mb-kids-changed', () => {
-    if (typeof getEquipped === 'function') equipped = getEquipped();
-    renderBuddySVG();
+    try {
+      if (typeof getEquipped === 'function') equipped = getEquipped();
+      renderBuddySVG();
+    } catch (err) { console.error('mb-kids-changed handler failed:', err); }
   });
 
   // ============ Phase 2V: Emotions ============
