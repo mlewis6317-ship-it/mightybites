@@ -4922,6 +4922,8 @@
     if (typeof renderTrustDef === 'function') renderTrustDef();
     if (typeof applyBuddyStageEverywhere === 'function') applyBuddyStageEverywhere();
     if (typeof renderEmotionPicker === 'function') renderEmotionPicker();
+    if (typeof getEquipped === 'function') equipped = getEquipped();
+    if (typeof renderBuddySVG === 'function') renderBuddySVG();
     // Re-fire header title if currently on a kid page
     if (typeof mbGoTo === 'function' && currentView !== 'leaderboard') mbGoTo(currentView);
   }
@@ -5499,6 +5501,9 @@
   window.addEventListener('mb-kids-changed', () => applyBuddyStageEverywhere());
   window.addEventListener('mb-meals-changed', () => applyBuddyStageEverywhere());
 
+  // Debug flag — set window.mbDebug = true in dev console to see render logs
+  window.mbDebug = window.mbDebug || false;
+
   // ============ Phase 2W: SVG buddy library + species mapping ============
   const BUDDY_SVGS = {
     dino: "<svg viewBox=\"0 0 240 240\" xmlns=\"http://www.w3.org/2000/svg\" class=\"buddy-svg\" style=\"width:100%; height:100%;\">\n  <defs>\n    <radialGradient id=\"dino-body\" cx=\"35%\" cy=\"30%\" r=\"80%\"><stop offset=\"0%\" stop-color=\"#9FE38F\"/><stop offset=\"100%\" stop-color=\"#4A8B47\"/></radialGradient>\n    <radialGradient id=\"dino-belly\" cx=\"50%\" cy=\"50%\" r=\"60%\"><stop offset=\"0%\" stop-color=\"#F5F0CC\"/><stop offset=\"100%\" stop-color=\"#D0C490\"/></radialGradient>\n  </defs>\n  <ellipse class=\"b-shadow\" cx=\"120\" cy=\"226\" rx=\"60\" ry=\"6\" fill=\"rgba(0,0,0,.18)\"/>\n  <g class=\"g-tail\">\n    <path d=\"M75 165 Q40 140 40 110 Q40 95 55 95 Q70 105 80 125 Z\" fill=\"url(#dino-body)\"/>\n  </g>\n  <g class=\"g-leg-l\"><ellipse cx=\"100\" cy=\"200\" rx=\"14\" ry=\"22\" fill=\"url(#dino-body)\"/></g>\n  <g class=\"g-leg-r\"><ellipse cx=\"140\" cy=\"200\" rx=\"14\" ry=\"22\" fill=\"url(#dino-body)\"/></g>\n  <g class=\"g-body\">\n    <ellipse cx=\"120\" cy=\"155\" rx=\"48\" ry=\"42\" fill=\"url(#dino-body)\"/>\n    <ellipse cx=\"120\" cy=\"160\" rx=\"28\" ry=\"28\" fill=\"url(#dino-belly)\"/>\n  </g>\n  <g class=\"g-arm-l\"><ellipse cx=\"78\" cy=\"150\" rx=\"10\" ry=\"18\" fill=\"url(#dino-body)\"/></g>\n  <g class=\"g-arm-r\"><ellipse cx=\"162\" cy=\"150\" rx=\"10\" ry=\"18\" fill=\"url(#dino-body)\"/></g>\n  <g class=\"g-head\">\n    <ellipse cx=\"120\" cy=\"90\" rx=\"45\" ry=\"40\" fill=\"url(#dino-body)\"/>\n    <!-- Spikes -->\n    <path d=\"M88 65 L84 50 L94 60 Z M105 55 L100 38 L113 53 Z M125 53 L122 36 L135 50 Z M145 60 L150 45 L155 60 Z\" fill=\"#3A7A37\"/>\n    <!-- Eyes -->\n    <circle cx=\"104\" cy=\"92\" r=\"8\" fill=\"#fff\"/><circle cx=\"104\" cy=\"93\" r=\"4\" fill=\"#2a2440\"/>\n    <circle cx=\"135\" cy=\"92\" r=\"8\" fill=\"#fff\"/><circle cx=\"135\" cy=\"93\" r=\"4\" fill=\"#2a2440\"/>\n    <!-- Nostrils + mouth -->\n    <circle cx=\"125\" cy=\"115\" r=\"1.8\" fill=\"#2a2440\"/><circle cx=\"135\" cy=\"115\" r=\"1.8\" fill=\"#2a2440\"/>\n    <path d=\"M110 122 Q120 130 132 122\" stroke=\"#2a2440\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/>\n  </g>\n</svg>",
@@ -5583,13 +5588,21 @@
   function renderBuddySVG() {
     const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
     const sp = speciesFor(kid ? kid.buddy : '🦖');
-    const equippedMap = kid && kid.equipped ? kid.equipped : {};
+    // Merge: kid.equipped (Firestore-synced) overlaid with local `equipped` (immediate from dressing-room taps)
+    const fromKid = (kid && kid.equipped) ? kid.equipped : {};
+    const fromLocal = (typeof equipped !== 'undefined' && equipped) ? equipped : {};
+    const equippedMap = Object.assign({}, fromKid, fromLocal);
     const fullSvgWithCos = buddySVGWithCosmetics(sp, equippedMap);
     const headSvg = buddySVGHead(sp);
+    // Debug aid (visible in dev console)
+    if (window.mbDebug) console.log('[mb] renderBuddySVG kid=' + (kid && kid.name) + ' species=' + sp + ' equipped=', equippedMap);
     // FULL-BODY hosts (large avatars on Meal Log + Profile dashboard + Dressing room)
     ['feed-buddy-svg', 'pf-buddy-svg', 'dress-buddy-svg'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.innerHTML = fullSvgWithCos;
+      if (el) {
+        el.innerHTML = ''; // clear stale first
+        el.innerHTML = fullSvgWithCos;
+      }
     });
     // HEAD-ONLY hosts (small circular avatars throughout the app)
     ['pf-name-buddy', 'ml-needs-buddy'].forEach(id => {
@@ -5608,7 +5621,10 @@
       el.innerHTML = headSvg;
     });
   }
-  window.addEventListener('mb-kids-changed', () => renderBuddySVG());
+  window.addEventListener('mb-kids-changed', () => {
+    if (typeof getEquipped === 'function') equipped = getEquipped();
+    renderBuddySVG();
+  });
 
   // ============ Phase 2V: Emotions ============
   const EMOTIONS = [
