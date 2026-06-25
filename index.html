@@ -246,6 +246,13 @@
 
   /* SVG character body parts animations */
   .buddy-svg-wrap { transform-origin: center bottom; }
+  .buddy-svg-mini { display: inline-flex; align-items: center; justify-content: center; }
+  .buddy-svg-mini svg { width: 100%; height: 100%; }
+  /* When lb-ava becomes an SVG container, override its emoji-only styling */
+  .lb-ava.buddy-svg-mini {
+    background: radial-gradient(circle at 35% 30%, #FFFFFF, #FFD8B4 60%, #FFB774) !important;
+    overflow: hidden;
+  }
   .buddy-svg .g-head, .buddy-svg .g-body, .buddy-svg .g-arm-l, .buddy-svg .g-arm-r, .buddy-svg .g-leg-l, .buddy-svg .g-leg-r, .buddy-svg .g-tail {
     transform-origin: center;
   }
@@ -2326,7 +2333,7 @@
             </div>
           </div>
           <div class="pf-namebar" id="pf-namebar" style="display:flex; align-items:center; gap:14px; padding:14px 18px; background:linear-gradient(135deg, #fff 0%, #fff6e5 100%); border:1.5px solid var(--line, #eadfd1); border-radius:16px; margin-bottom:14px;">
-            <div id="pf-name-buddy" style="font-size:48px; line-height:1; flex-shrink:0;">🦖</div>
+            <div id="pf-name-buddy" style="width:64px; height:64px; flex-shrink:0;"></div>
             <div style="flex:1; min-width:0;">
               <div style="font-size:11px; font-weight:800; opacity:.55; letter-spacing:.4px; text-transform:uppercase;">Dashboard</div>
               <h2 id="pf-name-kid" style="margin:2px 0 0; font-size:28px; font-weight:900; letter-spacing:-0.5px;">Kid Name</h2>
@@ -2356,7 +2363,7 @@
             <div class="pf-avatar-col">
 <div class="pf-bubble" id="pf-bubble"><span class="lead">Loading…</span></div>
               <div class="ava-shell">
-                <span id="pf-buddy-emoji">🦖</span>
+<div id="pf-buddy-svg" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;"></div>
                 <div class="crown">👑</div>
                 <div class="sweat">💧</div>
               </div>
@@ -2654,7 +2661,7 @@
 
             <div class="ml-needs" id="ml-needs">
               <div class="ml-needs-ava">
-                <div class="ava-shell" id="ml-needs-buddy" style="width:56px;height:56px;font-size:36px;">🦖</div>
+                <div id="ml-needs-buddy" style="width:64px; height:64px;"></div>
               </div>
               <div class="ml-needs-body">
                 <div class="ml-needs-eyebrow">Your <span class="buddy-name-lc">buddy</span> is asking for…</div>
@@ -4590,6 +4597,8 @@
     return String(x).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
   }
   function renderLeaderboard(kids) {
+    // (Re-run renderBuddySVG after this function so the .buddy-svg-mini hosts get filled)
+    setTimeout(() => { if (typeof renderBuddySVG === 'function') renderBuddySVG(); }, 30);
     // Update today's date label
     const dateEl = document.getElementById('lb-date');
     if (dateEl) {
@@ -4631,7 +4640,7 @@
         const xp = k.currentWeekXP || 0;
         const strongClass = idx === 1 ? ' strong' : '';
         const crown = idx === 1 ? '<div class="crown">👑</div>' : '';
-        return '<div class="pod-bar ' + pos[idx] + '"><div class="pod-ava-wrap"><div class="ava-shell' + strongClass + '" style="width:' + sizes[idx].w + 'px;height:' + sizes[idx].w + 'px;font-size:' + sizes[idx].f + 'px;">' + (k.buddy || '🦖') + crown + '</div><div class="pod-medal">' + medals[idx] + '</div></div><div class="pod-name">' + escapeHTML(k.name) + '</div><div class="pod-tag">' + buddyStageName(k.buddy) + ' · ' + k.age + '</div><div class="pod-xp">' + xp + ' XP</div><div class="pod-block ' + sizes[idx].block + '">' + sizes[idx].rank + '</div></div>';
+        return '<div class="pod-bar ' + pos[idx] + '"><div class="pod-ava-wrap"><div class="ava-shell' + strongClass + '" style="width:' + sizes[idx].w + 'px;height:' + sizes[idx].w + 'px; padding:0; display:flex; align-items:center; justify-content:center; overflow:visible; background: radial-gradient(circle at 35% 30%, #FFFFFF, #FFE3A0 60%, #FFC788);"><div class="buddy-svg-mini" data-species="' + speciesFor(k.buddy) + '" style="width:90%; height:90%;"></div>' + crown + '</div><div class="pod-medal">' + medals[idx] + '</div></div><div class="pod-name">' + escapeHTML(k.name) + '</div><div class="pod-tag">' + buddyStageName(k.buddy) + ' · ' + k.age + '</div><div class="pod-xp">' + xp + ' XP</div><div class="pod-block ' + sizes[idx].block + '">' + sizes[idx].rank + '</div></div>';
       }).join('');
     }
     // Build full list
@@ -4660,7 +4669,7 @@
         const chorePct = Math.min(100, Math.round((choreXP / choreGoal) * 100));
         return '<div class="lb-row ' + rank + '" data-kid-id="' + k.id + '">' +
           '<div class="lb-rank">' + (i + 1) + '</div>' +
-          '<div class="lb-ava">' + (k.buddy || '🦖') + '</div>' +
+          '<div class="lb-ava buddy-svg-mini" data-species="' + speciesFor(k.buddy) + '"></div>' +
           '<div class="lb-info">' +
             '<div class="lb-name">' + escapeHTML(k.name) + '</div>' +
             '<div class="lb-meta">' + buddyStageName(k.buddy) + ' · age ' + k.age + '</div>' +
@@ -5536,11 +5545,26 @@
   function speciesFor(buddy) { return BUDDY_EMOJI_TO_SPECIES[buddy] || 'dino'; }
 
   function renderBuddySVG() {
-    const host = document.getElementById('feed-buddy-svg');
-    if (!host) return;
     const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
     const sp = speciesFor(kid ? kid.buddy : '🦖');
-    if (BUDDY_SVGS[sp]) host.innerHTML = BUDDY_SVGS[sp];
+    const svg = BUDDY_SVGS[sp] || BUDDY_SVGS.dino;
+    // Big meal-log avatar
+    const feedHost = document.getElementById('feed-buddy-svg');
+    if (feedHost) feedHost.innerHTML = svg;
+    // Profile big avatar
+    const pfHost = document.getElementById('pf-buddy-svg');
+    if (pfHost) pfHost.innerHTML = svg;
+    // Profile name banner small avatar
+    const nameHost = document.getElementById('pf-name-buddy');
+    if (nameHost) nameHost.innerHTML = svg;
+    // Meal log needs-banner mini
+    const needsHost = document.getElementById('ml-needs-buddy');
+    if (needsHost) needsHost.innerHTML = svg;
+    // Leaderboard mini avatars (each has its own data-species)
+    document.querySelectorAll('.buddy-svg-mini').forEach(el => {
+      const sp2 = el.dataset.species || sp;
+      if (BUDDY_SVGS[sp2]) el.innerHTML = BUDDY_SVGS[sp2];
+    });
   }
   window.addEventListener('mb-kids-changed', () => renderBuddySVG());
 
