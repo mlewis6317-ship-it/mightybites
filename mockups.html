@@ -5530,6 +5530,28 @@
     return map[buddy] || 'dino';
   }
 
+  // Schedule a forceful re-render after the script fully parses (BUDDY_SVGS is in TDZ
+  // when initial renderEquipped fires near the top of the script). These deferred
+  // calls ensure all avatar hosts get the proper SVG populated once everything's loaded.
+  function mbForceRenderAllAvatars() {
+    try {
+      if (typeof renderBuddySVG === 'function') renderBuddySVG();
+      if (typeof renderLeaderboard === 'function' && window.mb && window.mb.state) {
+        renderLeaderboard(window.mb.state.kids || []);
+      }
+      if (typeof renderProfileNameBanner === 'function') renderProfileNameBanner();
+      if (typeof renderSubKidPickers === 'function') renderSubKidPickers();
+    } catch (err) { console.error('mbForceRenderAllAvatars failed:', err); }
+  }
+  // Multi-tick: catch every async race condition
+  setTimeout(mbForceRenderAllAvatars, 0);
+  setTimeout(mbForceRenderAllAvatars, 200);
+  setTimeout(mbForceRenderAllAvatars, 800);
+  setTimeout(mbForceRenderAllAvatars, 2000);
+  window.addEventListener('DOMContentLoaded', mbForceRenderAllAvatars);
+  // Also re-render when leaderboard renders (catches subsequent dynamic content)
+  window.addEventListener('mb-meals-changed', () => setTimeout(mbForceRenderAllAvatars, 50));
+
   // Cosmetic anchor points per slot — positions inside the 240×240 SVG viewBox.
   // size = font-size for emoji text. rotate = degrees rotation around anchor.
   const COSMETIC_ANCHORS = {
