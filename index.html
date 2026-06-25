@@ -4861,11 +4861,18 @@
     const sub = document.getElementById('app-sub');
     const meta = VIEW_TITLES[view] || { t: '', s: '' };
     const kid = window.mb && window.mb.state && (window.mb.state.kids || []).find(k => k.id === window.mb.state.currentKidId);
-    let titleTxt = meta.t;
+    let titleHtml = meta.t;
     let subTxt = meta.s;
-    if (view === 'profile' && kid) { titleTxt = (kid.buddy || '🦖') + ' ' + kid.name; subTxt = 'Dashboard · age ' + (kid.age || '?'); }
-    else if (kid && view !== 'leaderboard' && view !== 'settings') { titleTxt = (kid.buddy || '🦖') + ' ' + kid.name; }
-    if (title) title.textContent = titleTxt || 'MightyBites';
+    // Helper: render a kid as inline SVG + name for the header title
+    function kidTitleHtml(k, extra) {
+      try {
+        const svg = randomizeSVGIds(buddySVGHeadWithCosmetics(speciesFor(k.buddy), k.equipped || {}));
+        return '<span style="display:inline-flex; align-items:center; gap:8px;"><span style="display:inline-flex; width:32px; height:32px;">' + svg + '</span>' + (extra || '') + '</span>';
+      } catch (e) { return (k.buddy || '🦖') + ' ' + (extra || ''); }
+    }
+    if (view === 'profile' && kid) { titleHtml = kidTitleHtml(kid, kid.name); subTxt = 'Dashboard · age ' + (kid.age || '?'); }
+    else if (kid && view !== 'leaderboard' && view !== 'settings') { titleHtml = kidTitleHtml(kid, kid.name); }
+    if (title) title.innerHTML = titleHtml || 'MightyBites';
     if (sub) sub.textContent = subTxt || '';
     if (back) back.style.display = (view === 'leaderboard') ? 'none' : '';
     const home = document.getElementById('app-home');
@@ -4949,10 +4956,16 @@
           const subEl = document.getElementById('app-sub');
           const meta = VIEW_TITLES[prev] || { t:'', s:'' };
           const kid = window.mb && window.mb.state && (window.mb.state.kids || []).find(k => k.id === window.mb.state.currentKidId);
-          let titleTxt = meta.t, subTxt = meta.s;
-          if (prev === 'profile' && kid) { titleTxt = (kid.buddy || '🦖') + ' ' + kid.name; subTxt = 'Dashboard · age ' + (kid.age || '?'); }
-          else if (kid && prev !== 'leaderboard' && prev !== 'settings') { titleTxt = (kid.buddy || '🦖') + ' ' + kid.name; }
-          if (titleEl) titleEl.textContent = titleTxt || 'MightyBites';
+          let titleHtmlBack = meta.t, subTxt = meta.s;
+          function kidTitleHtmlBack(k, extra) {
+            try {
+              const svg = randomizeSVGIds(buddySVGHeadWithCosmetics(speciesFor(k.buddy), k.equipped || {}));
+              return '<span style="display:inline-flex; align-items:center; gap:8px;"><span style="display:inline-flex; width:32px; height:32px;">' + svg + '</span>' + (extra || '') + '</span>';
+            } catch (e) { return (k.buddy || '🦖') + ' ' + (extra || ''); }
+          }
+          if (prev === 'profile' && kid) { titleHtmlBack = kidTitleHtmlBack(kid, kid.name); subTxt = 'Dashboard · age ' + (kid.age || '?'); }
+          else if (kid && prev !== 'leaderboard' && prev !== 'settings') { titleHtmlBack = kidTitleHtmlBack(kid, kid.name); }
+          if (titleEl) titleEl.innerHTML = titleHtmlBack || 'MightyBites';
           if (subEl) subEl.textContent = subTxt || '';
           const home = document.getElementById('app-home');
           if (back) back.style.display = (prev === 'leaderboard') ? 'none' : '';
@@ -5020,9 +5033,16 @@
       host.style.display = '';
       const cur = kids.find(k => k.id === curId) || kids[0];
       const isSingle = kids.length === 1;
+      // Build inline SVG character for each kid in the pill + dropdown
+      function inlineSvg(k) {
+        try {
+          const svg = buddySVGHeadWithCosmetics(speciesFor(k.buddy), k.equipped || {});
+          return randomizeSVGIds(svg);
+        } catch (e) { return (k.buddy || '🦖'); }
+      }
       host.innerHTML =
         '<button class="switch-kid-btn" type="button">' +
-          '<span class="em">' + (cur.buddy || '🦖') + '</span>' +
+          '<span class="em" style="width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center;">' + inlineSvg(cur) + '</span>' +
           '<span>' + (cur.name || 'Pick a kid') + '</span>' +
           (isSingle ? '' : '<span class="arrow">▾ Switch</span>') +
         '</button>' +
@@ -5030,7 +5050,7 @@
           '<div class="switch-kid-pop">' +
             kids.map(k =>
               '<div class="switch-kid-item' + (k.id === cur.id ? ' active' : '') + '" data-skid="' + k.id + '">' +
-                '<span class="em">' + (k.buddy || '🦖') + '</span>' +
+                '<span class="em" style="width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center;">' + inlineSvg(k) + '</span>' +
                 '<span>' + (k.name || '') + '</span>' +
               '</div>'
             ).join('') +
