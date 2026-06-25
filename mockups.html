@@ -3726,13 +3726,6 @@
       }, 1700);
     }
 
-    // (Old) XP pop number — kept for skipped/treats edge cases
-    const pop = document.createElement('div');
-    pop.className = 'xp-pop';
-    pop.textContent = xpStr + (xp > 0 ? '!' : '');
-    if (xp < 0) pop.style.color = '#ffe7c0';
-    burst.appendChild(pop);
-
     // Punch the avatar
     feedAva.classList.add('feeding');
     setTimeout(() => feedAva.classList.remove('feeding'), 700);
@@ -3747,11 +3740,11 @@
     // Clean up burst after anim
     setTimeout(() => { burst.innerHTML = ''; }, 1500);
 
-    // Brief feedback in the button itself
+    // Brief feedback in the button itself — no XP here (it floats up via food-xp-pop instead)
     const btn = document.getElementById('feed-btn');
     const orig = btn.innerHTML;
-    btn.innerHTML = `<span class="em">💪</span> Fed! ${xpStr}`;
-    setTimeout(() => btn.innerHTML = orig, 1400);
+    btn.innerHTML = `<span class="em">💪</span> Fed!`;
+    setTimeout(() => btn.innerHTML = orig, 2000);
 
     // Phase 2B: persist this meal to Firestore for the current kid (fire-and-forget)
     if (window.mb && window.mb.state.currentKidId && window.mb.logMeal) {
