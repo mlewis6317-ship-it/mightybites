@@ -5519,12 +5519,16 @@
     bunny: "<svg viewBox=\"0 0 240 240\" xmlns=\"http://www.w3.org/2000/svg\" class=\"buddy-svg\" style=\"width:100%; height:100%;\">\n  <defs>\n    <radialGradient id=\"bu-body\" cx=\"35%\" cy=\"30%\" r=\"80%\"><stop offset=\"0%\" stop-color=\"#FFFFFF\"/><stop offset=\"100%\" stop-color=\"#E8DDD8\"/></radialGradient>\n  </defs>\n  <ellipse class=\"b-shadow\" cx=\"120\" cy=\"226\" rx=\"58\" ry=\"6\" fill=\"rgba(0,0,0,.18)\"/>\n  <g class=\"g-tail\"><circle cx=\"80\" cy=\"170\" r=\"11\" fill=\"#FFFFFF\" stroke=\"#E8DDD8\" stroke-width=\"1.5\"/></g>\n  <g class=\"g-leg-l\"><ellipse cx=\"100\" cy=\"200\" rx=\"15\" ry=\"20\" fill=\"url(#bu-body)\"/></g>\n  <g class=\"g-leg-r\"><ellipse cx=\"140\" cy=\"200\" rx=\"15\" ry=\"20\" fill=\"url(#bu-body)\"/></g>\n  <g class=\"g-body\">\n    <ellipse cx=\"120\" cy=\"160\" rx=\"44\" ry=\"40\" fill=\"url(#bu-body)\"/>\n    <ellipse cx=\"120\" cy=\"167\" rx=\"22\" ry=\"22\" fill=\"#FFF4F8\"/>\n  </g>\n  <g class=\"g-arm-l\"><ellipse cx=\"80\" cy=\"155\" rx=\"10\" ry=\"17\" fill=\"url(#bu-body)\"/></g>\n  <g class=\"g-arm-r\"><ellipse cx=\"160\" cy=\"155\" rx=\"10\" ry=\"17\" fill=\"url(#bu-body)\"/></g>\n  <g class=\"g-head\">\n    <ellipse cx=\"120\" cy=\"98\" rx=\"38\" ry=\"36\" fill=\"url(#bu-body)\"/>\n    <!-- Long ears -->\n    <ellipse cx=\"100\" cy=\"50\" rx=\"9\" ry=\"32\" fill=\"url(#bu-body)\"/>\n    <ellipse cx=\"140\" cy=\"50\" rx=\"9\" ry=\"32\" fill=\"url(#bu-body)\"/>\n    <ellipse cx=\"100\" cy=\"55\" rx=\"4\" ry=\"22\" fill=\"#FFC0D0\"/>\n    <ellipse cx=\"140\" cy=\"55\" rx=\"4\" ry=\"22\" fill=\"#FFC0D0\"/>\n    <!-- Eyes -->\n    <ellipse cx=\"106\" cy=\"100\" rx=\"5\" ry=\"7\" fill=\"#2a2440\"/>\n    <ellipse cx=\"134\" cy=\"100\" rx=\"5\" ry=\"7\" fill=\"#2a2440\"/>\n    <ellipse cx=\"108\" cy=\"98\" rx=\"1.5\" ry=\"2\" fill=\"#fff\"/>\n    <ellipse cx=\"136\" cy=\"98\" rx=\"1.5\" ry=\"2\" fill=\"#fff\"/>\n    <!-- Nose + mouth + buck teeth -->\n    <path d=\"M116 114 L124 114 L120 119 Z\" fill=\"#FF8AA8\"/>\n    <path d=\"M120 119 L120 124 M115 126 L117 130 L120 128 L123 130 L125 126\" stroke=\"#2a2440\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\"/>\n    <rect x=\"117\" y=\"124\" width=\"3\" height=\"6\" rx=\"1\" fill=\"#fff\" stroke=\"#2a2440\" stroke-width=\"0.8\"/>\n    <rect x=\"120\" y=\"124\" width=\"3\" height=\"6\" rx=\"1\" fill=\"#fff\" stroke=\"#2a2440\" stroke-width=\"0.8\"/>\n    <!-- Whisker cheeks -->\n    <circle cx=\"98\" cy=\"115\" r=\"3\" fill=\"#FFC0D0\" opacity=\".6\"/>\n    <circle cx=\"142\" cy=\"115\" r=\"3\" fill=\"#FFC0D0\" opacity=\".6\"/>\n  </g>\n</svg>",
   };
 
-  // Map kid.buddy emoji → species key
-  const BUDDY_EMOJI_TO_SPECIES = {
-    '🦖': 'dino', '🐉': 'dragon', '🤖': 'robo', '🐱': 'kitty', '🐈': 'kitty',
-    '🐻': 'bear', '🦊': 'fox', '🦄': 'unicorn', '🦈': 'shark', '🐰': 'bunny'
-  };
-  function speciesFor(buddy) { return BUDDY_EMOJI_TO_SPECIES[buddy] || 'dino'; }
+  // Map kid.buddy emoji → species key.
+  // Inline map inside speciesFor so the function is callable even before script execution
+  // reaches the line below (function declarations are hoisted; const is not).
+  function speciesFor(buddy) {
+    const map = {
+      '🦖': 'dino', '🐉': 'dragon', '🤖': 'robo', '🐱': 'kitty', '🐈': 'kitty',
+      '🐻': 'bear', '🦊': 'fox', '🦄': 'unicorn', '🦈': 'shark', '🐰': 'bunny'
+    };
+    return map[buddy] || 'dino';
+  }
 
   // Cosmetic anchor points per slot — positions inside the 240×240 SVG viewBox.
   // size = font-size for emoji text. rotate = degrees rotation around anchor.
@@ -5546,8 +5550,11 @@
 
   // Return an SVG string with equipped cosmetics rendered as <text> overlays at proper anchor points
   function buddySVGWithCosmetics(species, equipped) {
+    let svg = '';
+    try { svg = (BUDDY_SVGS && (BUDDY_SVGS[species] || BUDDY_SVGS.dino)) || ''; }
+    catch (e) { return ''; } // BUDDY_SVGS in temporal dead zone
+    if (!svg) return '';
     try {
-    let svg = BUDDY_SVGS[species] || BUDDY_SVGS.dino;
     if (!equipped) return svg;
     const cosmeticLib = (typeof cosmetics !== 'undefined') ? cosmetics : [];
     const overlays = [];
@@ -5578,7 +5585,10 @@
 
   // Return a HEAD-ONLY cropped version of the SVG (viewBox zooms in on the face area)
   function buddySVGHead(species) {
-    const raw = BUDDY_SVGS[species] || BUDDY_SVGS.dino;
+    let raw = '';
+    try { raw = (BUDDY_SVGS && (BUDDY_SVGS[species] || BUDDY_SVGS.dino)) || ''; }
+    catch (e) { return ''; }
+    if (!raw) return '';
     // Crop viewBox to head region (50,30)→(190,150). Hide body parts by removing those groups visually.
     let head = raw.replace('viewBox="0 0 240 240"', 'viewBox="55 40 130 110"');
     // Remove the shadow ellipse + body/legs/tail groups from the head-only crop (hide via display:none style)
