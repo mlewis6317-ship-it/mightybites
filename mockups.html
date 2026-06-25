@@ -420,6 +420,51 @@
     .emotion-chip .lbl { display: none; }
   }
 
+  /* ============ Phase 2ZP: Food toss animation ============ */
+  .food-toss {
+    position: absolute;
+    font-size: 48px;
+    pointer-events: none;
+    z-index: 10;
+    left: 50%;
+    top: 0;
+    animation: food-toss 0.9s cubic-bezier(.34,.4,.5,1) forwards;
+    text-shadow: 0 4px 8px rgba(0,0,0,.2);
+    will-change: transform, opacity;
+  }
+  @keyframes food-toss {
+    0%   { top: -10%;  transform: translateX(-50%) rotate(0)    scale(1);   opacity: 1; }
+    30%  { top:  15%;  transform: translateX(-50%) rotate(120deg) scale(1.2); opacity: 1; }
+    60%  { top:  35%;  transform: translateX(-50%) rotate(240deg) scale(0.9); opacity: 1; }
+    100% { top:  52%;  transform: translateX(-50%) rotate(380deg) scale(0.3); opacity: 0; }
+  }
+  .food-xp-pop {
+    position: absolute;
+    font-size: 30px;
+    font-weight: 900;
+    color: var(--berry, #d9477b);
+    pointer-events: none;
+    z-index: 11;
+    left: 50%;
+    top: 50%;
+    animation: xp-pop 1.6s ease-out forwards;
+    text-shadow: 0 0 4px white, 0 0 10px white, 0 2px 4px rgba(0,0,0,.18);
+    white-space: nowrap;
+  }
+  .food-xp-pop .pop-em { font-size: 26px; margin-right: 4px; vertical-align: -2px; }
+  @keyframes xp-pop {
+    0%   { opacity: 0; transform: translate(-50%, 0)     scale(0.4); }
+    25%  { opacity: 1; transform: translate(-50%, -20px) scale(1.4); }
+    100% { opacity: 0; transform: translate(-50%, -110px) scale(1); }
+  }
+  .feed-avatar-bite { animation: feed-bite 0.45s ease-out; }
+  @keyframes feed-bite {
+    0%   { transform: scale(1) translateY(0); }
+    30%  { transform: scale(1.15, 0.92) translateY(2px); }
+    60%  { transform: scale(0.94, 1.08) translateY(-2px); }
+    100% { transform: scale(1) translateY(0); }
+  }
+
   /* ============ Phase 2ZH: Animated SVG cosmetics ============ */
   .cos-cape { animation: cape-wave 3.5s ease-in-out infinite; transform-origin: 120px 115px; }
   @keyframes cape-wave {
@@ -3649,7 +3694,34 @@
       }
     }
 
-    // XP pop number
+    // ============ Food toss animation (Phase 2ZP) ============
+    const groupEmojis = { dairy: '🥛', protein: '🍗', grains: '🍞', fruit: '🍎', veggies: '🥦', treats: '🍩' };
+    const foodEm = groupEmojis[currentGroup] || '🍽️';
+    const feedHost = document.getElementById('feed-host');
+    if (feedHost && currentAmt !== 'skipped') {
+      // Toss a food emoji from top → down toward the avatar's mouth
+      const toss = document.createElement('div');
+      toss.className = 'food-toss';
+      toss.textContent = foodEm;
+      feedHost.appendChild(toss);
+      setTimeout(() => toss.remove(), 950);
+      // Avatar chomps when food arrives (~0.55s into the toss)
+      setTimeout(() => {
+        if (feedAva) {
+          feedAva.classList.add('feed-avatar-bite');
+          setTimeout(() => feedAva.classList.remove('feed-avatar-bite'), 500);
+        }
+      }, 550);
+      // Bigger XP pop that includes the food group
+      const big = document.createElement('div');
+      big.className = 'food-xp-pop';
+      big.innerHTML = '<span class="pop-em">' + foodEm + '</span>' + (xp >= 0 ? '+' : '') + xp + ' XP!';
+      if (xp < 0) big.style.color = '#a04030';
+      feedHost.appendChild(big);
+      setTimeout(() => big.remove(), 1700);
+    }
+
+    // (Old) XP pop number — kept for skipped/treats edge cases
     const pop = document.createElement('div');
     pop.className = 'xp-pop';
     pop.textContent = xpStr + (xp > 0 ? '!' : '');
