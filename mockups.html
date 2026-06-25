@@ -246,8 +246,12 @@
 
   /* SVG character body parts animations */
   .buddy-svg-wrap { transform-origin: center bottom; }
-  .buddy-svg-mini { display: inline-flex; align-items: center; justify-content: center; }
-  .buddy-svg-mini svg { width: 100%; height: 100%; }
+  .buddy-svg-mini { display: flex; align-items: center; justify-content: center; }
+  .buddy-svg-mini svg { width: 100% !important; height: 100% !important; display: block; }
+  #pf-buddy-svg svg, #pf-name-buddy svg, #ml-needs-buddy svg, #feed-buddy-svg svg, .gd-ava svg {
+    width: 100% !important; height: 100% !important; display: block;
+  }
+  .gd-ava { display: flex; align-items: center; justify-content: center; border-radius: 50%; overflow: hidden; background: var(--paper, #fff6e5); }
   /* When lb-ava becomes an SVG container, override its emoji-only styling */
   .lb-ava.buddy-svg-mini {
     background: radial-gradient(circle at 35% 30%, #FFFFFF, #FFD8B4 60%, #FFB774) !important;
@@ -2384,13 +2388,13 @@
               <div class="growth-strip">
                 <h4>This week's growth <span>watch your <span class="buddy-name-lc">dino</span> get bigger</span></h4>
                 <div class="growth-days">
-                  <div class="growth-day"><div class="gd-ava" style="width:24px;height:24px;font-size:14px;">🥚</div><div class="gd-lbl">Mon</div></div>
-                  <div class="growth-day now"><div class="gd-ava" style="width:38px;height:38px;font-size:24px;border:2px solid var(--berry);">🦖</div><div class="gd-lbl">Tue NOW</div></div>
-                  <div class="growth-day future"><div class="gd-ava" style="width:34px;height:34px;font-size:22px;">🦖</div><div class="gd-lbl">Wed</div></div>
-                  <div class="growth-day future"><div class="gd-ava" style="width:40px;height:40px;font-size:26px;">🦖</div><div class="gd-lbl">Thu</div></div>
-                  <div class="growth-day future"><div class="gd-ava" style="width:46px;height:46px;font-size:30px;">🦖</div><div class="gd-lbl">Fri</div></div>
-                  <div class="growth-day future"><div class="gd-ava" style="width:52px;height:52px;font-size:34px;">🦖</div><div class="gd-lbl">Sat</div></div>
-                  <div class="growth-day future"><div class="gd-ava" style="width:58px;height:58px;font-size:38px;">👑</div><div class="gd-lbl">Sun goal</div></div>
+                  <div class="growth-day"><div class="gd-ava" data-growth="past" style="width:24px;height:24px;font-size:14px;">🥚</div><div class="gd-lbl">Mon</div></div>
+                  <div class="growth-day now"><div class="gd-ava" data-growth="now" style="width:38px;height:38px;border:2px solid var(--berry); overflow:hidden;"></div><div class="gd-lbl">Tue NOW</div></div>
+                  <div class="growth-day future"><div class="gd-ava" data-growth="future" style="width:34px;height:34px; overflow:hidden;"></div><div class="gd-lbl">Wed</div></div>
+                  <div class="growth-day future"><div class="gd-ava" data-growth="future" style="width:40px;height:40px; overflow:hidden;"></div><div class="gd-lbl">Thu</div></div>
+                  <div class="growth-day future"><div class="gd-ava" data-growth="future" style="width:46px;height:46px; overflow:hidden;"></div><div class="gd-lbl">Fri</div></div>
+                  <div class="growth-day future"><div class="gd-ava" data-growth="future" style="width:52px;height:52px; overflow:hidden;"></div><div class="gd-lbl">Sat</div></div>
+                  <div class="growth-day future"><div class="gd-ava" data-growth="future" style="width:58px;height:58px;font-size:38px;">👑</div><div class="gd-lbl">Sun goal</div></div>
                 </div>
               </div>
               <div class="pf-rings">
@@ -4760,6 +4764,7 @@
   function renderProfile() {
     const kid = (window.mb && window.mb.state.kids || []).find(k => k.id === window.mb.state.currentKidId);
     if (!kid) return;
+    if (typeof renderBuddySVG === 'function') renderBuddySVG();
     const bubbleLead = document.querySelector('#view-profile .pf-bubble .lead');
     if (bubbleLead) bubbleLead.textContent = 'Hey, ' + kid.name + '!';
     const emojiSpan = document.getElementById('pf-buddy-emoji');
@@ -4942,6 +4947,7 @@
     if (typeof renderBehaviorTiles === 'function') renderBehaviorTiles();
     if (typeof renderRespTabChores === 'function') renderRespTabChores();
     if (typeof renderTrophies === 'function') renderTrophies();
+    if (typeof renderBuddySVG === 'function') renderBuddySVG();
     if (typeof renderNewUnlocks === 'function') renderNewUnlocks();
     if (typeof renderCosGrid === 'function') renderCosGrid();
     if (typeof renderChampionsWall === 'function') renderChampionsWall();
@@ -5544,26 +5550,44 @@
   };
   function speciesFor(buddy) { return BUDDY_EMOJI_TO_SPECIES[buddy] || 'dino'; }
 
+  // Return a HEAD-ONLY cropped version of the SVG (viewBox zooms in on the face area)
+  function buddySVGHead(species) {
+    const raw = BUDDY_SVGS[species] || BUDDY_SVGS.dino;
+    // Crop viewBox to head region (50,30)→(190,150). Hide body parts by removing those groups visually.
+    let head = raw.replace('viewBox="0 0 240 240"', 'viewBox="55 40 130 110"');
+    // Remove the shadow ellipse + body/legs/tail groups from the head-only crop (hide via display:none style)
+    head = head.replace(/<ellipse class="b-shadow"[^>]*\/>/g, '');
+    head = head.replace(/<g class="g-leg-l">/g, '<g class="g-leg-l" style="display:none">');
+    head = head.replace(/<g class="g-leg-r">/g, '<g class="g-leg-r" style="display:none">');
+    head = head.replace(/<g class="g-tail">/g, '<g class="g-tail" style="display:none">');
+    head = head.replace(/<g class="g-body">/g, '<g class="g-body" style="display:none">');
+    head = head.replace(/<g class="g-arm-l">/g, '<g class="g-arm-l" style="display:none">');
+    head = head.replace(/<g class="g-arm-r">/g, '<g class="g-arm-r" style="display:none">');
+    return head;
+  }
+
   function renderBuddySVG() {
     const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
     const sp = speciesFor(kid ? kid.buddy : '🦖');
-    const svg = BUDDY_SVGS[sp] || BUDDY_SVGS.dino;
-    // Big meal-log avatar
+    const fullSvg = BUDDY_SVGS[sp] || BUDDY_SVGS.dino;
+    const headSvg = buddySVGHead(sp);
+    // Big avatars — full body
     const feedHost = document.getElementById('feed-buddy-svg');
-    if (feedHost) feedHost.innerHTML = svg;
-    // Profile big avatar
+    if (feedHost) feedHost.innerHTML = fullSvg;
     const pfHost = document.getElementById('pf-buddy-svg');
-    if (pfHost) pfHost.innerHTML = svg;
-    // Profile name banner small avatar
+    if (pfHost) pfHost.innerHTML = fullSvg;
+    // Mini avatars — head-only crop (round containers fit the face)
     const nameHost = document.getElementById('pf-name-buddy');
-    if (nameHost) nameHost.innerHTML = svg;
-    // Meal log needs-banner mini
+    if (nameHost) nameHost.innerHTML = headSvg;
     const needsHost = document.getElementById('ml-needs-buddy');
-    if (needsHost) needsHost.innerHTML = svg;
-    // Leaderboard mini avatars (each has its own data-species)
+    if (needsHost) needsHost.innerHTML = headSvg;
     document.querySelectorAll('.buddy-svg-mini').forEach(el => {
       const sp2 = el.dataset.species || sp;
-      if (BUDDY_SVGS[sp2]) el.innerHTML = BUDDY_SVGS[sp2];
+      el.innerHTML = buddySVGHead(sp2);
+    });
+    // This week's growth strip — use current buddy's head crop
+    document.querySelectorAll('.growth-day .gd-ava[data-growth="future"], .growth-day .gd-ava[data-growth="now"]').forEach(el => {
+      el.innerHTML = '<div style="width:100%;height:100%;">' + headSvg + '</div>';
     });
   }
   window.addEventListener('mb-kids-changed', () => renderBuddySVG());
