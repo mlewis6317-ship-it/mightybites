@@ -211,6 +211,34 @@
     animation: tilt 2s ease-in-out infinite;
     filter: saturate(0.7);
   }
+  /* ============ Buddy stage progression (Phase 2U) ============ */
+  /* Avatar gets bigger + gets accessories as lifetime XP grows */
+  .ava-shell.bstage-0 { transform: scale(0.55); filter: grayscale(.2); opacity: .9; }
+  .ava-shell.bstage-1 { transform: scale(0.7); }
+  .ava-shell.bstage-2 { transform: scale(0.85); }
+  .ava-shell.bstage-3 { transform: scale(1); box-shadow: 0 8px 24px rgba(108,195,106,.25); }
+  .ava-shell.bstage-4 { transform: scale(1.1); box-shadow: 0 10px 32px rgba(255,138,92,.35); filter: drop-shadow(0 0 6px rgba(255,200,80,.5)); }
+  .ava-shell.bstage-5 { transform: scale(1.2); box-shadow: 0 12px 40px rgba(217,71,123,.45); filter: drop-shadow(0 0 12px rgba(255,138,92,.8)); animation: legend-pulse 3s ease-in-out infinite; }
+  @keyframes legend-pulse {
+    0%, 100% { filter: drop-shadow(0 0 8px rgba(255,138,92,.6)); }
+    50%      { filter: drop-shadow(0 0 18px rgba(255,138,92,.95)) drop-shadow(0 0 30px rgba(217,71,123,.5)); }
+  }
+  .ava-shell.bstage-5::after {
+    content: ''; position: absolute; inset: -6px;
+    border-radius: 50%; border: 2px solid rgba(255,200,80,.6);
+    animation: legend-ring 3s ease-out infinite;
+    pointer-events: none;
+  }
+  @keyframes legend-ring {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+  .stage-badge { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #fff7e6, #ffd66b); border: 1.5px solid #ffd66b; color: #7a4b00; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 900; letter-spacing: .3px; text-transform: uppercase; box-shadow: 0 2px 6px rgba(255,200,80,.3); }
+  .stage-badge.s4 { background: linear-gradient(135deg, #ffe4f0, #ff8a5c); border-color: #ff8a5c; color: #7a1040; }
+  .stage-badge.s5 { background: linear-gradient(135deg, #ffd6e4, #d9477b); border-color: #d9477b; color: #fff; }
+  .stage-progress { background: rgba(0,0,0,.06); border-radius: 999px; height: 8px; overflow: hidden; margin-top: 6px; }
+  .stage-progress-fill { height: 100%; background: linear-gradient(90deg, #ffd66b, #ff8a5c, #d9477b); border-radius: 999px; transition: width .6s ease-out; }
+  .stage-next-lbl { font-size: 11px; opacity: .65; font-weight: 700; margin-top: 4px; text-align: center; }
   .ava-shell.weak {
     transform: scale(0.85);
     filter: saturate(0.6) brightness(0.92);
@@ -2160,7 +2188,8 @@
                 <div class="crown">👑</div>
                 <div class="sweat">💧</div>
               </div>
-              <div class="pf-stage-label" id="pf-stage-label">Tough Dino · Stage 4 of 6</div>
+              <div class="pf-stage-label" id="pf-stage-label">Stage 1 · Sprout</div>
+              <div id="pf-stage-progress" style="width: 200px; margin-top: 8px;"></div>
               <button class="pf-swap" id="pf-swap-btn">✨ Switch buddy</button>
             </div>
             <div class="pf-stats">
@@ -4549,7 +4578,11 @@
     const emojiSpan = document.getElementById('pf-buddy-emoji');
     if (emojiSpan) emojiSpan.textContent = kid.buddy || '🦖';
     const stageLabel = document.getElementById('pf-stage-label');
-    if (stageLabel) stageLabel.textContent = buddyStageName(kid.buddy) + ' · age ' + kid.age;
+    if (stageLabel) {
+      const info = (typeof lifetimeStageInfo === 'function') ? lifetimeStageInfo(kid.lifetimeXP || 0) : { idx: 0, cur: { name: 'Sprout', em: '🌱' } };
+      stageLabel.innerHTML = info.cur.em + ' Stage ' + (info.idx + 1) + ' · ' + info.cur.name + ' ' + buddyStageName(kid.buddy);
+    }
+    if (typeof applyBuddyStageEverywhere === 'function') applyBuddyStageEverywhere();
     const trust = document.querySelector('#view-profile .pf-trust');
     if (trust) trust.innerHTML = '⭐ ' + escapeHTML(kid.name) + ' · age ' + kid.age;
     const back = document.querySelector('#view-profile .pf-back span');
@@ -5101,6 +5134,8 @@
     ava.classList.remove('strong','weak','queasy','sick');
     if (mood !== 'normal') ava.classList.add(mood);
     status.textContent = context || 'Pick a food group to feed your buddy!';
+    // Re-apply stage classes (mood removed them above but bstage-N is independent)
+    if (typeof applyBuddyStageEverywhere === 'function') applyBuddyStageEverywhere();
   }
 
   window.addEventListener('mb-meals-changed', () => { renderMealRings(); renderMealNeeds(); renderBuddyMood(); });
@@ -5242,20 +5277,71 @@
 
   // ============ Phase 2G: Trophies + Badges ============
   const LIFETIME_STAGES = [
-    { min: 0, name: 'Sprout' },
-    { min: 100, name: 'Baby' },
-    { min: 500, name: 'Tween' },
-    { min: 2000, name: 'Tough' },
-    { min: 5000, name: 'Champion' },
-    { min: 15000, name: 'Legend' }
+    { min: 0,     name: 'Sprout',   em: '🌱' },
+    { min: 100,   name: 'Baby',     em: '🍼' },
+    { min: 500,   name: 'Tween',    em: '⭐' },
+    { min: 2000,  name: 'Tough',    em: '💪' },
+    { min: 5000,  name: 'Champion', em: '🏆' },
+    { min: 15000, name: 'Legend',   em: '👑' }
   ];
-  function lifetimeStageName(xp) {
-    let n = 'Sprout';
-    for (let i = 0; i < LIFETIME_STAGES.length; i++) {
-      if (xp >= LIFETIME_STAGES[i].min) n = LIFETIME_STAGES[i].name;
-    }
-    return n;
+  function lifetimeStageIdx(xp) {
+    let idx = 0;
+    for (let i = 0; i < LIFETIME_STAGES.length; i++) { if (xp >= LIFETIME_STAGES[i].min) idx = i; }
+    return idx;
   }
+  function lifetimeStageName(xp) {
+    return LIFETIME_STAGES[lifetimeStageIdx(xp)].name;
+  }
+  function lifetimeStageInfo(xp) {
+    const idx = lifetimeStageIdx(xp);
+    const cur = LIFETIME_STAGES[idx];
+    const next = LIFETIME_STAGES[idx + 1] || null;
+    const span = next ? (next.min - cur.min) : 1;
+    const into = Math.max(0, xp - cur.min);
+    const pct = next ? Math.min(100, Math.round((into / span) * 100)) : 100;
+    return { idx, cur, next, pct, into, span, toNext: next ? Math.max(0, next.min - xp) : 0 };
+  }
+
+  // Apply visual stage class to any .ava-shell that opts in via data-buddy-stage="on"
+  function applyBuddyStageEverywhere() {
+    const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    if (!kid) return;
+    const stage = lifetimeStageIdx(kid.lifetimeXP || 0);
+    // Apply to feed avatar (Meal Log), profile avatar, ml-needs mini
+    const targets = [
+      document.getElementById('feed-avatar'),
+      document.getElementById('ml-needs-buddy'),
+      document.querySelector('#view-profile .pf-stage .ava-shell')
+    ];
+    targets.forEach(el => {
+      if (!el) return;
+      for (let i = 0; i < 6; i++) el.classList.remove('bstage-' + i);
+      el.classList.add('bstage-' + stage);
+    });
+    // Update profile name buddy emoji to also reflect stage hint (no change needed)
+    // Update the stage progress bar on the dashboard
+    renderStageProgress(kid);
+  }
+
+  function renderStageProgress(kid) {
+    const host = document.getElementById('pf-stage-progress');
+    if (!host) return;
+    if (!kid) { host.style.display = 'none'; return; }
+    const info = lifetimeStageInfo(kid.lifetimeXP || 0);
+    host.style.display = '';
+    const badgeCls = info.idx >= 5 ? 's5' : (info.idx >= 4 ? 's4' : '');
+    let html = '<div class="stage-badge ' + badgeCls + '">' + info.cur.em + ' Stage ' + (info.idx + 1) + ' · ' + info.cur.name + '</div>';
+    html += '<div class="stage-progress"><div class="stage-progress-fill" style="width:' + info.pct + '%;"></div></div>';
+    if (info.next) {
+      html += '<div class="stage-next-lbl">' + info.toNext.toLocaleString() + ' XP to ' + info.next.em + ' ' + info.next.name + '</div>';
+    } else {
+      html += '<div class="stage-next-lbl">🏅 Max stage reached!</div>';
+    }
+    host.innerHTML = html;
+  }
+
+  window.addEventListener('mb-kids-changed', () => applyBuddyStageEverywhere());
+  window.addEventListener('mb-meals-changed', () => applyBuddyStageEverywhere());
 
   const BADGES = [
     { key: 'goal_hit', em: '✓', nm: 'Goal Hit', rarity: 'common', req: 'Hit 700 XP this week',
@@ -6285,6 +6371,7 @@
       renderTrustDef();
       renderProfileNameBanner();
       loadFamilyGoalInputs();
+      applyBuddyStageEverywhere();
     }
   }, 200);
   // Belt-and-suspenders: also try a couple more times in case subscription is slow
