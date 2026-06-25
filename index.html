@@ -211,6 +211,122 @@
     animation: tilt 2s ease-in-out infinite;
     filter: saturate(0.7);
   }
+  /* ============ Phase 2V: Full-body avatar + emotions ============ */
+  .ava-shell.has-body { position: relative; display: flex; align-items: center; justify-content: center; }
+  .ava-shell.has-body .buddy-head { position: relative; z-index: 4; transform: translateY(-26px); display: inline-block; transition: transform .3s; line-height: 1; }
+  .buddy-body { position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%); width: 65%; height: 50%; z-index: 2; }
+  .buddy-torso {
+    position: absolute; bottom: 14%; left: 18%;
+    width: 64%; height: 70%;
+    background: linear-gradient(155deg, #fff8e0 0%, #ffd9a3 50%, #e2a25e 100%);
+    border-radius: 45% 45% 38% 38% / 50% 50% 38% 38%;
+    box-shadow: inset 0 -10px 16px rgba(124,76,30,.22), 0 6px 14px rgba(0,0,0,.12);
+  }
+  .buddy-arm {
+    position: absolute; width: 17%; height: 38%;
+    background: linear-gradient(135deg, #fff8e0, #d9a25e);
+    border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+    box-shadow: inset 0 -4px 6px rgba(124,76,30,.18);
+    z-index: 3;
+  }
+  .buddy-arm.left  { top: 18%; left: 4%; transform: rotate(-22deg); transform-origin: top center; }
+  .buddy-arm.right { top: 18%; right: 4%; transform: rotate(22deg); transform-origin: top center; }
+  .buddy-leg {
+    position: absolute; width: 22%; height: 36%; bottom: -2%;
+    background: linear-gradient(135deg, #fff8e0, #c98a48);
+    border-radius: 40% 40% 50% 50% / 35% 35% 60% 60%;
+    box-shadow: inset 0 -6px 10px rgba(124,76,30,.22);
+    z-index: 1;
+  }
+  .buddy-leg.left  { left: 22%; }
+  .buddy-leg.right { right: 22%; }
+  .buddy-shadow { position: absolute; bottom: 2%; left: 50%; transform: translateX(-50%); width: 70%; height: 6%; background: radial-gradient(ellipse, rgba(0,0,0,.22), transparent 70%); border-radius: 50%; z-index: 0; }
+  .buddy-zzz { position: absolute; top: 8%; right: 12%; font-size: 32px; opacity: 0; z-index: 5; pointer-events: none; }
+  .buddy-aura { position: absolute; inset: -8%; border-radius: 50%; pointer-events: none; opacity: 0; z-index: 0; }
+
+  /* Emotions */
+  .emo-happy .buddy-body  { animation: buddy-bob 2.2s ease-in-out infinite; }
+  .emo-happy .buddy-head  { animation: buddy-head-bob 2.2s ease-in-out infinite; }
+  @keyframes buddy-bob { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-4px); } }
+  @keyframes buddy-head-bob { 0%,100% { transform: translateY(-26px); } 50% { transform: translateY(-32px); } }
+
+  .emo-dance .buddy-body, .emo-dance .buddy-head { animation: buddy-dance 0.8s ease-in-out infinite; }
+  @keyframes buddy-dance {
+    0%   { transform: translateX(-50%) rotate(-7deg); }
+    25%  { transform: translateX(-50%) rotate(7deg)  translateY(-5px); }
+    50%  { transform: translateX(-50%) rotate(-7deg) translateY(-2px); }
+    75%  { transform: translateX(-50%) rotate(7deg)  translateY(-5px); }
+    100% { transform: translateX(-50%) rotate(-7deg); }
+  }
+  .emo-dance .buddy-arm.left  { animation: arm-wave-left 0.8s ease-in-out infinite; }
+  .emo-dance .buddy-arm.right { animation: arm-wave-right 0.8s ease-in-out infinite; }
+  @keyframes arm-wave-left  { 0%,100% { transform: rotate(-22deg); } 50% { transform: rotate(-90deg); } }
+  @keyframes arm-wave-right { 0%,100% { transform: rotate(22deg); }  50% { transform: rotate(90deg); } }
+
+  .emo-strong .buddy-arm.left  { animation: flex-left 1.4s ease-in-out infinite; }
+  .emo-strong .buddy-arm.right { animation: flex-right 1.4s ease-in-out infinite; }
+  .emo-strong .buddy-torso { animation: chest-puff 1.4s ease-in-out infinite; }
+  @keyframes flex-left  { 0%,100% { transform: rotate(-22deg) scale(1); } 50% { transform: rotate(-75deg) scale(1.18); } }
+  @keyframes flex-right { 0%,100% { transform: rotate(22deg) scale(1); }  50% { transform: rotate(75deg) scale(1.18); } }
+  @keyframes chest-puff { 0%,100% { transform: scaleX(1); } 50% { transform: scaleX(1.08); } }
+
+  .emo-sleep .buddy-body { animation: buddy-sleep-sway 4s ease-in-out infinite; }
+  .emo-sleep .buddy-head { filter: saturate(.6); animation: buddy-head-sleep 4s ease-in-out infinite; }
+  .emo-sleep .buddy-zzz { opacity: 1; animation: zzz-float 2.5s ease-in-out infinite; }
+  @keyframes buddy-sleep-sway { 0%,100% { transform: translateX(-50%) rotate(-1.5deg); } 50% { transform: translateX(-50%) rotate(1.5deg); } }
+  @keyframes buddy-head-sleep { 0%,100% { transform: translateY(-26px) rotate(-3deg); } 50% { transform: translateY(-26px) rotate(3deg); } }
+  @keyframes zzz-float { 0% { transform: translateY(0) scale(.8); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-30px) scale(1.2); opacity: 0; } }
+
+  .emo-sad .buddy-body { animation: buddy-sad-droop 3s ease-in-out infinite; }
+  .emo-sad .buddy-head { animation: buddy-head-sad 3s ease-in-out infinite; filter: saturate(.7); }
+  .emo-sad .buddy-arm.left  { transform: rotate(-5deg); }
+  .emo-sad .buddy-arm.right { transform: rotate(5deg); }
+  @keyframes buddy-sad-droop { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(2px); } }
+  @keyframes buddy-head-sad { 0%,100% { transform: translateY(-18px) rotate(-2deg); } 50% { transform: translateY(-18px) rotate(2deg); } }
+
+  .emo-celebrate .buddy-body  { animation: buddy-jump 0.6s ease-in-out infinite; }
+  .emo-celebrate .buddy-head  { animation: buddy-head-jump 0.6s ease-in-out infinite; }
+  .emo-celebrate .buddy-arm.left  { animation: arm-up-left 0.6s ease-in-out infinite; }
+  .emo-celebrate .buddy-arm.right { animation: arm-up-right 0.6s ease-in-out infinite; }
+  @keyframes buddy-jump { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-12px); } }
+  @keyframes buddy-head-jump { 0%,100% { transform: translateY(-26px); } 50% { transform: translateY(-40px); } }
+  @keyframes arm-up-left  { 0%,100% { transform: rotate(-22deg); } 50% { transform: rotate(-160deg); } }
+  @keyframes arm-up-right { 0%,100% { transform: rotate(22deg); }  50% { transform: rotate(160deg); } }
+  .emo-celebrate .buddy-aura {
+    opacity: 1;
+    background: radial-gradient(circle, rgba(255,214,107,.6), rgba(255,138,92,.2) 50%, transparent 70%);
+    animation: aura-pulse 0.6s ease-in-out infinite;
+  }
+  @keyframes aura-pulse { 0%,100% { transform: scale(0.9); opacity: .8; } 50% { transform: scale(1.15); opacity: 1; } }
+
+  .emo-queasy .buddy-body { animation: buddy-queasy 1.5s ease-in-out infinite; }
+  .emo-queasy .buddy-head { animation: buddy-head-queasy 1.5s ease-in-out infinite; filter: hue-rotate(40deg) saturate(.7); }
+  @keyframes buddy-queasy { 0%,100% { transform: translateX(-50%) rotate(-5deg); } 50% { transform: translateX(-50%) rotate(5deg); } }
+  @keyframes buddy-head-queasy { 0%,100% { transform: translateY(-26px) translateX(-3px); } 50% { transform: translateY(-26px) translateX(3px); } }
+
+  /* Emotion picker (pill row under avatar) */
+  .emotion-picker {
+    display: flex; justify-content: center; gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  .emotion-chip {
+    background: #fff; border: 1.5px solid var(--line, #eadfd1);
+    padding: 6px 10px; border-radius: 999px;
+    font-size: 18px; line-height: 1;
+    cursor: pointer; transition: all .15s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .emotion-chip:hover { background: var(--sun-2, #fef0c8); transform: translateY(-1px); }
+  .emotion-chip.active { background: var(--berry, #d9477b); border-color: var(--berry, #d9477b); transform: scale(1.08); }
+  .emotion-chip .lbl { font-size: 11px; font-weight: 800; color: var(--ink, #2a2440); }
+  .emotion-chip.active .lbl { color: #fff; }
+  @media (max-width: 480px) {
+    .emotion-chip { padding: 5px 8px; font-size: 16px; }
+    .emotion-chip .lbl { display: none; }
+  }
+
   /* ============ Buddy stage progression (Phase 2U) ============ */
   /* Avatar gets bigger + gets accessories as lifetime XP grows */
   .ava-shell.bstage-0 { transform: scale(0.55); filter: grayscale(.2); opacity: .9; }
@@ -2491,7 +2607,21 @@
             </div>
 
             <div class="feed-host" id="feed-host" style="background: linear-gradient(180deg, #FFF6E5 0%, #FFE9D6 100%); border-radius: 18px; padding: 18px 12px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-              <div class="ava-shell ava-3d" id="feed-avatar" style="width:240px;height:240px;font-size:150px;">🦖<div class="sweat">💧</div></div>
+              <div class="ava-shell ava-3d has-body emo-happy" id="feed-avatar" style="width:260px;height:280px;font-size:130px; background: transparent; box-shadow: none; overflow: visible;">
+                <div class="buddy-shadow"></div>
+                <div class="buddy-body">
+                  <div class="buddy-leg left"></div>
+                  <div class="buddy-leg right"></div>
+                  <div class="buddy-torso"></div>
+                  <div class="buddy-arm left"></div>
+                  <div class="buddy-arm right"></div>
+                </div>
+                <span class="buddy-head" id="feed-buddy-head">🦖</span>
+                <div class="sweat">💧</div>
+                <div class="buddy-zzz" id="buddy-zzz">💤</div>
+                <div class="buddy-aura" id="buddy-aura"></div>
+              </div>
+              <div class="emotion-picker" id="emotion-picker"></div>
               <div class="feed-burst" id="feed-burst"></div>
               <div id="feed-status" style="text-align:center; font-weight:800; font-size:14px; line-height:1.35; color:var(--ink, #2a2440); min-height:32px;">Pick a food group to feed your buddy!</div>
             </div>
@@ -4889,14 +5019,9 @@
     // Meal Log: Dino-is-asking mini
     const needsBuddy = document.getElementById('ml-needs-buddy');
     if (needsBuddy) needsBuddy.firstChild ? (needsBuddy.textContent = buddy) : (needsBuddy.textContent = buddy);
-    // Meal Log: feed-host avatar
-    const feedAva = document.getElementById('feed-avatar');
-    if (feedAva) {
-      // The element has both text emoji and a .sweat child — preserve sweat
-      const sweat = feedAva.querySelector('.sweat');
-      feedAva.textContent = buddy;
-      if (sweat) feedAva.appendChild(sweat);
-    }
+    // Meal Log: feed-host avatar (the head emoji is inside .buddy-head span now)
+    const feedHead = document.getElementById('feed-buddy-head');
+    if (feedHead) feedHead.textContent = buddy;
     // Meal Log: av-mini in reaction area
     const avMini = document.getElementById('av-mini');
     if (avMini) avMini.textContent = buddy;
@@ -5342,6 +5467,71 @@
 
   window.addEventListener('mb-kids-changed', () => applyBuddyStageEverywhere());
   window.addEventListener('mb-meals-changed', () => applyBuddyStageEverywhere());
+
+  // ============ Phase 2V: Emotions ============
+  const EMOTIONS = [
+    { key: 'happy',     em: '😊', label: 'Happy' },
+    { key: 'strong',    em: '💪', label: 'Strong' },
+    { key: 'dance',     em: '🕺', label: 'Dance' },
+    { key: 'celebrate', em: '🎉', label: 'Yay!' },
+    { key: 'sleep',     em: '😴', label: 'Sleep' },
+    { key: 'sad',       em: '😢', label: 'Sad' },
+    { key: 'queasy',    em: '🤢', label: 'Queasy' }
+  ];
+  function setBuddyEmotion(key) {
+    const ava = document.getElementById('feed-avatar');
+    if (!ava) return;
+    EMOTIONS.forEach(e => ava.classList.remove('emo-' + e.key));
+    ava.classList.add('emo-' + key);
+    // Update head emoji to current buddy
+    const head = document.getElementById('feed-buddy-head');
+    const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    if (head && kid) head.textContent = kid.buddy || '🦖';
+    // Reapply stage
+    if (typeof applyBuddyStageEverywhere === 'function') applyBuddyStageEverywhere();
+    // Highlight chip
+    document.querySelectorAll('.emotion-chip').forEach(c => c.classList.toggle('active', c.dataset.emo === key));
+  }
+  function renderEmotionPicker() {
+    const host = document.getElementById('emotion-picker');
+    if (!host) return;
+    const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    const cur = (kid && kid.emotion) || 'happy';
+    host.innerHTML = EMOTIONS.map(e =>
+      '<button class="emotion-chip' + (e.key === cur ? ' active' : '') + '" data-emo="' + e.key + '" type="button">' +
+        '<span>' + e.em + '</span><span class="lbl">' + e.label + '</span>' +
+      '</button>'
+    ).join('');
+    host.querySelectorAll('[data-emo]').forEach(chip => {
+      chip.addEventListener('click', async () => {
+        const key = chip.dataset.emo;
+        setBuddyEmotion(key);
+        if (window.mb && window.mb.updateKidEmotion) {
+          try { await window.mb.updateKidEmotion(window.mb.state.currentKidId, key); }
+          catch (e) { console.error('updateKidEmotion failed:', e); }
+        }
+      });
+    });
+    // Apply saved emotion on load
+    setBuddyEmotion(cur);
+  }
+  window.addEventListener('mb-kids-changed', () => renderEmotionPicker());
+
+  // Auto-adjust emotion based on today's mood (if user hasn't manually set in last 30s)
+  let lastEmotionInteraction = 0;
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.emotion-chip')) lastEmotionInteraction = Date.now();
+  });
+  function autoSyncEmotionToMood() {
+    if (Date.now() - lastEmotionInteraction < 30000) return;
+    const ava = document.getElementById('feed-avatar');
+    if (!ava) return;
+    if (ava.classList.contains('strong')) setBuddyEmotion('strong');
+    else if (ava.classList.contains('queasy')) setBuddyEmotion('queasy');
+    else if (ava.classList.contains('sick')) setBuddyEmotion('sad');
+    else if (ava.classList.contains('weak')) setBuddyEmotion('sad');
+  }
+  window.addEventListener('mb-meals-changed', () => setTimeout(autoSyncEmotionToMood, 800));
 
   const BADGES = [
     { key: 'goal_hit', em: '✓', nm: 'Goal Hit', rarity: 'common', req: 'Hit 700 XP this week',
@@ -6372,6 +6562,7 @@
       renderProfileNameBanner();
       loadFamilyGoalInputs();
       applyBuddyStageEverywhere();
+      renderEmotionPicker();
     }
   }, 200);
   // Belt-and-suspenders: also try a couple more times in case subscription is slow
@@ -6672,6 +6863,13 @@
     await updateDoc(kidRef, { buddyName });
   }
   window.mb.updateKidBuddyName = updateKidBuddyName;
+
+  async function updateKidEmotion(kidId, emotion) {
+    if (!state.family) return;
+    const kidRef = doc(db, 'families', state.family.id, 'kids', kidId);
+    await updateDoc(kidRef, { emotion });
+  }
+  window.mb.updateKidEmotion = updateKidEmotion;
 
   async function updateKidEquipped(kidId, slot, cosmeticId) {
     if (!state.family) return;
