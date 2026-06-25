@@ -2761,7 +2761,7 @@
       <!-- ============ MEAL LOG ============ -->
       <div class="view" id="view-meal">
         <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:8px;">
-          <button class="app-back" id="meal-back-btn">← Back</button>
+          <button class="app-back" id="meal-back-btn">← Profile</button>
           <div class="switch-kid" id="meal-switch-kid"></div>
         </div>
         <div class="sub-tab-bar">
@@ -2880,7 +2880,7 @@
       <div class="view" id="view-trophies">
         <div class="tro">
           <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px;">
-            <button class="app-back" id="trophies-back-btn">← Back</button>
+            <button class="app-back" id="trophies-back-btn">← Profile</button>
             <div class="switch-kid" id="trophies-switch-kid"></div>
           </div>
           <div class="sub-tab-bar">
@@ -3308,7 +3308,7 @@
       <div class="view" id="view-chores">
         <div class="chores">
           <div style="grid-column: 1 / -1; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:8px;">
-            <button class="app-back" id="chores-back-btn">← Back</button>
+            <button class="app-back" id="chores-back-btn">← Profile</button>
             <div class="switch-kid" id="chores-switch-kid"></div>
           </div>
           <div class="sub-tab-bar" style="grid-column: 1 / -1;">
@@ -4985,8 +4985,12 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e) { console.error('back failed:', e); }
   }
+  // Sub-view back buttons: jump directly to the kid's profile dashboard
+  function backToProfile() {
+    if (typeof mbGoTo === 'function') mbGoTo('profile');
+  }
   ['chores-back-btn','trophies-back-btn'].forEach(id => {
-    document.getElementById(id)?.addEventListener('click', backOneStep);
+    document.getElementById(id)?.addEventListener('click', backToProfile);
   });
 
   // Sub-tab bar: delegate clicks
@@ -6913,7 +6917,7 @@
 
   // Dashboard action wiring
   document.getElementById('pf-back')?.addEventListener('click', backOneStep);
-  document.getElementById('meal-back-btn')?.addEventListener('click', backOneStep);
+  document.getElementById('meal-back-btn')?.addEventListener('click', backToProfile);
   // (Leaderboard Settings pill removed — use the header gear icon instead.)
   document.getElementById('pf-act-meal')?.addEventListener('click', () => mbGoTo('meal'));
 
