@@ -5177,8 +5177,10 @@
     host.innerHTML = kids.map(k => {
       const buddy = k.buddy || '🦖';
       const species = buddyStageName(buddy);
+      let svg = '';
+      try { svg = randomizeSVGIds(buddySVGHeadWithCosmetics(speciesFor(buddy), k.equipped || {})); } catch (e) { svg = buddy; }
       return '<div class="member-row" data-kid-id="' + k.id + '">' +
-        '<div class="member-ava">' + buddy + '</div>' +
+        '<div class="member-ava" style="display:flex; align-items:center; justify-content:center; overflow:hidden;">' + svg + '</div>' +
         '<div class="member-info">' +
           '<div class="member-name">' + escapeHTML(k.name) + ' <span class="age">age ' + k.age + '</span></div>' +
           '<div class="member-meta">Buddy: ' + species + ' · Trust: <b>L1 Helper</b> · ' + (k.lifetimeXP || 0) + ' lifetime pts</div>' +
@@ -6362,6 +6364,61 @@
     4: [ { em: '💸', label: 'Allowance upgrade' }, { em: '🚴', label: 'Solo bike rides' }, { em: '📱', label: 'More screen freedom' } ]
   };
 
+  // Age-appropriate reward suggestions parents can tap to add per level.
+  // Sourced from common pediatric "responsibility-and-reward" guidance and adjusted for developmental fit.
+  // age range key: '3-4', '5-6', '7-9', '10-12', '13+'
+  const REWARD_SUGGESTIONS_BY_AGE = {
+    '3-4': {
+      0: [ { em:'🌟', label:'Sticker chart star' }, { em:'🤗', label:'Big bear hug' }, { em:'📖', label:'Extra bedtime story' }, { em:'🎶', label:'Pick a song' } ],
+      1: [ { em:'🍓', label:'Pick a fruit snack' }, { em:'🧸', label:'Stuffed animal cuddle time' }, { em:'🎨', label:'Crayons for 15 min' }, { em:'🛁', label:'Bubble bath toy' } ],
+      2: [ { em:'🚂', label:'Train track time' }, { em:'🍪', label:'Special snack' }, { em:'🎬', label:'Pick a short show' }, { em:'🐶', label:'Help feed pet' } ],
+      3: [ { em:'🎁', label:'Small surprise prize' }, { em:'🌳', label:'Park visit' }, { em:'🥞', label:'Help cook pancakes' } ],
+      4: [ { em:'🎉', label:'Birthday-style celebration day' } ]
+    },
+    '5-6': {
+      0: [ { em:'🌟', label:'Sticker chart star' }, { em:'🎵', label:'Pick bedtime music' }, { em:'📚', label:'Library trip' } ],
+      1: [ { em:'🍪', label:'Pick a snack' }, { em:'🎨', label:'30 min craft time' }, { em:'🚲', label:'15 min outdoor play' }, { em:'🎮', label:'10 min screen time' } ],
+      2: [ { em:'🍦', label:'Choose family dessert' }, { em:'🎬', label:'Pick the family movie' }, { em:'🛝', label:'Playground trip' }, { em:'🥄', label:'Help bake something' } ],
+      3: [ { em:'🛌', label:'15 min later bedtime · weekend' }, { em:'🧁', label:'Cupcake outing' }, { em:'🎪', label:'Pick weekend activity' } ],
+      4: [ { em:'🦸', label:'Pretend hero day' }, { em:'🛍️', label:'Pick out a small toy' } ]
+    },
+    '7-9': {
+      0: [ { em:'⭐', label:'High-five chart' }, { em:'🎵', label:'Pick dinner music' }, { em:'📖', label:'Pick the bedtime book' } ],
+      1: [ { em:'🎮', label:'20 min screen time' }, { em:'🍦', label:'Pick family dessert' }, { em:'🚴', label:'Bike ride together' }, { em:'⚽', label:'Pick weekend sport' } ],
+      2: [ { em:'🎬', label:'Pick the family movie' }, { em:'🧁', label:'Bake-together day' }, { em:'🧩', label:'New puzzle/game' }, { em:'🛌', label:'30 min later bedtime · Fri' } ],
+      3: [ { em:'🍕', label:'Choose dinner menu' }, { em:'🎯', label:'Pick a Saturday outing' }, { em:'🎨', label:'Art-supply restock' }, { em:'🛌', label:'Friends sleepover invite' } ],
+      4: [ { em:'💰', label:'Bonus to allowance' }, { em:'🎟️', label:'Movie theater trip' }, { em:'📱', label:'Pick a new app/game' } ]
+    },
+    '10-12': {
+      0: [ { em:'💬', label:'10 min one-on-one chat' }, { em:'🎵', label:'Pick dinner music' } ],
+      1: [ { em:'🎮', label:'30 min game time' }, { em:'🍦', label:'Family dessert pick' }, { em:'📱', label:'Pick a YouTube show' } ],
+      2: [ { em:'🎬', label:'Pick family movie · 1 friend' }, { em:'🍕', label:'Choose Friday dinner' }, { em:'🛌', label:'9pm bedtime weekend' }, { em:'🎯', label:'Pick weekend outing' } ],
+      3: [ { em:'💰', label:'Allowance bump' }, { em:'🚲', label:'Solo bike rides in neighborhood' }, { em:'🛍️', label:'Pick a clothing item' }, { em:'🛌', label:'10pm bedtime Fri+Sat' } ],
+      4: [ { em:'🎟️', label:'Concert/event with parent' }, { em:'📱', label:'Phone-time extension' }, { em:'✈️', label:'Pick a day-trip destination' } ]
+    },
+    '13+': {
+      0: [ { em:'💬', label:'Quality 1-on-1 time' }, { em:'🍕', label:'Pick takeout night' } ],
+      1: [ { em:'🎮', label:'45 min game/screen time' }, { em:'🍔', label:'Pick dinner' }, { em:'🎶', label:'Choose family playlist' } ],
+      2: [ { em:'📱', label:'Extended phone time' }, { em:'🎬', label:'Pick film · 2 friends invited' }, { em:'🛍️', label:'$10 fashion treat' }, { em:'🛌', label:'10:30pm bedtime weekend' } ],
+      3: [ { em:'💰', label:'Allowance raise' }, { em:'🛏️', label:'11pm bedtime Fri+Sat' }, { em:'🛍️', label:'Personal-style shopping trip' }, { em:'📚', label:'Choose 2 books' } ],
+      4: [ { em:'🚗', label:'Trusted to walk/ride alone further' }, { em:'🎟️', label:'Concert/event tickets' }, { em:'💼', label:'Full independence on chores schedule' }, { em:'📱', label:'Phone freedom (parental rules)' } ]
+    }
+  };
+
+  function rewardAgeKey(age) {
+    if (age <= 4) return '3-4';
+    if (age <= 6) return '5-6';
+    if (age <= 9) return '7-9';
+    if (age <= 12) return '10-12';
+    return '13+';
+  }
+
+  function rewardSuggestionsFor(kid, levelIdx) {
+    const key = rewardAgeKey(kid && kid.age || 5);
+    const set = REWARD_SUGGESTIONS_BY_AGE[key] || {};
+    return set[levelIdx] || [];
+  }
+
   // Per-section editing state
   const respState = { editKidId: null, addingPeriod: null, addEmoji: '🧸' };
   const rewState = { editKidId: null, level: 0 };
@@ -6620,6 +6677,20 @@
     const kids = (window.mb && window.mb.state.kids) || [];
     const kid = kids.find(k => k.id === rewState.editKidId);
     const rewards = getRewardsForKid(kid, rewState.level);
+    const suggestions = kid ? rewardSuggestionsFor(kid, rewState.level) : [];
+    const existing = new Set(rewards.map(r => (r.label || '').toLowerCase()));
+    const freshSuggestions = suggestions.filter(s => !existing.has((s.label || '').toLowerCase()));
+    const ageKey = kid ? rewardAgeKey(kid.age || 5) : '';
+    const suggHtml = (kid && freshSuggestions.length)
+      ? '<div class="suggest-box" style="margin-top:10px;">' +
+          '<div class="sug-head"><div><h4 class="sug-title">💡 Suggestions for age ' + (kid.age || '?') + '</h4><p class="sug-sub">Tap any to add to ' + escapeHTML(kid.name) + '\'s L' + (rewState.level + 1) + ' rewards</p></div></div>' +
+          '<div class="sug-grid">' +
+            freshSuggestions.map((sug, i) =>
+              '<div class="sug-tile" data-rsug="' + i + '"><span class="ico">' + sug.em + '</span><div class="nm">' + sug.label + '</div></div>'
+            ).join('') +
+          '</div>' +
+        '</div>'
+      : '';
     host.innerHTML = rewards.map((r, i) =>
       '<div class="rc-item" data-rwidx="' + i + '">' +
         '<button class="rc-em" data-rwemoji="' + i + '">' + (r.em || '🎁') + '</button>' +
@@ -6627,7 +6698,23 @@
         '<button class="rc-del" data-rwdel="' + i + '">×</button>' +
       '</div>'
     ).join('') +
-      '<div class="rc-add" id="rew-add-btn"><span class="rc-plus">+</span> Add a reward</div>';
+      '<div class="rc-add" id="rew-add-btn"><span class="rc-plus">+</span> Add a reward</div>' +
+      suggHtml;
+    // Wire suggestion taps
+    host.querySelectorAll('[data-rsug]').forEach(tile => {
+      tile.addEventListener('click', async () => {
+        const idx = parseInt(tile.dataset.rsug, 10);
+        const sug = freshSuggestions[idx];
+        if (!sug) return;
+        const k = kids.find(kk => kk.id === rewState.editKidId);
+        if (!k) return;
+        const list = getRewardsForKid(k, rewState.level).slice();
+        list.push({ em: sug.em, label: sug.label });
+        flashRewStatus('Saving…');
+        try { await window.mb.updateKidRewards(k.id, rewState.level, list); flashRewStatus('✓ Added "' + sug.label + '"'); }
+        catch (e) { console.error('Add suggested reward failed:', e); flashRewStatus('Save failed'); }
+      });
+    });
     // Wire change on name input
     host.querySelectorAll('[data-rwname]').forEach(inp => {
       inp.addEventListener('change', async () => {
