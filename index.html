@@ -244,6 +244,62 @@
   .buddy-zzz { position: absolute; top: 8%; right: 12%; font-size: 32px; opacity: 0; z-index: 5; pointer-events: none; }
   .buddy-aura { position: absolute; inset: -8%; border-radius: 50%; pointer-events: none; opacity: 0; z-index: 0; }
 
+  /* SVG character body parts animations */
+  .buddy-svg-wrap { transform-origin: center bottom; }
+  .buddy-svg .g-head, .buddy-svg .g-body, .buddy-svg .g-arm-l, .buddy-svg .g-arm-r, .buddy-svg .g-leg-l, .buddy-svg .g-leg-r, .buddy-svg .g-tail {
+    transform-origin: center;
+  }
+  .buddy-svg .g-arm-l { transform-origin: 80px 132px; }
+  .buddy-svg .g-arm-r { transform-origin: 160px 132px; }
+
+  .emo-happy .buddy-svg .g-head { animation: svg-head-bob 2.2s ease-in-out infinite; transform-origin: 120px 130px; }
+  .emo-happy .buddy-svg .g-body { animation: svg-body-bob 2.2s ease-in-out infinite; }
+  @keyframes svg-head-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  @keyframes svg-body-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+
+  .emo-strong .buddy-svg .g-arm-l { animation: svg-flex-l 1.4s ease-in-out infinite; }
+  .emo-strong .buddy-svg .g-arm-r { animation: svg-flex-r 1.4s ease-in-out infinite; }
+  .emo-strong .buddy-svg .g-body { animation: svg-puff 1.4s ease-in-out infinite; }
+  @keyframes svg-flex-l { 0%,100% { transform: rotate(0); } 50% { transform: rotate(-40deg) scale(1.1); } }
+  @keyframes svg-flex-r { 0%,100% { transform: rotate(0); } 50% { transform: rotate(40deg) scale(1.1); } }
+  @keyframes svg-puff { 0%,100% { transform: scaleX(1); } 50% { transform: scaleX(1.08); } }
+
+  .emo-dance .buddy-svg { animation: svg-dance 0.7s ease-in-out infinite; transform-origin: center bottom; }
+  .emo-dance .buddy-svg .g-arm-l { animation: svg-wave-l 0.7s ease-in-out infinite; }
+  .emo-dance .buddy-svg .g-arm-r { animation: svg-wave-r 0.7s ease-in-out infinite; }
+  @keyframes svg-dance {
+    0%   { transform: rotate(-5deg); }
+    25%  { transform: rotate(5deg) translateY(-4px); }
+    50%  { transform: rotate(-5deg); }
+    75%  { transform: rotate(5deg) translateY(-4px); }
+    100% { transform: rotate(-5deg); }
+  }
+  @keyframes svg-wave-l { 0%,100% { transform: rotate(0); } 50% { transform: rotate(-60deg); } }
+  @keyframes svg-wave-r { 0%,100% { transform: rotate(0); } 50% { transform: rotate(60deg); } }
+
+  .emo-celebrate .buddy-svg { animation: svg-jump 0.5s ease-in-out infinite; }
+  .emo-celebrate .buddy-svg .g-arm-l { animation: svg-up-l 0.5s ease-in-out infinite; }
+  .emo-celebrate .buddy-svg .g-arm-r { animation: svg-up-r 0.5s ease-in-out infinite; }
+  @keyframes svg-jump { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+  @keyframes svg-up-l { 0%,100% { transform: rotate(0); } 50% { transform: rotate(-130deg); } }
+  @keyframes svg-up-r { 0%,100% { transform: rotate(0); } 50% { transform: rotate(130deg); } }
+  .emo-celebrate .buddy-aura {
+    opacity: 1; background: radial-gradient(circle, rgba(255,214,107,.6), rgba(255,138,92,.2) 50%, transparent 70%);
+    animation: aura-pulse 0.6s ease-in-out infinite;
+  }
+
+  .emo-sleep .buddy-svg { animation: svg-sway 4s ease-in-out infinite; filter: saturate(.65); }
+  @keyframes svg-sway { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+  .emo-sleep .buddy-zzz { opacity: 1; animation: zzz-float 2.5s ease-in-out infinite; }
+  @keyframes zzz-float { 0% { transform: translateY(0) scale(.8); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-30px) scale(1.2); opacity: 0; } }
+
+  .emo-sad .buddy-svg { filter: saturate(.55); animation: svg-droop 3s ease-in-out infinite; transform-origin: center bottom; }
+  @keyframes svg-droop { 0%,100% { transform: translateY(0); } 50% { transform: translateY(3px) scale(.98); } }
+
+  .emo-queasy .buddy-svg { filter: hue-rotate(30deg) saturate(.7); animation: svg-queasy 1.4s ease-in-out infinite; transform-origin: center bottom; }
+  @keyframes svg-queasy { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+
+  /* Old CSS-body emotion rules retained (harmless when no CSS body present) */
   /* Emotions */
   .emo-happy .buddy-body  { animation: buddy-bob 2.2s ease-in-out infinite; }
   .emo-happy .buddy-head  { animation: buddy-head-bob 2.2s ease-in-out infinite; }
@@ -2607,19 +2663,11 @@
             </div>
 
             <div class="feed-host" id="feed-host" style="background: linear-gradient(180deg, #FFF6E5 0%, #FFE9D6 100%); border-radius: 18px; padding: 18px 12px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-              <div class="ava-shell ava-3d has-body emo-happy" id="feed-avatar" style="width:260px;height:280px;font-size:130px; background: transparent; box-shadow: none; overflow: visible;">
-                <div class="buddy-shadow"></div>
-                <div class="buddy-body">
-                  <div class="buddy-leg left"></div>
-                  <div class="buddy-leg right"></div>
-                  <div class="buddy-torso"></div>
-                  <div class="buddy-arm left"></div>
-                  <div class="buddy-arm right"></div>
-                </div>
-                <span class="buddy-head" id="feed-buddy-head">🦖</span>
-                <div class="sweat">💧</div>
-                <div class="buddy-zzz" id="buddy-zzz">💤</div>
-                <div class="buddy-aura" id="buddy-aura"></div>
+              <div class="buddy-svg-wrap emo-happy" id="feed-avatar" style="width:260px;height:280px; position: relative; background: transparent; display:flex; align-items:center; justify-content:center; overflow: visible;">
+                <div id="feed-buddy-svg" style="width:100%; height:100%;"></div>
+                <div class="sweat" style="position:absolute; right:6%; top:8%;">💧</div>
+                <div class="buddy-zzz" id="buddy-zzz" style="position:absolute; top:6%; right:14%; font-size:32px; opacity:0; pointer-events:none;">💤</div>
+                <div class="buddy-aura" id="buddy-aura" style="position:absolute; inset:-8%; border-radius:50%; pointer-events:none; opacity:0;"></div>
               </div>
               <div class="emotion-picker" id="emotion-picker"></div>
               <div class="feed-burst" id="feed-burst"></div>
@@ -5019,9 +5067,8 @@
     // Meal Log: Dino-is-asking mini
     const needsBuddy = document.getElementById('ml-needs-buddy');
     if (needsBuddy) needsBuddy.firstChild ? (needsBuddy.textContent = buddy) : (needsBuddy.textContent = buddy);
-    // Meal Log: feed-host avatar (the head emoji is inside .buddy-head span now)
-    const feedHead = document.getElementById('feed-buddy-head');
-    if (feedHead) feedHead.textContent = buddy;
+    // Meal Log feed-host now uses SVG character (no head emoji to update)
+    if (typeof renderBuddySVG === 'function') renderBuddySVG();
     // Meal Log: av-mini in reaction area
     const avMini = document.getElementById('av-mini');
     if (avMini) avMini.textContent = buddy;
@@ -5468,6 +5515,35 @@
   window.addEventListener('mb-kids-changed', () => applyBuddyStageEverywhere());
   window.addEventListener('mb-meals-changed', () => applyBuddyStageEverywhere());
 
+  // ============ Phase 2W: SVG buddy library + species mapping ============
+  const BUDDY_SVGS = {
+    dino: "<svg viewBox=\"0 0 240 240\" xmlns=\"http://www.w3.org/2000/svg\" class=\"buddy-svg\" style=\"width:100%; height:100%;\">\n  <defs>\n    <radialGradient id=\"dino-body\" cx=\"35%\" cy=\"30%\" r=\"80%\"><stop offset=\"0%\" stop-color=\"#9FE38F\"/><stop offset=\"100%\" stop-color=\"#4A8B47\"/></radialGradient>\n    <radialGradient id=\"dino-belly\" cx=\"50%\" cy=\"50%\" r=\"60%\"><stop offset=\"0%\" stop-color=\"#F5F0CC\"/><stop offset=\"100%\" stop-color=\"#D0C490\"/></radialGradient>\n  </defs>\n  <ellipse class=\"b-shadow\" cx=\"120\" cy=\"226\" rx=\"60\" ry=\"6\" fill=\"rgba(0,0,0,.18)\"/>\n  <g class=\"g-tail\">\n    <path d=\"M75 165 Q40 140 40 110 Q40 95 55 95 Q70 105 80 125 Z\" fill=\"url(#dino-body)\"/>\n  </g>\n  <g class=\"g-leg-l\"><ellipse cx=\"100\" cy=\"200\" rx=\"14\" ry=\"22\" fill=\"url(#dino-body)\"/></g>\n  <g class=\"g-leg-r\"><ellipse cx=\"140\" cy=\"200\" rx=\"14\" ry=\"22\" fill=\"url(#dino-body)\"/></g>\n  <g class=\"g-body\">\n    <ellipse cx=\"120\" cy=\"155\" rx=\"48\" ry=\"42\" fill=\"url(#dino-body)\"/>\n    <ellipse cx=\"120\" cy=\"160\" rx=\"28\" ry=\"28\" fill=\"url(#dino-belly)\"/>\n  </g>\n  <g class=\"g-arm-l\"><ellipse cx=\"78\" cy=\"150\" rx=\"10\" ry=\"18\" fill=\"url(#dino-body)\"/></g>\n  <g class=\"g-arm-r\"><ellipse cx=\"162\" cy=\"150\" rx=\"10\" ry=\"18\" fill=\"url(#dino-body)\"/></g>\n  <g class=\"g-head\">\n    <ellipse cx=\"120\" cy=\"90\" rx=\"45\" ry=\"40\" fill=\"url(#dino-body)\"/>\n    <!-- Spikes -->\n    <path d=\"M88 65 L84 50 L94 60 Z M105 55 L100 38 L113 53 Z M125 53 L122 36 L135 50 Z M145 60 L150 45 L155 60 Z\" fill=\"#3A7A37\"/>\n    <!-- Eyes -->\n    <circle cx=\"104\" cy=\"92\" r=\"8\" fill=\"#fff\"/><circle cx=\"104\" cy=\"93\" r=\"4\" fill=\"#2a2440\"/>\n    <circle cx=\"135\" cy=\"92\" r=\"8\" fill=\"#fff\"/><circle cx=\"135\" cy=\"93\" r=\"4\" fill=\"#2a2440\"/>\n    <!-- Nostrils + mouth -->\n    <circle cx=\"125\" cy=\"115\" r=\"1.8\" fill=\"#2a2440\"/><circle cx=\"135\" cy=\"115\" r=\"1.8\" fill=\"#2a2440\"/>\n    <path d=\"M110 122 Q120 130 132 122\" stroke=\"#2a2440\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/>\n  </g>\n</svg>",
+    dragon: "<svg viewBox=\"0 0 240 240\" xmlns=\"http://www.w3.org/2000/svg\" class=\"buddy-svg\" style=\"width:100%; height:100%;\">\n  <defs>\n    <radialGradient id=\"dr-body\" cx=\"35%\" cy=\"30%\" r=\"80%\"><stop offset=\"0%\" stop-color=\"#FF8C5C\"/><stop offset=\"100%\" stop-color=\"#B43320\"/></radialGradient>\n    <radialGradient id=\"dr-wing\" cx=\"50%\" cy=\"50%\" r=\"80%\"><stop offset=\"0%\" stop-color=\"#FFD66B\"/><stop offset=\"100%\" stop-color=\"#E0552B\"/></radialGradient>\n  </defs>\n  <ellipse class=\"b-shadow\" cx=\"120\" cy=\"226\" rx=\"62\" ry=\"6\" fill=\"rgba(0,0,0,.18)\"/>\n  <g class=\"g-tail\"><path d=\"M70 175 Q35 165 30 130 Q35 115 50 120 Q60 145 78 168 Z\" fill=\"url(#dr-body)\"/></g>\n  <g class=\"g-leg-l\"><ellipse cx=\"100\" cy=\"200\" rx=\"14\" ry=\"22\" fill=\"url(#dr-body)\"/></g>\n  <g class=\"g-leg-r\"><ellipse cx=\"140\" cy=\"200\" rx=\"14\" ry=\"22\" fill=\"url(#dr-body)\"/></g>\n  <g class=\"g-body\">\n    <ellipse cx=\"120\" cy=\"155\" rx=\"47\" ry=\"42\" fill=\"url(#dr-body)\"/>\n    <ellipse cx=\"120\" cy=\"160\" rx=\"26\" ry=\"26\" fill=\"#FFD8B0\"/>\n    <!-- Wings -->\n    <path d=\"M165 140 Q200 110 205 145 Q190 150 170 155 Z\" fill=\"url(#dr-wing)\" opacity=\".85\"/>\n    <path d=\"M75 140 Q40 110 35 145 Q50 150 70 155 Z\" fill=\"url(#dr-wing)\" opacity=\".85\"/>\n  </g>\n  <g class=\"g-arm-l\"><ellipse cx=\"78\" cy=\"150\" rx=\"10\" ry=\"17\" fill=\"url(#dr-body)\"/></g>\n  <g class=\"g-arm-r\"><ellipse cx=\"162\" cy=\"150\" rx=\"10\" ry=\"17\" fill=\"url(#dr-body)\"/></g>\n  <g class=\"g-head\">\n    <ellipse cx=\"120\" cy=\"90\" rx=\"44\" ry=\"40\" fill=\"url(#dr-body)\"/>\n    <!-- Horns -->\n    <path d=\"M95 60 L88 38 L102 55 Z\" fill=\"#8B2A1A\"/>\n    <path d=\"M145 60 L152 38 L138 55 Z\" fill=\"#8B2A1A\"/>\n    <!-- Spikes -->\n    <path d=\"M115 55 L120 35 L125 55 Z\" fill=\"#FFD66B\"/>\n    <!-- Eyes -->\n    <ellipse cx=\"106\" cy=\"92\" rx=\"6\" ry=\"8\" fill=\"#2a2440\"/>\n    <ellipse cx=\"134\" cy=\"92\" rx=\"6\" ry=\"8\" fill=\"#2a2440\"/>\n    <ellipse cx=\"107\" cy=\"89\" rx=\"2\" ry=\"3\" fill=\"#FFD66B\"/>\n    <ellipse cx=\"135\" cy=\"89\" rx=\"2\" ry=\"3\" fill=\"#FFD66B\"/>\n    <!-- Nostrils + mouth -->\n    <circle cx=\"115\" cy=\"115\" r=\"2\" fill=\"#2a2440\"/><circle cx=\"125\" cy=\"115\" r=\"2\" fill=\"#2a2440\"/>\n    <path d=\"M105 122 Q120 132 135 122\" stroke=\"#2a2440\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/>\n  </g>\n</svg>",
+    robo: "<svg viewBox=\"0 0 240 240\" xmlns=\"http://www.w3.org/2000/svg\" class=\"buddy-svg\" style=\"width:100%; height:100%;\">\n  <defs>\n    <linearGradient id=\"ro-body\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#BCC8D6\"/><stop offset=\"100%\" stop-color=\"#5B7C99\"/></linearGradient>\n    <linearGradient id=\"ro-eye\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#5BB8FF\"/><stop offset=\"100%\" stop-color=\"#2C7BB6\"/></linearGradient>\n  </defs>\n  <ellipse class=\"b-shadow\" cx=\"120\" cy=\"226\" rx=\"60\" ry=\"6\" fill=\"rgba(0,0,0,.18)\"/>\n  <g class=\"g-leg-l\"><rect x=\"92\" y=\"180\" width=\"20\" height=\"38\" rx=\"6\" fill=\"url(#ro-body)\"/></g>\n  <g class=\"g-leg-r\"><rect x=\"128\" y=\"180\" width=\"20\" height=\"38\" rx=\"6\" fill=\"url(#ro-body)\"/></g>\n  <g class=\"g-body\">\n    <rect x=\"75\" y=\"125\" width=\"90\" height=\"70\" rx=\"14\" fill=\"url(#ro-body)\"/>\n    <rect x=\"92\" y=\"142\" width=\"56\" height=\"36\" rx=\"8\" fill=\"#2a2440\"/>\n    <!-- Status lights -->\n    <circle cx=\"105\" cy=\"160\" r=\"4\" fill=\"#6CC36A\"/>\n    <circle cx=\"120\" cy=\"160\" r=\"4\" fill=\"#FFD66B\"/>\n    <circle cx=\"135\" cy=\"160\" r=\"4\" fill=\"#D9477B\"/>\n  </g>\n  <g class=\"g-arm-l\"><rect x=\"62\" y=\"135\" width=\"14\" height=\"50\" rx=\"6\" fill=\"url(#ro-body)\"/></g>\n  <g class=\"g-arm-r\"><rect x=\"164\" y=\"135\" width=\"14\" height=\"50\" rx=\"6\" fill=\"url(#ro-body)\"/></g>\n  <g class=\"g-head\">\n    <!-- Antenna -->\n    <line x1=\"120\" y1=\"55\" x2=\"120\" y2=\"30\" stroke=\"#5B7C99\" stroke-width=\"3\"/>\n    <circle cx=\"120\" cy=\"26\" r=\"6\" fill=\"#D9477B\"/>\n    <!-- Head -->\n    <rect x=\"80\" y=\"55\" width=\"80\" height=\"70\" rx=\"14\" fill=\"url(#ro-body)\"/>\n    <!-- Visor / Screen -->\n    <rect x=\"88\" y=\"75\" width=\"64\" height=\"36\" rx=\"10\" fill=\"#2a2440\"/>\n    <!-- Eyes -->\n    <circle cx=\"105\" cy=\"93\" r=\"6\" fill=\"url(#ro-eye)\"/>\n    <circle cx=\"135\" cy=\"93\" r=\"6\" fill=\"url(#ro-eye)\"/>\n    <circle cx=\"106\" cy=\"91\" r=\"1.8\" fill=\"#fff\"/>\n    <circle cx=\"136\" cy=\"91\" r=\"1.8\" fill=\"#fff\"/>\n    <!-- Mouth -->\n    <rect x=\"108\" y=\"105\" width=\"24\" height=\"3\" rx=\"1.5\" fill=\"#5BB8FF\"/>\n  </g>\n</svg>",
+    kitty: "<svg viewBox=\"0 0 240 240\" xmlns=\"http://www.w3.org/2000/svg\" class=\"buddy-svg\" style=\"width:100%; height:100%;\">\n  <defs>\n    <radialGradient id=\"cat-body\" cx=\"35%\" cy=\"30%\" r=\"80%\"><stop offset=\"0%\" stop-color=\"#FFCB94\"/><stop offset=\"100%\" stop-color=\"#E08A38\"/></radialGradient>\n    <radialGradient id=\"cat-belly\" cx=\"50%\" cy=\"50%\" r=\"60%\"><stop offset=\"0%\" stop-color=\"#FFF4D6\"/><stop offset=\"100%\" stop-color=\"#F5DDAA\"/></radialGradient>\n  </defs>\n  <ellipse class=\"b-shadow\" cx=\"120\" cy=\"226\" rx=\"60\" ry=\"6\" fill=\"rgba(0,0,0,.18)\"/>\n  <g class=\"g-tail\"><path d=\"M170 175 Q200 170 200 140 Q195 130 188 132 Q185 155 170 165 Z\" fill=\"url(#cat-body)\"/></g>\n  <g class=\"g-leg-l\"><ellipse cx=\"100\" cy=\"200\" rx=\"13\" ry=\"20\" fill=\"url(#cat-body)\"/></g>\n  <g class=\"g-leg-r\"><ellipse cx=\"140\" cy=\"200\" rx=\"13\" ry=\"20\" fill=\"url(#cat-body)\"/></g>\n  <g class=\"g-body\">\n    <ellipse cx=\"120\" cy=\"155\" rx=\"44\" ry=\"40\" fill=\"url(#cat-body)\"/>\n    <ellipse cx=\"120\" cy=\"162\" rx=\"22\" ry=\"22\" fill=\"url(#cat-belly)\"/>\n  </g>\n  <g class=\"g-arm-l\"><ellipse cx=\"80\" cy=\"150\" rx=\"10\" ry=\"17\" fill=\"url(#cat-body)\"/></g>\n  <g class=\"g-arm-r\"><ellipse cx=\"160\" cy=\"150\" rx=\"10\" ry=\"17\" fill=\"url(#cat-body)\"/></g>\n  <g class=\"g-head\">\n    <ellipse cx=\"120\" cy=\"92\" rx=\"40\" ry=\"38\" fill=\"url(#cat-body)\"/>\n    <!-- Ears -->\n    <path d=\"M90 65 L85 40 L107 58 Z\" fill=\"url(#cat-body)\"/>\n    <path d=\"M133 58 L155 40 L150 65 Z\" fill=\"url(#cat-body)\"/>\n    <path d=\"M92 60 L92 50 L100 56 Z\" fill=\"#FFC0D0\"/>\n    <path d=\"M148 60 L148 50 L140 56 Z\" fill=\"#FFC0D0\"/>\n    <!-- Eyes -->\n    <ellipse cx=\"107\" cy=\"95\" rx=\"5\" ry=\"7\" fill=\"#2a2440\"/>\n    <ellipse cx=\"133\" cy=\"95\" rx=\"5\" ry=\"7\" fill=\"#2a2440\"/>\n    <ellipse cx=\"108\" cy=\"93\" rx=\"1.5\" ry=\"2\" fill=\"#fff\"/>\n    <ellipse cx=\"134\" cy=\"93\" rx=\"1.5\" ry=\"2\" fill=\"#fff\"/>\n    <!-- Nose + mouth + whiskers -->\n    <path d=\"M116 110 L124 110 L120 116 Z\" fill=\"#FF8AA8\"/>\n    <path d=\"M120 116 Q116 122 112 119 M120 116 Q124 122 128 119\" stroke=\"#2a2440\" stroke-width=\"2\" fill=\"none\" stroke-linecap=\"round\"/>\n    <line x1=\"80\" y1=\"108\" x2=\"98\" y2=\"110\" stroke=\"#2a2440\" stroke-width=\"1.2\"/>\n    <line x1=\"80\" y1=\"115\" x2=\"98\" y2=\"115\" stroke=\"#2a2440\" stroke-width=\"1.2\"/>\n    <line x1=\"142\" y1=\"110\" x2=\"160\" y2=\"108\" stroke=\"#2a2440\" stroke-width=\"1.2\"/>\n    <line x1=\"142\" y1=\"115\" x2=\"160\" y2=\"115\" stroke=\"#2a2440\" stroke-width=\"1.2\"/>\n  </g>\n</svg>",
+    bear: "<svg viewBox=\"0 0 240 240\" xmlns=\"http://www.w3.org/2000/svg\" class=\"buddy-svg\" style=\"width:100%; height:100%;\">\n  <defs>\n    <radialGradient id=\"bear-body\" cx=\"35%\" cy=\"30%\" r=\"80%\"><stop offset=\"0%\" stop-color=\"#C49464\"/><stop offset=\"100%\" stop-color=\"#7A5028\"/></radialGradient>\n    <radialGradient id=\"bear-belly\" cx=\"50%\" cy=\"50%\" r=\"60%\"><stop offset=\"0%\" stop-color=\"#F5DDB0\"/><stop offset=\"100%\" stop-color=\"#D9B47A\"/></radialGradient>\n  </defs>\n  <ellipse class=\"b-shadow\" cx=\"120\" cy=\"226\" rx=\"60\" ry=\"6\" fill=\"rgba(0,0,0,.18)\"/>\n  <g class=\"g-leg-l\"><ellipse cx=\"100\" cy=\"200\" rx=\"16\" ry=\"22\" fill=\"url(#bear-body)\"/></g>\n  <g class=\"g-leg-r\"><ellipse cx=\"140\" cy=\"200\" rx=\"16\" ry=\"22\" fill=\"url(#bear-body)\"/></g>\n  <g class=\"g-body\">\n    <ellipse cx=\"120\" cy=\"160\" rx=\"50\" ry=\"42\" fill=\"url(#bear-body)\"/>\n    <ellipse cx=\"120\" cy=\"165\" rx=\"28\" ry=\"26\" fill=\"url(#bear-belly)\"/>\n  </g>\n  <g class=\"g-arm-l\"><ellipse cx=\"75\" cy=\"155\" rx=\"12\" ry=\"18\" fill=\"url(#bear-body)\"/></g>\n  <g class=\"g-arm-r\"><ellipse cx=\"165\" cy=\"155\" rx=\"12\" ry=\"18\" fill=\"url(#bear-body)\"/></g>\n  <g class=\"g-head\">\n    <ellipse cx=\"120\" cy=\"92\" rx=\"42\" ry=\"40\" fill=\"url(#bear-body)\"/>\n    <!-- Ears -->\n    <circle cx=\"92\" cy=\"62\" r=\"11\" fill=\"url(#bear-body)\"/>\n    <circle cx=\"148\" cy=\"62\" r=\"11\" fill=\"url(#bear-body)\"/>\n    <circle cx=\"92\" cy=\"62\" r=\"6\" fill=\"#A07045\"/>\n    <circle cx=\"148\" cy=\"62\" r=\"6\" fill=\"#A07045\"/>\n    <!-- Snout -->\n    <ellipse cx=\"120\" cy=\"108\" rx=\"18\" ry=\"13\" fill=\"url(#bear-belly)\"/>\n    <!-- Eyes -->\n    <circle cx=\"105\" cy=\"92\" r=\"4\" fill=\"#2a2440\"/>\n    <circle cx=\"135\" cy=\"92\" r=\"4\" fill=\"#2a2440\"/>\n    <circle cx=\"106\" cy=\"91\" r=\"1.2\" fill=\"#fff\"/>\n    <circle cx=\"136\" cy=\"91\" r=\"1.2\" fill=\"#fff\"/>\n    <!-- Nose + mouth -->\n    <ellipse cx=\"120\" cy=\"102\" rx=\"4\" ry=\"3\" fill=\"#2a2440\"/>\n    <path d=\"M120 105 L120 112 M116 115 Q120 118 124 115\" stroke=\"#2a2440\" stroke-width=\"2\" fill=\"none\" stroke-linecap=\"round\"/>\n  </g>\n</svg>",
+    fox: "<svg viewBox=\"0 0 240 240\" xmlns=\"http://www.w3.org/2000/svg\" class=\"buddy-svg\" style=\"width:100%; height:100%;\">\n  <defs>\n    <radialGradient id=\"fox-body\" cx=\"35%\" cy=\"30%\" r=\"80%\"><stop offset=\"0%\" stop-color=\"#FFA75C\"/><stop offset=\"100%\" stop-color=\"#B85A1E\"/></radialGradient>\n    <radialGradient id=\"fox-belly\" cx=\"50%\" cy=\"50%\" r=\"60%\"><stop offset=\"0%\" stop-color=\"#FFF4DC\"/><stop offset=\"100%\" stop-color=\"#F5DDB0\"/></radialGradient>\n  </defs>\n  <ellipse class=\"b-shadow\" cx=\"120\" cy=\"226\" rx=\"60\" ry=\"6\" fill=\"rgba(0,0,0,.18)\"/>\n  <g class=\"g-tail\"><path d=\"M170 175 Q210 175 210 130 Q200 120 188 130 Q185 160 170 170 Z\" fill=\"url(#fox-body)\"/><ellipse cx=\"204\" cy=\"130\" rx=\"8\" ry=\"10\" fill=\"url(#fox-belly)\"/></g>\n  <g class=\"g-leg-l\"><ellipse cx=\"100\" cy=\"200\" rx=\"13\" ry=\"20\" fill=\"url(#fox-body)\"/></g>\n  <g class=\"g-leg-r\"><ellipse cx=\"140\" cy=\"200\" rx=\"13\" ry=\"20\" fill=\"url(#fox-body)\"/></g>\n  <g class=\"g-body\">\n    <ellipse cx=\"120\" cy=\"155\" rx=\"44\" ry=\"40\" fill=\"url(#fox-body)\"/>\n    <ellipse cx=\"120\" cy=\"162\" rx=\"22\" ry=\"22\" fill=\"url(#fox-belly)\"/>\n  </g>\n  <g class=\"g-arm-l\"><ellipse cx=\"80\" cy=\"150\" rx=\"10\" ry=\"17\" fill=\"url(#fox-body)\"/></g>\n  <g class=\"g-arm-r\"><ellipse cx=\"160\" cy=\"150\" rx=\"10\" ry=\"17\" fill=\"url(#fox-body)\"/></g>\n  <g class=\"g-head\">\n    <path d=\"M80 95 Q80 65 120 60 Q160 65 160 95 Q155 125 120 130 Q85 125 80 95 Z\" fill=\"url(#fox-body)\"/>\n    <!-- Ears -->\n    <path d=\"M85 80 L80 40 L110 70 Z\" fill=\"url(#fox-body)\"/>\n    <path d=\"M155 80 L160 40 L130 70 Z\" fill=\"url(#fox-body)\"/>\n    <path d=\"M88 70 L88 50 L100 65 Z\" fill=\"#2a2440\"/>\n    <path d=\"M152 70 L152 50 L140 65 Z\" fill=\"#2a2440\"/>\n    <!-- Snout -->\n    <ellipse cx=\"120\" cy=\"115\" rx=\"14\" ry=\"10\" fill=\"url(#fox-belly)\"/>\n    <!-- Eyes -->\n    <ellipse cx=\"105\" cy=\"90\" rx=\"4\" ry=\"5\" fill=\"#2a2440\"/>\n    <ellipse cx=\"135\" cy=\"90\" rx=\"4\" ry=\"5\" fill=\"#2a2440\"/>\n    <!-- Nose + mouth -->\n    <ellipse cx=\"120\" cy=\"113\" rx=\"3.5\" ry=\"2.5\" fill=\"#2a2440\"/>\n    <path d=\"M120 116 L120 122 M116 124 Q120 127 124 124\" stroke=\"#2a2440\" stroke-width=\"1.8\" fill=\"none\" stroke-linecap=\"round\"/>\n  </g>\n</svg>",
+    unicorn: "<svg viewBox=\"0 0 240 240\" xmlns=\"http://www.w3.org/2000/svg\" class=\"buddy-svg\" style=\"width:100%; height:100%;\">\n  <defs>\n    <linearGradient id=\"uni-mane\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#FF8DC7\"/><stop offset=\"50%\" stop-color=\"#C589FF\"/><stop offset=\"100%\" stop-color=\"#7DC4FF\"/></linearGradient>\n    <linearGradient id=\"uni-horn\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#FFD66B\"/><stop offset=\"100%\" stop-color=\"#FF8A5C\"/></linearGradient>\n    <radialGradient id=\"uni-body\" cx=\"35%\" cy=\"30%\" r=\"80%\"><stop offset=\"0%\" stop-color=\"#FFFFFF\"/><stop offset=\"100%\" stop-color=\"#E5D9F0\"/></radialGradient>\n  </defs>\n  <ellipse class=\"b-shadow\" cx=\"120\" cy=\"226\" rx=\"60\" ry=\"6\" fill=\"rgba(0,0,0,.18)\"/>\n  <g class=\"g-tail\">\n    <path d=\"M75 165 Q45 145 45 115 Q50 100 65 100 Q75 115 80 135 Z\" fill=\"url(#uni-mane)\"/>\n  </g>\n  <g class=\"g-leg-l\"><ellipse cx=\"100\" cy=\"200\" rx=\"13\" ry=\"22\" fill=\"url(#uni-body)\"/></g>\n  <g class=\"g-leg-r\"><ellipse cx=\"140\" cy=\"200\" rx=\"13\" ry=\"22\" fill=\"url(#uni-body)\"/></g>\n  <g class=\"g-body\">\n    <ellipse cx=\"120\" cy=\"155\" rx=\"46\" ry=\"40\" fill=\"url(#uni-body)\"/>\n    <ellipse cx=\"120\" cy=\"160\" rx=\"26\" ry=\"26\" fill=\"#FCEEFF\"/>\n  </g>\n  <g class=\"g-arm-l\"><ellipse cx=\"80\" cy=\"150\" rx=\"10\" ry=\"17\" fill=\"url(#uni-body)\"/></g>\n  <g class=\"g-arm-r\"><ellipse cx=\"160\" cy=\"150\" rx=\"10\" ry=\"17\" fill=\"url(#uni-body)\"/></g>\n  <g class=\"g-head\">\n    <ellipse cx=\"120\" cy=\"90\" rx=\"42\" ry=\"40\" fill=\"url(#uni-body)\"/>\n    <!-- Mane -->\n    <path d=\"M85 75 Q70 55 88 50 Q95 70 105 75 Q90 80 85 75 Z M150 75 Q165 55 152 50 Q145 70 137 75 Q150 80 150 75 Z\" fill=\"url(#uni-mane)\"/>\n    <path d=\"M105 60 Q100 35 120 40 Q140 35 135 60 Q120 65 105 60 Z\" fill=\"url(#uni-mane)\"/>\n    <!-- Horn -->\n    <path d=\"M118 55 L122 55 L120 22 Z\" fill=\"url(#uni-horn)\"/>\n    <!-- Ears -->\n    <path d=\"M98 65 L92 50 L104 60 Z\" fill=\"url(#uni-body)\"/>\n    <path d=\"M142 65 L148 50 L136 60 Z\" fill=\"url(#uni-body)\"/>\n    <!-- Eyes -->\n    <ellipse cx=\"106\" cy=\"95\" rx=\"5\" ry=\"7\" fill=\"#2a2440\"/>\n    <ellipse cx=\"134\" cy=\"95\" rx=\"5\" ry=\"7\" fill=\"#2a2440\"/>\n    <ellipse cx=\"107\" cy=\"93\" rx=\"1.5\" ry=\"2\" fill=\"#fff\"/>\n    <ellipse cx=\"135\" cy=\"93\" rx=\"1.5\" ry=\"2\" fill=\"#fff\"/>\n    <!-- Cheeks + mouth -->\n    <circle cx=\"98\" cy=\"110\" r=\"4\" fill=\"#FFC0D0\" opacity=\".6\"/>\n    <circle cx=\"142\" cy=\"110\" r=\"4\" fill=\"#FFC0D0\" opacity=\".6\"/>\n    <path d=\"M114 116 Q120 122 126 116\" stroke=\"#2a2440\" stroke-width=\"2\" fill=\"none\" stroke-linecap=\"round\"/>\n  </g>\n</svg>",
+    shark: "<svg viewBox=\"0 0 240 240\" xmlns=\"http://www.w3.org/2000/svg\" class=\"buddy-svg\" style=\"width:100%; height:100%;\">\n  <defs>\n    <radialGradient id=\"sh-body\" cx=\"35%\" cy=\"30%\" r=\"80%\"><stop offset=\"0%\" stop-color=\"#7AB8E0\"/><stop offset=\"100%\" stop-color=\"#3F7B9B\"/></radialGradient>\n    <radialGradient id=\"sh-belly\" cx=\"50%\" cy=\"50%\" r=\"60%\"><stop offset=\"0%\" stop-color=\"#F5FAFF\"/><stop offset=\"100%\" stop-color=\"#D6E4F0\"/></radialGradient>\n  </defs>\n  <ellipse class=\"b-shadow\" cx=\"120\" cy=\"226\" rx=\"60\" ry=\"6\" fill=\"rgba(0,0,0,.18)\"/>\n  <g class=\"g-tail\">\n    <path d=\"M180 155 L220 130 L220 180 Z\" fill=\"url(#sh-body)\"/>\n  </g>\n  <g class=\"g-leg-l\"><ellipse cx=\"100\" cy=\"200\" rx=\"12\" ry=\"18\" fill=\"url(#sh-body)\"/></g>\n  <g class=\"g-leg-r\"><ellipse cx=\"140\" cy=\"200\" rx=\"12\" ry=\"18\" fill=\"url(#sh-body)\"/></g>\n  <g class=\"g-body\">\n    <ellipse cx=\"120\" cy=\"150\" rx=\"50\" ry=\"40\" fill=\"url(#sh-body)\"/>\n    <ellipse cx=\"120\" cy=\"160\" rx=\"30\" ry=\"22\" fill=\"url(#sh-belly)\"/>\n    <!-- Dorsal fin -->\n    <path d=\"M115 110 L120 80 L135 115 Z\" fill=\"url(#sh-body)\"/>\n    <!-- Side fins -->\n    <path d=\"M80 165 L60 175 L80 175 Z\" fill=\"url(#sh-body)\"/>\n    <path d=\"M160 165 L180 175 L160 175 Z\" fill=\"url(#sh-body)\"/>\n  </g>\n  <g class=\"g-arm-l\"><ellipse cx=\"80\" cy=\"148\" rx=\"8\" ry=\"15\" fill=\"url(#sh-body)\"/></g>\n  <g class=\"g-arm-r\"><ellipse cx=\"160\" cy=\"148\" rx=\"8\" ry=\"15\" fill=\"url(#sh-body)\"/></g>\n  <g class=\"g-head\">\n    <ellipse cx=\"120\" cy=\"92\" rx=\"46\" ry=\"38\" fill=\"url(#sh-body)\"/>\n    <ellipse cx=\"120\" cy=\"100\" rx=\"32\" ry=\"20\" fill=\"url(#sh-belly)\"/>\n    <!-- Eyes -->\n    <ellipse cx=\"105\" cy=\"85\" rx=\"5\" ry=\"6\" fill=\"#fff\"/>\n    <ellipse cx=\"135\" cy=\"85\" rx=\"5\" ry=\"6\" fill=\"#fff\"/>\n    <circle cx=\"105\" cy=\"86\" r=\"2.5\" fill=\"#2a2440\"/>\n    <circle cx=\"135\" cy=\"86\" r=\"2.5\" fill=\"#2a2440\"/>\n    <!-- Teeth / mouth -->\n    <path d=\"M95 110 L100 118 L107 110 L113 118 L120 110 L127 118 L133 110 L140 118 L145 110 Z\" fill=\"#fff\" stroke=\"#2a2440\" stroke-width=\"1\"/>\n  </g>\n</svg>",
+    bunny: "<svg viewBox=\"0 0 240 240\" xmlns=\"http://www.w3.org/2000/svg\" class=\"buddy-svg\" style=\"width:100%; height:100%;\">\n  <defs>\n    <radialGradient id=\"bu-body\" cx=\"35%\" cy=\"30%\" r=\"80%\"><stop offset=\"0%\" stop-color=\"#FFFFFF\"/><stop offset=\"100%\" stop-color=\"#E8DDD8\"/></radialGradient>\n  </defs>\n  <ellipse class=\"b-shadow\" cx=\"120\" cy=\"226\" rx=\"58\" ry=\"6\" fill=\"rgba(0,0,0,.18)\"/>\n  <g class=\"g-tail\"><circle cx=\"80\" cy=\"170\" r=\"11\" fill=\"#FFFFFF\" stroke=\"#E8DDD8\" stroke-width=\"1.5\"/></g>\n  <g class=\"g-leg-l\"><ellipse cx=\"100\" cy=\"200\" rx=\"15\" ry=\"20\" fill=\"url(#bu-body)\"/></g>\n  <g class=\"g-leg-r\"><ellipse cx=\"140\" cy=\"200\" rx=\"15\" ry=\"20\" fill=\"url(#bu-body)\"/></g>\n  <g class=\"g-body\">\n    <ellipse cx=\"120\" cy=\"160\" rx=\"44\" ry=\"40\" fill=\"url(#bu-body)\"/>\n    <ellipse cx=\"120\" cy=\"167\" rx=\"22\" ry=\"22\" fill=\"#FFF4F8\"/>\n  </g>\n  <g class=\"g-arm-l\"><ellipse cx=\"80\" cy=\"155\" rx=\"10\" ry=\"17\" fill=\"url(#bu-body)\"/></g>\n  <g class=\"g-arm-r\"><ellipse cx=\"160\" cy=\"155\" rx=\"10\" ry=\"17\" fill=\"url(#bu-body)\"/></g>\n  <g class=\"g-head\">\n    <ellipse cx=\"120\" cy=\"98\" rx=\"38\" ry=\"36\" fill=\"url(#bu-body)\"/>\n    <!-- Long ears -->\n    <ellipse cx=\"100\" cy=\"50\" rx=\"9\" ry=\"32\" fill=\"url(#bu-body)\"/>\n    <ellipse cx=\"140\" cy=\"50\" rx=\"9\" ry=\"32\" fill=\"url(#bu-body)\"/>\n    <ellipse cx=\"100\" cy=\"55\" rx=\"4\" ry=\"22\" fill=\"#FFC0D0\"/>\n    <ellipse cx=\"140\" cy=\"55\" rx=\"4\" ry=\"22\" fill=\"#FFC0D0\"/>\n    <!-- Eyes -->\n    <ellipse cx=\"106\" cy=\"100\" rx=\"5\" ry=\"7\" fill=\"#2a2440\"/>\n    <ellipse cx=\"134\" cy=\"100\" rx=\"5\" ry=\"7\" fill=\"#2a2440\"/>\n    <ellipse cx=\"108\" cy=\"98\" rx=\"1.5\" ry=\"2\" fill=\"#fff\"/>\n    <ellipse cx=\"136\" cy=\"98\" rx=\"1.5\" ry=\"2\" fill=\"#fff\"/>\n    <!-- Nose + mouth + buck teeth -->\n    <path d=\"M116 114 L124 114 L120 119 Z\" fill=\"#FF8AA8\"/>\n    <path d=\"M120 119 L120 124 M115 126 L117 130 L120 128 L123 130 L125 126\" stroke=\"#2a2440\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\"/>\n    <rect x=\"117\" y=\"124\" width=\"3\" height=\"6\" rx=\"1\" fill=\"#fff\" stroke=\"#2a2440\" stroke-width=\"0.8\"/>\n    <rect x=\"120\" y=\"124\" width=\"3\" height=\"6\" rx=\"1\" fill=\"#fff\" stroke=\"#2a2440\" stroke-width=\"0.8\"/>\n    <!-- Whisker cheeks -->\n    <circle cx=\"98\" cy=\"115\" r=\"3\" fill=\"#FFC0D0\" opacity=\".6\"/>\n    <circle cx=\"142\" cy=\"115\" r=\"3\" fill=\"#FFC0D0\" opacity=\".6\"/>\n  </g>\n</svg>",
+  };
+
+  // Map kid.buddy emoji → species key
+  const BUDDY_EMOJI_TO_SPECIES = {
+    '🦖': 'dino', '🐉': 'dragon', '🤖': 'robo', '🐱': 'kitty', '🐈': 'kitty',
+    '🐻': 'bear', '🦊': 'fox', '🦄': 'unicorn', '🦈': 'shark', '🐰': 'bunny'
+  };
+  function speciesFor(buddy) { return BUDDY_EMOJI_TO_SPECIES[buddy] || 'dino'; }
+
+  function renderBuddySVG() {
+    const host = document.getElementById('feed-buddy-svg');
+    if (!host) return;
+    const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
+    const sp = speciesFor(kid ? kid.buddy : '🦖');
+    if (BUDDY_SVGS[sp]) host.innerHTML = BUDDY_SVGS[sp];
+  }
+  window.addEventListener('mb-kids-changed', () => renderBuddySVG());
+
   // ============ Phase 2V: Emotions ============
   const EMOTIONS = [
     { key: 'happy',     em: '😊', label: 'Happy' },
@@ -5483,13 +5559,9 @@
     if (!ava) return;
     EMOTIONS.forEach(e => ava.classList.remove('emo-' + e.key));
     ava.classList.add('emo-' + key);
-    // Update head emoji to current buddy
-    const head = document.getElementById('feed-buddy-head');
-    const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
-    if (head && kid) head.textContent = kid.buddy || '🦖';
-    // Reapply stage
+    // Make sure the SVG matches current buddy species
+    if (typeof renderBuddySVG === 'function') renderBuddySVG();
     if (typeof applyBuddyStageEverywhere === 'function') applyBuddyStageEverywhere();
-    // Highlight chip
     document.querySelectorAll('.emotion-chip').forEach(c => c.classList.toggle('active', c.dataset.emo === key));
   }
   function renderEmotionPicker() {
@@ -6563,6 +6635,7 @@
       loadFamilyGoalInputs();
       applyBuddyStageEverywhere();
       renderEmotionPicker();
+      renderBuddySVG();
     }
   }, 200);
   // Belt-and-suspenders: also try a couple more times in case subscription is slow
