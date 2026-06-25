@@ -5612,7 +5612,7 @@
     catch (e) { return ''; }
     if (!raw) return '';
     // Crop viewBox to head region (50,30)→(190,150). Hide body parts by removing those groups visually.
-    let head = raw.replace('viewBox="0 0 240 240"', 'viewBox="55 40 130 110"');
+    let head = raw.replace('viewBox="0 0 240 240"', 'viewBox="38 10 165 150"');
     // Remove the shadow ellipse + body/legs/tail groups from the head-only crop (hide via display:none style)
     head = head.replace(/<ellipse class="b-shadow"[^>]*\/>/g, '');
     head = head.replace(/<g class="g-leg-l">/g, '<g class="g-leg-l" style="display:none">');
