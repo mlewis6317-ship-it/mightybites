@@ -4953,6 +4953,11 @@
     if (typeof renderChampionsWall === 'function') renderChampionsWall();
     if (typeof renderBehaviorTilesConfig === 'function') renderBehaviorTilesConfig();
     if (typeof renderSubKidPickers === 'function') renderSubKidPickers();
+    if (typeof renderProfileNameBanner === 'function') renderProfileNameBanner();
+    if (typeof renderTrustMsg === 'function') renderTrustMsg();
+    if (typeof renderTrustDef === 'function') renderTrustDef();
+    if (typeof applyBuddyStageEverywhere === 'function') applyBuddyStageEverywhere();
+    if (typeof renderEmotionPicker === 'function') renderEmotionPicker();
     // Re-fire header title if currently on a kid page
     if (typeof mbGoTo === 'function' && currentView !== 'leaderboard') mbGoTo(currentView);
   }
@@ -5571,23 +5576,26 @@
     const sp = speciesFor(kid ? kid.buddy : '🦖');
     const fullSvg = BUDDY_SVGS[sp] || BUDDY_SVGS.dino;
     const headSvg = buddySVGHead(sp);
-    // Big avatars — full body
-    const feedHost = document.getElementById('feed-buddy-svg');
-    if (feedHost) feedHost.innerHTML = fullSvg;
-    const pfHost = document.getElementById('pf-buddy-svg');
-    if (pfHost) pfHost.innerHTML = fullSvg;
-    // Mini avatars — head-only crop (round containers fit the face)
-    const nameHost = document.getElementById('pf-name-buddy');
-    if (nameHost) nameHost.innerHTML = headSvg;
-    const needsHost = document.getElementById('ml-needs-buddy');
-    if (needsHost) needsHost.innerHTML = headSvg;
+    // FULL-BODY hosts (large avatars on Meal Log + Profile dashboard)
+    ['feed-buddy-svg', 'pf-buddy-svg'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = fullSvg;
+    });
+    // HEAD-ONLY hosts (small circular avatars throughout the app)
+    ['pf-name-buddy', 'ml-needs-buddy'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = headSvg;
+    });
+    // Leaderboard/podium mini avatars — each carries its own species via data attr
     document.querySelectorAll('.buddy-svg-mini').forEach(el => {
+      // Make sure we're NOT touching feed-buddy-svg or pf-buddy-svg
+      if (el.id === 'feed-buddy-svg' || el.id === 'pf-buddy-svg') return;
       const sp2 = el.dataset.species || sp;
       el.innerHTML = buddySVGHead(sp2);
     });
     // This week's growth strip — use current buddy's head crop
     document.querySelectorAll('.growth-day .gd-ava[data-growth="future"], .growth-day .gd-ava[data-growth="now"]').forEach(el => {
-      el.innerHTML = '<div style="width:100%;height:100%;">' + headSvg + '</div>';
+      el.innerHTML = headSvg;
     });
   }
   window.addEventListener('mb-kids-changed', () => renderBuddySVG());
