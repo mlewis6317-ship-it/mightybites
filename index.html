@@ -4686,7 +4686,7 @@
         const xp = k.currentWeekXP || 0;
         const strongClass = idx === 1 ? ' strong' : '';
         const crown = idx === 1 ? '<div class="crown">👑</div>' : '';
-        return '<div class="pod-bar ' + pos[idx] + '"><div class="pod-ava-wrap"><div class="ava-shell' + strongClass + '" style="width:' + sizes[idx].w + 'px;height:' + sizes[idx].w + 'px; padding:0; display:flex; align-items:center; justify-content:center; overflow:visible; background: radial-gradient(circle at 35% 30%, #FFFFFF, #FFE3A0 60%, #FFC788);"><div class="buddy-svg-mini" data-species="' + speciesFor(k.buddy) + '" style="width:90%; height:90%;"></div>' + crown + '</div><div class="pod-medal">' + medals[idx] + '</div></div><div class="pod-name">' + escapeHTML(k.name) + '</div><div class="pod-tag">' + buddyStageName(k.buddy) + ' · ' + k.age + '</div><div class="pod-xp">' + xp + ' XP</div><div class="pod-block ' + sizes[idx].block + '">' + sizes[idx].rank + '</div></div>';
+        return '<div class="pod-bar ' + pos[idx] + '"><div class="pod-ava-wrap"><div class="ava-shell' + strongClass + '" style="width:' + sizes[idx].w + 'px;height:' + sizes[idx].w + 'px; padding:0; display:flex; align-items:center; justify-content:center; overflow:visible; background: radial-gradient(circle at 35% 30%, #FFFFFF, #FFE3A0 60%, #FFC788);"><div class="buddy-svg-mini" data-species="' + speciesFor(k.buddy) + '" data-kid-id="' + k.id + '" style="width:90%; height:90%;"></div>' + crown + '</div><div class="pod-medal">' + medals[idx] + '</div></div><div class="pod-name">' + escapeHTML(k.name) + '</div><div class="pod-tag">' + buddyStageName(k.buddy) + ' · ' + k.age + '</div><div class="pod-xp">' + xp + ' XP</div><div class="pod-block ' + sizes[idx].block + '">' + sizes[idx].rank + '</div></div>';
       }).join('');
     }
     // Build full list
@@ -4715,7 +4715,7 @@
         const chorePct = Math.min(100, Math.round((choreXP / choreGoal) * 100));
         return '<div class="lb-row ' + rank + '" data-kid-id="' + k.id + '">' +
           '<div class="lb-rank">' + (i + 1) + '</div>' +
-          '<div class="lb-ava buddy-svg-mini" data-species="' + speciesFor(k.buddy) + '"></div>' +
+          '<div class="lb-ava buddy-svg-mini" data-species="' + speciesFor(k.buddy) + '" data-kid-id="' + k.id + '"></div>' +
           '<div class="lb-info">' +
             '<div class="lb-name">' + escapeHTML(k.name) + '</div>' +
             '<div class="lb-meta">' + buddyStageName(k.buddy) + ' · age ' + k.age + '</div>' +
@@ -5772,6 +5772,21 @@
     }
   }
 
+  // Head-cropped SVG WITH cosmetics (so leaderboard avatars show hats/eyes/mane)
+  function buddySVGHeadWithCosmetics(species, equipped) {
+    const full = buddySVGWithCosmetics(species, equipped);
+    if (!full) return '';
+    let head = full.replace('viewBox="0 0 240 240"', 'viewBox="38 10 165 150"');
+    head = head.replace(/<ellipse class="b-shadow"[^>]*\/>/g, '');
+    head = head.replace(/<g class="g-leg-l">/g, '<g class="g-leg-l" style="display:none">');
+    head = head.replace(/<g class="g-leg-r">/g, '<g class="g-leg-r" style="display:none">');
+    head = head.replace(/<g class="g-tail">/g, '<g class="g-tail" style="display:none">');
+    head = head.replace(/<g class="g-body">/g, '<g class="g-body" style="display:none">');
+    head = head.replace(/<g class="g-arm-l">/g, '<g class="g-arm-l" style="display:none">');
+    head = head.replace(/<g class="g-arm-r">/g, '<g class="g-arm-r" style="display:none">');
+    return head;
+  }
+
   // Return a HEAD-ONLY cropped version of the SVG (viewBox zooms in on the face area)
   function buddySVGHead(species) {
     let raw = '';
@@ -5811,20 +5826,30 @@
         el.innerHTML = randomizeSVGIds(fullSvgWithCos);
       }
     });
-    // HEAD-ONLY hosts (small circular avatars throughout the app)
+    // HEAD-ONLY hosts (small circular avatars) — use current kid's cosmetics
+    const headSvgWithCos = buddySVGHeadWithCosmetics(sp, equippedMap);
     ['pf-name-buddy', 'ml-needs-buddy'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.innerHTML = randomizeSVGIds(headSvg);
+      if (el) el.innerHTML = randomizeSVGIds(headSvgWithCos);
     });
-    // Leaderboard/podium mini avatars
+    // Leaderboard/podium mini avatars — each carries its own kid ID so we apply that kid's equipped cosmetics
+    const kidsList = (window.mb && window.mb.state && window.mb.state.kids) || [];
     document.querySelectorAll('.buddy-svg-mini').forEach(el => {
       if (el.id === 'feed-buddy-svg' || el.id === 'pf-buddy-svg') return;
       const sp2 = el.dataset.species || sp;
-      el.innerHTML = randomizeSVGIds(buddySVGHead(sp2));
+      const kidId2 = el.dataset.kidId;
+      let eq2 = {};
+      if (kidId2) {
+        const k2 = kidsList.find(x => x.id === kidId2);
+        if (k2 && k2.equipped) eq2 = k2.equipped;
+      } else {
+        eq2 = equippedMap; // fallback to current kid
+      }
+      el.innerHTML = randomizeSVGIds(buddySVGHeadWithCosmetics(sp2, eq2));
     });
-    // This week's growth strip
+    // This week's growth strip — use current kid's cosmetics
     document.querySelectorAll('.growth-day .gd-ava[data-growth="future"], .growth-day .gd-ava[data-growth="now"]').forEach(el => {
-      el.innerHTML = randomizeSVGIds(headSvg);
+      el.innerHTML = randomizeSVGIds(headSvgWithCos);
     });
     } catch (err) { console.error('renderBuddySVG failed:', err); }
   }
