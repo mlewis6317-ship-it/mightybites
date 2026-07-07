@@ -3695,9 +3695,9 @@
     const profileAva = document.querySelector('#view-profile .ava-shell');
     // Mobile fix: scroll the avatar area into view so you see the food-toss animation
     // (on small screens, the feed button is below the fold and the animation was invisible)
-    const feedHost = document.getElementById('feed-host');
-    if (feedHost && feedHost.scrollIntoView) {
-      feedHost.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const _feedHostScroll = document.getElementById('feed-host');
+    if (_feedHostScroll && _feedHostScroll.scrollIntoView) {
+      _feedHostScroll.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     // Clear any prior burst children
