@@ -420,6 +420,30 @@
     .emotion-chip .lbl { display: none; }
   }
 
+  /* ============ Phase 2ZU: Class-based feed feedback ============ */
+  .feed-btn { position: relative; }
+  .feed-btn.feed-btn-fed { pointer-events: none; }
+  .feed-btn.feed-btn-fed::after {
+    content: "💪 Fed!";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--berry, #d9477b);
+    color: #fff;
+    border-radius: inherit;
+    font-weight: 900;
+    font-size: 15px;
+    letter-spacing: .3px;
+    animation: fedFlash 0.25s ease-out;
+    box-shadow: 0 4px 12px rgba(217,71,123,.4);
+  }
+  @keyframes fedFlash {
+    0%   { opacity: 0; transform: scale(0.98); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
   /* ============ Phase 2ZP: Food toss animation ============ */
   .food-toss {
     position: absolute;
@@ -3669,6 +3693,12 @@
     const burst = document.getElementById('feed-burst');
     const feedAva = document.getElementById('feed-avatar');
     const profileAva = document.querySelector('#view-profile .ava-shell');
+    // Mobile fix: scroll the avatar area into view so you see the food-toss animation
+    // (on small screens, the feed button is below the fold and the animation was invisible)
+    const feedHost = document.getElementById('feed-host');
+    if (feedHost && feedHost.scrollIntoView) {
+      feedHost.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 
     // Clear any prior burst children
     if (burst) burst.innerHTML = '';
@@ -3740,11 +3770,14 @@
     // Clean up burst after anim
     setTimeout(() => { burst.innerHTML = ''; }, 1500);
 
-    // Brief feedback in the button itself — no XP here (it floats up via food-xp-pop instead)
+    // Brief feedback via a class overlay — DOES NOT touch innerHTML so the button
+    // keeps its correct kid-specific text (Feed your buddy · +X XP) always.
     const btn = document.getElementById('feed-btn');
-    const orig = btn.innerHTML;
-    btn.innerHTML = `<span class="em">💪</span> Fed!`;
-    setTimeout(() => btn.innerHTML = orig, 2000);
+    if (btn) {
+      btn.classList.add('feed-btn-fed');
+      clearTimeout(btn._fedTimer);
+      btn._fedTimer = setTimeout(() => btn.classList.remove('feed-btn-fed'), 1800);
+    }
 
     // Phase 2B: persist this meal to Firestore for the current kid (fire-and-forget)
     if (window.mb && window.mb.state.currentKidId && window.mb.logMeal) {
@@ -5084,6 +5117,9 @@
     if (typeof renderSubKidPickers === 'function') renderSubKidPickers();
     if (typeof renderProfileNameBanner === 'function') renderProfileNameBanner();
     if (typeof renderTrustMsg === 'function') renderTrustMsg();
+    // Reset feed button state so "Fed!" overlay doesn't linger across kids
+    const _fb = document.getElementById('feed-btn');
+    if (_fb) { _fb.classList.remove('feed-btn-fed'); clearTimeout(_fb._fedTimer); }
     if (typeof renderTrustDef === 'function') renderTrustDef();
     if (typeof applyBuddyStageEverywhere === 'function') applyBuddyStageEverywhere();
     if (typeof renderEmotionPicker === 'function') renderEmotionPicker();
