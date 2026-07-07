@@ -307,34 +307,55 @@
   .emo-sad .buddy-svg { filter: saturate(.55); animation: svg-droop 3s ease-in-out infinite; transform-origin: center bottom; }
   @keyframes svg-droop { 0%,100% { transform: translateY(0); } 50% { transform: translateY(3px) scale(.98); } }
 
+  /* Queasy: strong green, big wobble */
   .emo-queasy .buddy-svg {
-    filter: hue-rotate(70deg) saturate(1.3) brightness(.95);
-    animation: svg-queasy 1.4s ease-in-out infinite;
+    filter: hue-rotate(85deg) saturate(1.7) brightness(.9);
+    animation: svg-queasy 1.2s ease-in-out infinite;
     transform-origin: center bottom;
   }
-  .emo-queasy .buddy-svg .g-head { animation: head-puff 1.4s ease-in-out infinite; transform-origin: 120px 92px; transform-box: view-box; }
-  @keyframes svg-queasy { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
-  @keyframes head-puff { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12, 1.05); } }
+  .emo-queasy .buddy-svg .g-head { animation: head-puff 1.2s ease-in-out infinite; transform-origin: 120px 92px; transform-box: view-box; }
+  @keyframes svg-queasy { 0%,100% { transform: rotate(-8deg) translateX(-4px); } 50% { transform: rotate(8deg) translateX(4px); } }
+  @keyframes head-puff { 0%,100% { transform: scale(1); } 50% { transform: scale(1.20, 1.08); } }
 
-  /* Hungry: famished — shrunken posture, slow droop, head down */
-  .emo-hungry .buddy-svg { animation: svg-hungry 2.4s ease-in-out infinite; transform-origin: center bottom; filter: saturate(.75); }
+  /* Hungry: MUCH smaller, belly-rumble */
+  .emo-hungry .buddy-svg { animation: svg-hungry 1.5s ease-in-out infinite; transform-origin: center bottom; filter: saturate(.55) brightness(.9); }
   @keyframes svg-hungry {
-    0%,100% { transform: scale(0.92) translateY(2px); }
-    50%     { transform: scale(0.94) translateY(0); }
+    0%,100% { transform: scale(0.82) translateY(6px); }
+    30%     { transform: scale(0.87) translateY(3px); }
+    50%     { transform: scale(0.83) translateY(5px); }
   }
-  .emo-hungry .buddy-svg .g-head { animation: head-droop 2.4s ease-in-out infinite; transform-origin: 120px 130px; transform-box: view-box; }
-  @keyframes head-droop {
-    0%,100% { transform: rotate(-4deg) translateY(2px); }
-    50%     { transform: rotate(-2deg) translateY(0); }
+  .emo-hungry .buddy-svg .g-head { animation: head-droop-hungry 1.5s ease-in-out infinite; transform-origin: 120px 130px; transform-box: view-box; }
+  @keyframes head-droop-hungry {
+    0%,100% { transform: rotate(-8deg) translateY(6px); }
+    50%     { transform: rotate(-4deg) translateY(2px); }
   }
 
-  /* Weak / sad: sluggish slump */
-  .emo-sad .buddy-svg { filter: saturate(.5) brightness(.95); animation: svg-droop 3s ease-in-out infinite; transform-origin: center bottom; }
-  .emo-sad .buddy-svg .g-head { animation: head-sluggish 3s ease-in-out infinite; transform-origin: 120px 130px; transform-box: view-box; }
-  @keyframes head-sluggish { 0%,100% { transform: rotate(-5deg) translateY(3px); } 50% { transform: rotate(-3deg); } }
+  /* Weak/sluggish: DRAMATIC slump, very desaturated */
+  .emo-sad .buddy-svg { filter: saturate(.3) brightness(.82); animation: svg-droop 3.5s ease-in-out infinite; transform-origin: center bottom; }
+  .emo-sad .buddy-svg .g-head { animation: head-sluggish 3.5s ease-in-out infinite; transform-origin: 120px 130px; transform-box: view-box; }
+  @keyframes svg-droop {
+    0%,100% { transform: translateY(8px) scale(0.92, 1); }
+    50%     { transform: translateY(11px) scale(0.90, 0.97); }
+  }
+  @keyframes head-sluggish {
+    0%,100% { transform: rotate(-14deg) translateY(10px) translateX(-6px); }
+    50%     { transform: rotate(-12deg) translateY(8px) translateX(-3px); }
+  }
 
-  /* Sleepy reinforced */
-  .emo-sleep .buddy-svg { filter: brightness(.85) saturate(.5); animation: svg-sway 5s ease-in-out infinite; }
+  /* Sleepy: dimmed way down, big tilt */
+  .emo-sleep .buddy-svg { filter: brightness(.65) saturate(.3); animation: svg-sway 6s ease-in-out infinite; }
+  .emo-sleep .buddy-svg .g-head { animation: head-sleep-tilt 6s ease-in-out infinite; transform-origin: 120px 130px; transform-box: view-box; }
+  @keyframes head-sleep-tilt {
+    0%,100% { transform: rotate(-8deg) translateY(4px); }
+    50%     { transform: rotate(8deg) translateY(4px); }
+  }
+
+  /* Unbalanced: rocks side to side like a scale tipping */
+  .emo-unbalanced .buddy-svg { animation: svg-teeter 1.6s ease-in-out infinite; transform-origin: center bottom; filter: saturate(.75); }
+  @keyframes svg-teeter {
+    0%,100% { transform: rotate(-6deg); }
+    50%     { transform: rotate(6deg); }
+  }
 
   /* Old CSS-body emotion rules retained (harmless when no CSS body present) */
   /* Emotions */
@@ -2821,6 +2842,7 @@
                 <div id="feed-buddy-svg" style="width:100%; height:100%;"></div>
                 <div class="sweat" style="position:absolute; right:6%; top:8%;">💧</div>
                 <div class="buddy-zzz" id="buddy-zzz" style="position:absolute; top:6%; right:14%; font-size:32px; opacity:0; pointer-events:none;">💤</div>
+                <div id="buddy-mood-icon" style="position:absolute; top:2%; left:50%; transform:translateX(-50%); font-size:44px; opacity:0; z-index:5; pointer-events:none; text-shadow: 0 3px 8px rgba(0,0,0,.18); transition: opacity .3s;"></div>
                 <div class="buddy-aura" id="buddy-aura" style="position:absolute; inset:-8%; border-radius:50%; pointer-events:none; opacity:0;"></div>
               </div>
               <div class="emotion-picker" id="emotion-picker" style="display:none;"></div>
@@ -5482,6 +5504,15 @@
     if (adjustedRatio < 0.2 && groupsLogged < 2) {
       return { mood: 'weak', context: '😔 ' + buddyName + ' feels sluggish — barely any food yet. Tap a food group!' };
     }
+    // UNBALANCED: 1-2 groups touched but a lot in one
+    const maxOfOne = Math.max.apply(null, healthy.map(g => counts[g] || 0));
+    if (groupsLogged >= 2 && groupsLogged <= 2 && maxOfOne >= 3) {
+      return { mood: 'unbalanced', context: '⚖️ Lots of one food group but not much variety — try something different!' };
+    }
+    // Still WEAK-ish after noon
+    if (adjustedRatio < 0.35 && hour >= 12) {
+      return { mood: 'weak', context: '😔 ' + buddyName + ' still feels sluggish — half the day gone and still under 35% of the plate.' };
+    }
     // HAPPY/DANCE: doing great — 4+ groups OR high ratio with chore boost
     if (adjustedRatio >= 0.6 || groupsAtTarget >= 4) {
       const groupsName = groupsAtTarget >= 5 ? 'ALL 5 groups complete!' : (groupsAtTarget + ' groups done');
@@ -5515,15 +5546,21 @@
     const targets = dailyTargets(kid.age || 5);
     const counts = todaysGroupCounts();
     const { mood, context } = computeTodayMood(kid, counts, targets);
-    // Remove ALL prior emotion + ava-shell mood classes
-    ['emo-happy','emo-dance','emo-strong','emo-celebrate','emo-sleep','emo-sad','emo-queasy','emo-hungry','emo-sick'].forEach(c => ava.classList.remove(c));
+    ['emo-happy','emo-dance','emo-strong','emo-celebrate','emo-sleep','emo-sad','emo-queasy','emo-hungry','emo-sick','emo-unbalanced'].forEach(c => ava.classList.remove(c));
     ava.classList.remove('strong','weak','queasy','sick');
-    // Map computed mood to emotion class + legacy ava-shell mood class
-    const moodToEmo = { happy:'emo-happy', dance:'emo-dance', strong:'emo-strong', weak:'emo-sad', hungry:'emo-hungry', queasy:'emo-queasy', sleepy:'emo-sleep', sick:'emo-sick' };
-    const moodToShell = { weak:'weak', hungry:'weak', queasy:'queasy', sleepy:'queasy', sick:'sick', strong:'strong', dance:'strong' };
+    const moodToEmo = { happy:'emo-happy', dance:'emo-dance', strong:'emo-strong', weak:'emo-sad', hungry:'emo-hungry', queasy:'emo-queasy', sleepy:'emo-sleep', sick:'emo-sick', unbalanced:'emo-unbalanced' };
+    const moodToShell = { weak:'weak', hungry:'weak', queasy:'queasy', sleepy:'queasy', sick:'sick', strong:'strong', dance:'strong', unbalanced:'queasy' };
     if (moodToEmo[mood]) ava.classList.add(moodToEmo[mood]);
     if (moodToShell[mood]) ava.classList.add(moodToShell[mood]);
     status.textContent = context || '';
+    // Floating mood icon above the buddy
+    const moodIcon = document.getElementById('buddy-mood-icon');
+    if (moodIcon) {
+      const iconMap = { happy: '', dance: '🎉', strong: '💪', weak: '😔', hungry: '🍽️', queasy: '🤢', sleepy: '💤', sick: '🤒', unbalanced: '⚖️' };
+      const em = iconMap[mood] || '';
+      moodIcon.textContent = em;
+      moodIcon.style.opacity = em ? '1' : '0';
+    }
     if (typeof applyBuddyStageEverywhere === 'function') applyBuddyStageEverywhere();
   }
 
