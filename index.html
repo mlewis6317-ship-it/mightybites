@@ -2581,9 +2581,9 @@
                   <div class="ring-cell junk">
                     <div class="ring-wrap">
                       <svg class="ring-svg" viewBox="0 0 56 56"><circle class="ring-bg" cx="28" cy="28" r="22"></circle><circle class="ring-fg" cx="28" cy="28" r="22" stroke="#E0A800" stroke-dasharray="46 138" /></svg>
-                      <span class="ico">🍩</span>
+                      <span class="ico">🥔</span>
                     </div>
-                    <div class="nm">Treats</div><div class="pr">1/2</div>
+                    <div class="nm">Starch</div><div class="pr">1/2</div>
                   </div>
                 </div>
               </div>
@@ -2621,7 +2621,7 @@
               <div class="sc-row"><span class="sc-em">👅</span><span class="sc-lbl">Tried it · half eaten</span><span class="sc-val">+3 to +12</span></div>
               <div class="sc-row"><span class="sc-em">⭐</span><span class="sc-lbl">Chores &amp; responsibilities</span><span class="sc-val">+1 to +10 trust · also ×5 weekly XP</span></div>
               <div class="sc-row"><span class="sc-em">🎯</span><span class="sc-lbl">Mealtime bonuses</span><span class="sc-val">customizable in Settings</span></div>
-              <div class="sc-row warn"><span class="sc-em">🍩</span><span class="sc-lbl">3rd treat in a day</span><span class="sc-val">−15 each</span></div>
+              <div class="sc-row"><span class="sc-em">🥔</span><span class="sc-lbl">Starch (potato, rice, corn)</span><span class="sc-val">+10 each</span></div>
             </div>
             <div class="sc-foot">Aim for 100 pts a day across all food groups + bonuses. Hit 700/week = champion week!</div>
           </div>
@@ -2835,7 +2835,7 @@
               <div class="grp-tile" data-grp="grains"><div class="grp-icon">🍞</div><div class="grp-info"><h4 class="grp-name">Grains</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 0%;"></div></div><div class="grp-meta">Tap to log</div></div></div>
               <div class="grp-tile" data-grp="fruit"><div class="grp-icon">🍎</div><div class="grp-info"><h4 class="grp-name">Fruit</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 0%;"></div></div><div class="grp-meta">Tap to log</div></div></div>
               <div class="grp-tile" data-grp="veggies"><div class="grp-icon">🥦</div><div class="grp-info"><h4 class="grp-name">Veggies</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 0%;"></div></div><div class="grp-meta">Tap to log</div></div></div>
-              <div class="grp-tile junk" data-grp="treats"><div class="grp-icon">🍩</div><div class="grp-info"><h4 class="grp-name">Treats</h4><div class="grp-progress"><div class="grp-progress-fill junk" style="width: 0%;"></div></div><div class="grp-meta">Tap to log</div></div></div>
+              <div class="grp-tile" data-grp="treats"><div class="grp-icon">🥔</div><div class="grp-info"><h4 class="grp-name">Starch</h4><div class="grp-progress"><div class="grp-progress-fill" style="width: 0%;"></div></div><div class="grp-meta">Tap to log</div></div></div>
             </div>
 
             <div>
@@ -3219,6 +3219,15 @@
             <div class="set-note" id="set-family-goal-status" style="text-align:right; font-size:11px; opacity:.65; min-height:14px;"></div>
           </section>
 
+          <!-- ============ Trust level approvals (Phase 2ZV) ============ -->
+          <section class="set-card">
+            <div class="set-card-head">
+              <h3 class="set-h3">🔓 Trust level approvals</h3>
+            </div>
+            <p class="set-note">Kids earn points automatically. Level-ups wait for your OK — you decide when they are ready.</p>
+            <div id="trust-approvals-list"></div>
+          </section>
+
           <!-- ============ Family management ============ -->
           <section class="set-card">
             <div class="set-card-head">
@@ -3523,7 +3532,7 @@
   // Weekly goal = 700 pts = 7 dinners × 100 pts/night max
   // Per-dinner ceiling sums to 100: 25 veggies + 25 protein + 20 dairy + 15 fruit + 15 grains
   // Breakfast/Lunch are 25% weighted (max 25 pts each meal). Snack is 15%.
-  const groupBase = { dairy: 20, protein: 25, grains: 15, fruit: 15, veggies: 25, treats: 0 };
+  const groupBase = { dairy: 20, protein: 25, grains: 15, fruit: 15, veggies: 25, treats: 10 };
   const amtMult = { skipped: 0, tried: 0.2, half: 0.5, finished: 1 };
   const mealMult = { breakfast: 0.25, lunch: 0.25, dinner: 1, snack: 0.15 };
   const groupDeficit = { dairy: false, protein: false, grains: false, fruit: false, veggies: true, treats: false };
@@ -3532,7 +3541,7 @@
   // Scaling urgent bonus: 48hr → +25, 72hr → +35, 96hr+ → +50
   function urgentBonus(grp) {
     const h = hoursSince[grp] || 0;
-    if (grp === 'treats') return 0;
+    // (starch is now a positive group — no special case)
     if (h >= 96) return 50;
     if (h >= 72) return 35;
     if (h >= 48) return 25;
@@ -3627,7 +3636,7 @@
     }
   }
 
-  const groupNames = { dairy: 'Dairy 🥛', protein: 'Protein 🍗', grains: 'Grains 🍞', fruit: 'Fruit 🍎', veggies: 'Veggies 🥦', treats: 'Treats 🍩' };
+  const groupNames = { dairy: 'Dairy 🥛', protein: 'Protein 🍗', grains: 'Grains 🍞', fruit: 'Fruit 🍎', veggies: 'Veggies 🥦', treats: 'Starch 🥔' };
   const mealNames = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
 
   function refreshHeader() {
@@ -3728,7 +3737,7 @@
     }
 
     // ============ Food toss animation (Phase 2ZP) ============
-    const groupEmojis = { dairy: '🥛', protein: '🍗', grains: '🍞', fruit: '🍎', veggies: '🥦', treats: '🍩' };
+    const groupEmojis = { dairy: '🥛', protein: '🍗', grains: '🍞', fruit: '🍎', veggies: '🥦', treats: '🥔' };
     const foodEm = groupEmojis[currentGroup] || '🍽️';
     const feedHost = document.getElementById('feed-host');
     if (feedHost && currentAmt !== 'skipped') {
@@ -4406,7 +4415,7 @@
     if (!ava || !status) return;
     let txt = '';
     if (group === 'treats' && (amt === 'finished' || amt === 'half')) {
-      txt = '🍩 Treat logged — +' + xp + ' XP.';
+      txt = '🥔 Starch logged — +' + xp + ' XP.';
     } else if (amt === 'skipped' && group !== 'treats') {
       txt = '🚫 Skipped ' + group + ' — 0 XP.';
     } else if (amt === 'finished') {
@@ -5388,8 +5397,8 @@
       const cls = ['ring-cell'];
       if (g === 'treats' && cur > tgt) cls.push('junk');
       else if (g !== 'treats' && cur === 0) cls.push('alert');
-      const em = { dairy:'🥛', protein:'🍗', grains:'🍞', fruit:'🍎', veggies:'🥦', treats:'🍩' }[g];
-      const nm = { dairy:'Dairy', protein:'Protein', grains:'Grains', fruit:'Fruit', veggies:'Veggies', treats:'Treats' }[g];
+      const em = { dairy:'🥛', protein:'🍗', grains:'🍞', fruit:'🍎', veggies:'🥦', treats:'🥔' }[g];
+      const nm = { dairy:'Dairy', protein:'Protein', grains:'Grains', fruit:'Fruit', veggies:'Veggies', treats:'Starch' }[g];
       return '<div class="' + cls.join(' ') + '">' +
         '<div class="ring-wrap">' +
           '<svg class="ring-svg" viewBox="0 0 56 56">' +
@@ -5464,14 +5473,7 @@
     if (hour >= 20) {
       return { mood: 'sleepy', context: '😴 It is late · ' + buddyName + ' is drowsy. Rest up for tomorrow!' };
     }
-    // SICK: way too many treats + no real food
-    if (treats >= 3 && adjustedRatio < 0.4) {
-      return { mood: 'sick', context: '🤒 ' + treats + ' treats and almost no real food — ' + buddyName + ' feels sick.' };
-    }
-    // QUEASY: over the treat limit
-    if (treats > treatLimit) {
-      return { mood: 'queasy', context: '🤢 ' + treats + ' treats today (limit is ' + treatLimit + ') — green and puffy-cheeked!' };
-    }
+    // (Phase 2ZV: removed queasy/sick logic tied to treats — starch is now a positive group)
     // HUNGRY: no food yet today and it is past breakfast time
     if (groupsLogged === 0 && hour >= 9) {
       return { mood: 'hungry', context: '😋 ' + buddyName + ' is famished — nothing logged yet today!' };
@@ -5533,9 +5535,9 @@
     const ms = Date.now() - (ts.seconds * 1000);
     return ms / (1000 * 60 * 60);
   }
-  const GROUP_NAMES = { dairy:'dairy', protein:'protein', grains:'grains', fruit:'fruit', veggies:'veggies', treats:'treats' };
-  const GROUP_LABELS = { dairy:'Dairy', protein:'Protein', grains:'Grains', fruit:'Fruit', veggies:'Veggies', treats:'Treats' };
-  const GROUP_EMOJI = { dairy:'🥛', protein:'🍗', grains:'🍞', fruit:'🍎', veggies:'🥦', treats:'🍩' };
+  const GROUP_NAMES = { dairy:'dairy', protein:'protein', grains:'grains', fruit:'fruit', veggies:'veggies', treats:'starch' };
+  const GROUP_LABELS = { dairy:'Dairy', protein:'Protein', grains:'Grains', fruit:'Fruit', veggies:'Veggies', treats:'Starch' };
+  const GROUP_EMOJI = { dairy:'🥛', protein:'🍗', grains:'🍞', fruit:'🍎', veggies:'🥦', treats:'🥔' };
   const GROUP_ORDER = ['dairy','protein','grains','fruit','veggies','treats'];
 
   function renderProfileStats() {
@@ -6299,8 +6301,7 @@
     el.style.display = '';
     const pts = kid.trustPoints || 0;
     const thresholds = [0, 100, 300, 700, 1500];
-    let lvl = 0;
-    for (let i = 0; i < thresholds.length; i++) { if (pts >= thresholds[i]) lvl = i; }
+    const lvl = effectiveTrustLevel(kid);
     const next = thresholds[lvl + 1];
     let msg = TRUST_MSGS[lvl] || TRUST_MSGS[0];
     if (typeof next === 'number') {
@@ -6327,10 +6328,7 @@
     const kid = ((window.mb && window.mb.state && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
     if (!kid) { host.style.display = 'none'; return; }
     host.style.display = '';
-    const pts = kid.trustPoints || 0;
-    const thresholds = [0, 100, 300, 700, 1500];
-    let curLvl = 0;
-    for (let i = 0; i < thresholds.length; i++) { if (pts >= thresholds[i]) curLvl = i; }
+    const curLvl = effectiveTrustLevel(kid);
     const def = TRUST_LEVEL_DEFS[curLvl];
     const em = host.querySelector('.tdc-em');
     const txt = host.querySelector('#tdc-text');
@@ -6892,6 +6890,21 @@
     return lvl;
   }
 
+  // Phase 2ZV: parent-approval gate for trust level-ups
+  function effectiveTrustLevel(kid) {
+    if (!kid) return 0;
+    if (typeof kid.approvedTrustLevel === 'number') return kid.approvedTrustLevel;
+    // Backward compat: kids without approved field default to L1 (index 0)
+    return 0;
+  }
+  function pendingLevelUpFor(kid) {
+    if (!kid) return null;
+    const eff = effectiveTrustLevel(kid);
+    const computed = trustLevelFor(kid.trustPoints || 0);
+    if (computed > eff) return computed;
+    return null;
+  }
+
   function choreKeyFrom(name) {
     return 'chore_' + name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
   }
@@ -6956,7 +6969,8 @@
     const kid = ((window.mb && window.mb.state.kids) || []).find(k => k.id === window.mb.state.currentKidId);
     if (!kid) return;
     const pts = kid.trustPoints || 0;
-    const lvlIdx = trustLevelFor(pts);
+    const lvlIdx = effectiveTrustLevel(kid);
+    const pendingLvl = pendingLevelUpFor(kid);
     const lvl = TRUST_LEVELS[lvlIdx];
     const nextLvl = TRUST_LEVELS[lvlIdx + 1];
     renderPrivileges(lvlIdx, nextLvl);
@@ -6985,10 +6999,13 @@
     tierEls.forEach((el, i) => {
       el.classList.toggle('achieved', i <= lvlIdx);
     });
-    // Next-level message
+    // Next-level message (with pending-approval callout when applicable)
     const nextEl = document.getElementById('trust-next');
     if (nextEl) {
-      if (nextLvl) {
+      if (pendingLvl !== null) {
+        const pName = TRUST_LEVELS[pendingLvl] ? TRUST_LEVELS[pendingLvl].name : '';
+        nextEl.innerHTML = '<span style="display:inline-block; background:#fff7e6; border:1.5px solid #ffd66b; color:#7a4b00; padding:6px 12px; border-radius:999px; font-weight:900;">🎉 Ready to level up to ' + pName + '! Ask a parent to approve in Settings.</span>';
+      } else if (nextLvl) {
         const remaining = nextLvl.min - pts;
         nextEl.innerHTML = '<b>' + remaining + ' pts to ' + nextLvl.name + '</b> (Level ' + (lvlIdx + 2) + ')';
       } else {
@@ -7107,6 +7124,45 @@
   window.addEventListener('mb-family-changed', () => loadFamilyGoalInputs());
   window.addEventListener('mb-kids-changed', () => loadFamilyGoalInputs());
 
+  // Trust approvals section in Settings
+  function renderTrustApprovals() {
+    const host = document.getElementById('trust-approvals-list');
+    if (!host) return;
+    const kids = (window.mb && window.mb.state && window.mb.state.kids) || [];
+    if (!kids.length) { host.innerHTML = '<div style="opacity:.6; font-size:12px; padding:12px;">No kids yet.</div>'; return; }
+    host.innerHTML = kids.map(k => {
+      const effLvl = (typeof effectiveTrustLevel === 'function') ? effectiveTrustLevel(k) : 0;
+      const computed = (typeof trustLevelFor === 'function') ? trustLevelFor(k.trustPoints || 0) : 0;
+      const pending = computed > effLvl;
+      const effName = (typeof TRUST_LEVELS !== 'undefined' && TRUST_LEVELS[effLvl]) ? TRUST_LEVELS[effLvl].name : 'L' + (effLvl + 1);
+      const nextName = (typeof TRUST_LEVELS !== 'undefined' && TRUST_LEVELS[computed]) ? TRUST_LEVELS[computed].name : 'L' + (computed + 1);
+      const buddy = k.buddy || '🦖';
+      return '<div style="display:flex; align-items:center; gap:12px; padding:10px 6px; border-bottom:1px solid #eadfd1;">' +
+        '<div style="font-size:28px;">' + buddy + '</div>' +
+        '<div style="flex:1; min-width:0;">' +
+          '<div style="font-weight:800;">' + (k.name || '') + '<span style="opacity:.55; font-weight:600; font-size:12px;"> · age ' + (k.age || '?') + '</span></div>' +
+          '<div style="font-size:12px; opacity:.75;">Current: <b>L' + (effLvl + 1) + ' ' + effName + '</b> · ' + (k.trustPoints || 0) + ' trust pts</div>' +
+        '</div>' +
+        (pending
+          ? '<button class="set-action" data-approve-kid="' + k.id + '" data-approve-lvl="' + computed + '" style="background: var(--berry, #d9477b); color:#fff; padding:8px 14px;">✓ Approve L' + (computed + 1) + ' ' + nextName + '</button>'
+          : '<span style="font-size:11px; opacity:.5; font-weight:700;">no pending change</span>') +
+      '</div>';
+    }).join('');
+    host.querySelectorAll('[data-approve-kid]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const kidId = btn.dataset.approveKid;
+        const lvl = parseInt(btn.dataset.approveLvl, 10);
+        btn.disabled = true; btn.textContent = 'Approving…';
+        try {
+          if (window.mb && window.mb.updateKidApprovedTrustLevel) {
+            await window.mb.updateKidApprovedTrustLevel(kidId, lvl);
+          }
+        } catch (e) { console.error('approve level failed:', e); btn.disabled = false; btn.textContent = 'Try again'; }
+      });
+    });
+  }
+  window.addEventListener('mb-kids-changed', () => renderTrustApprovals());
+
   // Settings: Family management buttons
   document.getElementById('set-leave-fam-btn')?.addEventListener('click', () => {
     if (typeof window.mbLeaveFamilyConfirm === 'function') window.mbLeaveFamilyConfirm();
@@ -7164,6 +7220,7 @@
       renderBuddyMood();
       renderTrustMsg();
       renderTrustDef();
+      if (typeof renderTrustApprovals === 'function') renderTrustApprovals();
       renderProfileNameBanner();
       loadFamilyGoalInputs();
       applyBuddyStageEverywhere();
@@ -7510,6 +7567,13 @@
     await updateDoc(kidRef, update);
   }
   window.mb.updateKidRewards = updateKidRewards;
+
+  async function updateKidApprovedTrustLevel(kidId, approvedLevel) {
+    if (!state.family) return;
+    const kidRef = doc(db, 'families', state.family.id, 'kids', kidId);
+    await updateDoc(kidRef, { approvedTrustLevel: approvedLevel });
+  }
+  window.mb.updateKidApprovedTrustLevel = updateKidApprovedTrustLevel;
 
   // Phase 2H: Subscribe to family doc so settings changes propagate live across devices
   function subscribeFamily(familyId) {
